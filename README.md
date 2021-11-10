@@ -3,7 +3,7 @@
 </h1>
 
 <h3 align="center">
-    Fast, Simple, Easy Image viewer.
+    Fast, Simple, Easy image viewer.
 </h3>
 
 <p align="center">BetterViewer makes image viewing faster, easier, and more fun.</p>
