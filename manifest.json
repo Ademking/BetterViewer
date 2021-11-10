@@ -1,0 +1,23 @@
+{
+    "name": "BetterViewer",
+    "version": "1.0.0",
+    "manifest_version": 2,
+    "background": {
+        "scripts": ["background.js"],
+        "persistent": true
+    },
+    "browser_action": {
+        "default_title": "Show MIME"
+    },
+    "permissions": [
+        "webRequest",
+        "webRequestBlocking",
+        "activeTab",
+        "*://*/*"
+    ],
+    "web_accessible_resources": [
+        "help/*"
+    ],
+    "content_security_policy":"default-src 'self'; connect-src 'self' https://*/*"
+
+}
