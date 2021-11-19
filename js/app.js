@@ -200,6 +200,10 @@ let tippyData = [
         text: 'Extract Text',
     },
     {
+        type: 'photopea',
+        text: 'Edit in Photopea',
+    },
+    {
         type: 'about',
         text: 'About',
     },
@@ -281,6 +285,10 @@ document.addEventListener('keydown', function (e) {
         case 'U':
         case 'u':
             document.getElementsByClassName('viewer-upload')[0].click();
+            break;
+        case 'G':
+        case 'g':
+            document.getElementsByClassName('viewer-photopea')[0].click();
             break;
         case 'W':
         case 'w':
@@ -926,6 +934,52 @@ function init() {
 
 
 
+                    }
+                },
+                photopea: {
+                    show: 1,
+                    size: 'large',
+                    click: function () {
+
+                        let uriString = getBase64Image(viewer.image);
+                        // get base64 part from string
+                        let base64 = uriString.split(',')[1];
+
+                        // create html element with text
+                        let x = document.createElement("div");
+                        // set flex
+                        x.style.display = "flex";
+                        // set element inner html
+                        x.innerHTML = `<i class="gg-spinner"></i> Opening in Photopea... Please wait`;
+
+                        let loadingToast = Toastify({
+                            node: x,
+                            duration: 999999,
+                            newWindow: true,
+                            close: false,
+                            gravity: 'bottom', // `top` or `bottom`
+                            position: 'right', // `left`, `center` or `right`
+                            stopOnFocus: true, // Prevents dismissing of toast on hover
+                            style: {
+                                color: '#ffffff',
+                                background: '#000000',
+                            },
+                            onClick: function () { } // Callback after click
+                        }).showToast();
+
+                        const uri = '{ "files" : [ "' + uriString + '" ] }';
+                        const encoded = encodeURI(uri);
+                        const urlEncoded = 'https://www.photopea.com/#' + encoded;
+
+                        // remove toast
+                        let toastifyElems = document.querySelectorAll('.toastify');
+                        toastifyElems.forEach(element => {
+                            element.remove()
+                        });
+                        
+                        window.open(urlEncoded, '_blank').focus();
+
+                        showNotification(`Image opened in Photopea`, '#ffffff', '#000000');
                     }
                 },
                 help: {
