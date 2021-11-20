@@ -1,7 +1,6 @@
 // run when scripts and styles are loaded
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     if (request.type == "injected") {
-        console.log("Image Viewer Extension loaded...");
         init();
     }
 });
@@ -15,6 +14,7 @@ let ImgCanvas;
 let isFlippedHorizontally = false;
 let isFlippedVertically = false;
 let IMGUR_TOKEN = '405d491c9e67e9f';
+let IMGBB_TOKEN = '8be35a61597b285f9c95669fdc565b00';
 let WINBOX_CLASSES = [
     "no-scrollbar",
     "no-max",
@@ -193,7 +193,7 @@ let tippyData = [
     },
     {
         type: 'upload',
-        text: 'Upload image to Imgur',
+        text: 'Upload image to ImgBB',
     },
     {
         type: 'ocr',
@@ -461,6 +461,7 @@ function init() {
                     click: function () {
 
                         let uriString = getBase64Image(viewer.image);
+
                         // get base64 part from string
                         let base64 = uriString.split(',')[1];
 
@@ -487,11 +488,23 @@ function init() {
                         }).showToast();
 
                         // upload image to imgur
-                        fetch('https://api.imgur.com/3/image', {
+                        // fetch('https://api.imgur.com/3/image', {
+                        //     method: 'POST',
+                        //     headers: { 'Authorization': `Client-ID ${IMGUR_TOKEN}` },
+                        //     body: base64
+                        // })
+
+                        // upload base64 to ImgBB
+                        var formdata = new FormData();
+                        formdata.append("image", base64);
+
+                        var requestOptions = {
                             method: 'POST',
-                            headers: { 'Authorization': `Client-ID ${IMGUR_TOKEN}` },
-                            body: base64
-                        })
+                            body: formdata,
+                            redirect: 'follow'
+                        };
+
+                        fetch(`https://api.imgbb.com/1/upload?expiration=600&key=${IMGBB_TOKEN}`, requestOptions)
                             .then(res => res.json())
                             .then((res) => {
 
@@ -501,7 +514,7 @@ function init() {
                                     element.remove()
                                 });
 
-                                copyToClipboard(res.data.link);
+                                copyToClipboard(res.data.image.url);
                                 showNotification('Image uploaded successfully ✔️', '#ffffff', '#000000');
                                 showNotification(`URL copied to clipboard`, '#ffffff', '#000000');
 
@@ -941,10 +954,7 @@ function init() {
                     size: 'large',
                     click: function () {
 
-                        let uriString = getBase64Image(viewer.image);
-                        // get base64 part from string
-                        let base64 = uriString.split(',')[1];
-
+                        let currentUrl = window.location.href;
                         // create html element with text
                         let x = document.createElement("div");
                         // set flex
@@ -967,19 +977,27 @@ function init() {
                             onClick: function () { } // Callback after click
                         }).showToast();
 
-                        const uri = '{ "files" : [ "' + uriString + '" ] }';
-                        const encoded = encodeURI(uri);
-                        const urlEncoded = 'https://www.photopea.com/#' + encoded;
 
-                        // remove toast
-                        let toastifyElems = document.querySelectorAll('.toastify');
-                        toastifyElems.forEach(element => {
-                            element.remove()
-                        });
-                        
-                        window.open(urlEncoded, '_blank').focus();
+                        // upload image to imgbb
+                        // NB: expiration time is 60 seconds
+                        fetch(`https://api.imgbb.com/1/upload?expiration=60&key=${IMGBB_TOKEN}&image=${encodeURIComponent(currentUrl)}`)
 
-                        showNotification(`Image opened in Photopea`, '#ffffff', '#000000');
+                            .then(res => res.json())
+                            .then((res) => {
+
+                                const uri = '{ "files" : [ "' + res.data.image.url + '" ] }';
+                                const encoded = encodeURI(uri);
+                                const urlEncoded = 'https://www.photopea.com/#' + encoded;
+                                // remove toast
+                                let toastifyElems = document.querySelectorAll('.toastify');
+                                toastifyElems.forEach(element => {
+                                    element.remove()
+                                });
+
+                                window.open(urlEncoded, '_blank').focus();
+
+                                showNotification(`Image opened in Photopea`, '#ffffff', '#000000');
+                            });
                     }
                 },
                 help: {
@@ -1003,7 +1021,7 @@ function init() {
                                 height: '423px',
                                 background: "rgba(0,0,0,0.9)",
                                 index: 9999,
-                                url: chrome.runtime.getURL('help/help.html'),
+                                url: "https://www.youtube-nocookie.com/embed/3p7Jrdx2jOc?autoplay=1&color=white&controls=0&disablekb=1&loop=1&modestbranding=1&rel=0",
                                 onclose: function () {
                                     IS_HELP_OPEN = false;
                                 }
@@ -1061,8 +1079,8 @@ function init() {
                             index: 9999,
                             x: "center",
                             y: "center",
-                            width: '550px',
-                            height: '450px',
+                            width: '700px',
+                            height: '500px',
                             background: "rgba(0,0,0,0.9)",
                             index: 9999,
                             url: chrome.runtime.getURL('help/about.html'),
@@ -1544,8 +1562,8 @@ function printImage(image) {
  */
 function getBase64Image(img) {
     let canvas = document.createElement("canvas");
-    canvas.width = img.width;
-    canvas.height = img.height;
+    canvas.width = img.naturalWidth;
+    canvas.height = img.naturalHeight;
     let ctx = canvas.getContext("2d");
     ctx.drawImage(img, 0, 0);
     let dataURL = canvas.toDataURL();
@@ -1616,7 +1634,7 @@ function changeTheme(imgsrc) {
             break;
         case 'dark':
             // change to blurred
-            showNotification('Blurred Background', '#ffffff', '#404040');
+            showNotification('💧 Blurred Background', '#ffffff', '#404040');
             injectCSS(`
             .viewer-theme {
                 ${lightTheme}

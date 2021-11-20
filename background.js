@@ -1,31 +1,48 @@
+/**
+* How it works:
+* 1. In webRequest, check if MIME type is image
+* 2. If it is, check if it is not injected
+* 3. If it is not injected, add tabId to InjectedTabs
+* 4. In OnUpdated after image being loaded, check if tabId is in InjectedTabs
+* 5. If it is, inject the script and css
+*/
+
+let InjectedTabs = []; // list of tabIds that are currently being injected
+
+// when tab is created or reloaded
+chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
+
+    if (changeInfo.status == 'complete') {
+        // check if tab is marked as injected
+        if (InjectedTabs.includes(tabId)) {
+            chrome.tabs.executeScript(tabId, {
+                file: './dist/all.js',
+            }, function (res1) {
+                chrome.tabs.insertCSS(tabId, {
+                    file: './dist/all.css',
+                }, function (res2) {
+                    chrome.tabs.sendMessage(tabId, {
+                        type: 'injected',
+                        url: tab.url,
+                    });
+                })
+            });
+        }
+    }
+});
+
+// when request is made
 chrome.webRequest.onHeadersReceived.addListener(function (details) {
     if (details.tabId !== -1) {
 
         let header = getHeaderFromHeaders(details.responseHeaders, 'content-type');
         let res = header && header.value.split(';', 1)[0];
         // check if image
-        if (res && res.indexOf('image') !== -1) {
+        if (res && res.indexOf('image') !== -1 && InjectedTabs.indexOf(details.tabId) === -1) {
 
 
-            /**
-             * Note: I know this is not the best way to do this, but I don't know how to do it better
-             * I tried to abstract this but sometimes it doesn't work (when refreshing the image tab)
-             * https://stackoverflow.com/questions/21535233/injecting-multiple-scripts-through-executescript-in-google-chrome-extension
-             * My current solution is to use gulp to concat all the scripts and then inject them
-             * If you know a better way, please let me know
-             */
-            chrome.tabs.executeScript(details.tabId, {
-                file: './dist/all.js',
-            }, function (res) {
-                chrome.tabs.insertCSS(details.tabId, {
-                    file: './dist/all.css',
-                }, function (res) {
-                    chrome.tabs.sendMessage(details.tabId, {
-                        type: 'injected',
-                        url: details.url,
-                    });
-                })
-            });
+            // add tab to injected list
+            InjectedTabs.push(details.tabId);
 
 
             // Remove "content-security-policy" header from the selected image to allow it to be loaded in the viewer
@@ -78,7 +95,8 @@ chrome.runtime.onInstalled.addListener(function (details) {
     }
 });
 
-
-
-
-
+// when any tab closed, remove it from injected list
+chrome.tabs.onRemoved.addListener(function(tabid, removed) {
+    // remove tab from injected list   
+    InjectedTabs.splice(InjectedTabs.indexOf(tabid), 1);
+});
