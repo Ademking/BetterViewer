@@ -52,3 +52,13 @@
 - Print Image
 - Extract Text from Image
 
+# Changelog
+## [1.0.1] - 2021-11-20
+- Fix Crop problem
+- Fix random shutdown
+- Replace Imgur with ImgBB (Many users requested this)
+- Add "Edit with Photopea"
+- Add Contributors in About popup 
+## [1.0.0] - 2021-11-10
+- First version
+
