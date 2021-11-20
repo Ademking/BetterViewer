@@ -431,10 +431,7 @@ function init() {
                                     // replace image with cropped image
                                     imgElements[i].src = newImgBase64;
                                 }
-                                // update blurry background
-                                //document.getElementsByClassName('blurry-bg')[0].style.backgroundImage = `url("${newImgBase64}")`;
-                                // update cropper-wrap-box background
-
+                                
                                 // trigger resize event in setTimeout
                                 setTimeout(function () {
                                     window.dispatchEvent(new Event('resize'));
@@ -909,32 +906,8 @@ function init() {
 
 
 
-
-
-                        // let ocrCropBox = new WinBox("Crop your text", {
-                        //     class: [
-                        //         "no-max",
-                        //         "no-full",
-                        //         "no-scrollbar",
-                        //     ],
-                        //     max: true,
-                        //     index: 9999,
-                        //     x: "center",
-                        //     y: "center",
-
-                        //     background: "rgba(0,0,0,0.9)",
-                        //     html: `
-                        //     <div>
-                        //         <img class="ocr-img" src="${viewer.image.src}" id="croppr"/>
-                        //     </div>`
-                        // });
-
-
                         var cropInstance = new Croppr('#croppr', {});
-                        // tesseract list of languages
-
-
-
+                     
                         // for each key in object ocr
                         for (const [key, value] of Object.entries(ocrLangList)) {
                             console.log(`${key}: ${value}`);
@@ -1300,134 +1273,6 @@ function crop(viewer, url, width, height) {
         });
     }, 100);
 
-
-
-
-
-
-    // // hide tippy instances
-    // tippyInstances.forEach(instance => {
-    //     instance.destroy();
-    // });
-    // tippyInstances.length = 0; // clear it
-
-    // // hide div with viewer-toolbar class name
-    // document.getElementsByClassName('viewer-toolbar')[0].style.display = 'none';
-    // // create floating buttons for cropper
-    // let cropperButtons = document.createElement('div');
-    // cropperButtons.classList.add('cropper-buttons');
-    // cropperButtons.style.zIndex = '9999';
-    // cropperButtons.innerHTML = `
-    //     <button class="crop-btn" role="button" id="crop-btn"><i class="gg-crop"></i> Crop</button>
-    //     <button class="cancel-btn" role="button" id="cancel-btn"><i class="gg-cancel"></i> Cancel</button>
-    // `;
-    // // append to body
-    // document.body.appendChild(cropperButtons);
-
-    // // get viewer-canvas img element
-    // let viewerCanvas = document.getElementsByClassName('viewer-canvas')[0]
-    // let imgElement = viewerCanvas.getElementsByTagName('img')[0]
-    // //console.log(imgElement.src)
-    // let cropper = new Cropper(imgElement, {
-    //     viewMode: 2, // can't go outside the canvas,
-    // });
-
-
-    // // when crop btn clicked
-    // document.getElementById('crop-btn').addEventListener('click', function () {
-
-    //     showNotification('Image cropped successfully', '#ffffff', '#000000');
-
-    //     cropper.getCroppedCanvas().toBlob(function (blob) {
-    //         // create base64 image
-    //         let reader = new FileReader();
-    //         reader.readAsDataURL(blob);
-    //         reader.onloadend = function (base64) {
-    //             // replace image with cropped image
-
-    //             // get list of img elements
-    //             let imgElements = document.getElementsByTagName('img');
-    //             // loop through all img elements
-    //             for (let i = 0; i < imgElements.length; i++) {
-    //                 // replace image with cropped image
-    //                 imgElements[i].src = base64.target.result;
-    //             }
-
-
-    //             // update blurry background
-    //             //document.getElementsByClassName('blurry-bg')[0].style.backgroundImage = `url("${base64.target.result}")`;
-    //             // update cropper-wrap-box background
-    //             //document.getElementsByClassName('cropper-wrap-box')[0].style.backgroundImage = `url("${base64.target.result}")`;
-
-
-    //             switch (BACKGROUND_TYPE) {
-    //                 case 'blurred':
-
-    //                     injectCSS(`
-    //                         .blurry-bg {
-    //                             background-image: url("${base64.target.result}");
-    //                         }
-    //                     `);
-    //                     //document.getElementsByClassName('blurry-bg')[0].style.backgroundImage = `url("${base64.target.result}")`;
-    //                     //document.getElementsByClassName('cropper-wrap-box')[0].style.backgroundImage = `url("${base64.target.result}")`;
-    //                     break;
-    //                 case 'light':
-    //                     //document.getElementsByClassName('cropper-wrap-box')[0].style.backgroundImage = `url("${base64.target.result}")`;
-    //                     break;
-    //                 case 'dark':
-    //                     //document.getElementsByClassName('cropper-wrap-box')[0].style.backgroundImage = `url("${base64.target.result}")`;
-    //                     break;
-    //                 default:
-    //                     break;
-    //             }
-
-
-
-    //             // trigger resize event in setTimeout
-    //             setTimeout(function () {
-    //                 window.dispatchEvent(new Event('resize'));
-    //             }, 100);
-
-    //             // reset imgElement style
-    //             imgElement.style.width = 'auto';
-    //             imgElement.style.height = 'auto';
-
-    //             // remove cropper buttons
-    //             cropperButtons.remove();
-    //             // delete cropper
-    //             cropper.destroy();
-    //             // show div with viewer-toolbar class name
-    //             document.getElementsByClassName('viewer-toolbar')[0].style.display = 'block';
-    //             // restore tippy
-    //             setTippyText(tippyData);
-
-    //         }
-    //     });
-    // });
-
-    // // when cancel btn clicked
-    // document.getElementById('cancel-btn').addEventListener('click', function () {
-
-    //     // trigger resize event in setTimeout
-    //     setTimeout(function () {
-    //         window.dispatchEvent(new Event('resize'));
-    //     }, 100);
-
-    //     // reset imgElement style
-    //     imgElement.style.width = 'auto';
-    //     imgElement.style.height = 'auto';
-
-    //     // remove cropper buttons
-    //     cropperButtons.remove();
-    //     // delete cropper
-    //     cropper.destroy();
-    //     // show div with viewer-toolbar class name
-    //     document.getElementsByClassName('viewer-toolbar')[0].style.display = 'block';
-    //     // restore tippy
-    //     setTippyText(tippyData);
-    // })
-
-
 }
 
 
@@ -1477,20 +1322,9 @@ const handleImageClickOnPicker = (e, viewer, canvas, pickr, x, y) => {
         let p = canvas.getContext('2d').getImageData(x, y, 1, 1).data;
         // show info
         pickr.setColor(rgbToHex(p[0], p[1], p[2]));
-
         copyToClipboard(rgbToHex(p[0], p[1], p[2]));
-
         showNotification(`${rgbToHex(p[0], p[1], p[2]).toUpperCase()} copied to clipboard`, getColorByBgColor(rgbToHex(p[0], p[1], p[2])), rgbToHex(p[0], p[1], p[2]));
-
-
-
     });
-
-
-
-
-
-
 
 }
 
@@ -1505,7 +1339,6 @@ const handleMouseMoveOnPicker = (e, viewer, canvas, pickr, x, y) => {
         var p = canvas.getContext('2d').getImageData(x, y, 1, 1).data;
         pickr.setColor(rgbToHex(p[0], p[1], p[2]));
     });
-
 
 }
 
@@ -1549,9 +1382,7 @@ function copyToClipboard(textToCopy) {
 
 
 function printImage(image) {
-
     let strb64 = getBase64Image(image)
-
     printJS(strb64, 'image')
 }
 
@@ -1572,7 +1403,6 @@ function getBase64Image(img) {
 
 
 function changeTheme(imgsrc) {
-
 
     let lightTheme = `background-image: url("data:image/svg+xml,%0A%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' class='feather feather-sun'%3E%3Ccircle cx='12' cy='12' r='5'%3E%3C/circle%3E%3Cline x1='12' y1='1' x2='12' y2='3'%3E%3C/line%3E%3Cline x1='12' y1='21' x2='12' y2='23'%3E%3C/line%3E%3Cline x1='4.22' y1='4.22' x2='5.64' y2='5.64'%3E%3C/line%3E%3Cline x1='18.36' y1='18.36' x2='19.78' y2='19.78'%3E%3C/line%3E%3Cline x1='1' y1='12' x2='3' y2='12'%3E%3C/line%3E%3Cline x1='21' y1='12' x2='23' y2='12'%3E%3C/line%3E%3Cline x1='4.22' y1='19.78' x2='5.64' y2='18.36'%3E%3C/line%3E%3Cline x1='18.36' y1='5.64' x2='19.78' y2='4.22'%3E%3C/line%3E%3C/svg%3E");`
     let darkTheme = `background-image: url("data:image/svg+xml,%0A%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' class='feather feather-moon'%3E%3Cpath d='M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z'%3E%3C/path%3E%3C/svg%3E");`

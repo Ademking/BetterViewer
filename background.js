@@ -6,7 +6,6 @@
 * 4. In OnUpdated after image being loaded, check if tabId is in InjectedTabs
 * 5. If it is, inject the script and css
 */
-
 let InjectedTabs = []; // list of tabIds that are currently being injected
 
 // when tab is created or reloaded
@@ -37,10 +36,17 @@ chrome.webRequest.onHeadersReceived.addListener(function (details) {
 
         let header = getHeaderFromHeaders(details.responseHeaders, 'content-type');
         let res = header && header.value.split(';', 1)[0];
+
+        if (res.indexOf('image') === -1) {
+            // remove from injected list
+            InjectedTabs = InjectedTabs.filter(function (item) {
+                return item !== details.tabId;
+            });
+        }
+
         // check if image
         if (res && res.indexOf('image') !== -1 && InjectedTabs.indexOf(details.tabId) === -1) {
-
-
+           
             // add tab to injected list
             InjectedTabs.push(details.tabId);
 
