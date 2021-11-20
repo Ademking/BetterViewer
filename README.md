@@ -1,7 +1,4 @@
 <h1 align="center">
-<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors-)
-<!-- ALL-CONTRIBUTORS-BADGE:END -->
     <img src="https://user-images.githubusercontent.com/12462188/141027406-7d2fecc5-0a4c-4389-adac-5cf9f7f317f3.png" alt="Logo">
 </h1>
 
@@ -65,6 +62,9 @@
 ## [1.0.0] - 2021-11-10
 - First version
 
+<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
+[![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors-)
+<!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 ## Contributors ✨
 
