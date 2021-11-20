@@ -45,12 +45,13 @@
 - Crop Image
 - Paint
 - Download Image
-- Upload Image to imgur.com
+- Upload Image to imgBB
 - Color picker
 - Image Details
 - Change background color (Dark / Light / Blurred)
 - Print Image
 - Extract Text from Image
+- Edit in Photopea (Thanks to @bbbenji)
 
 # Changelog
 ## [1.0.1] - 2021-11-20
@@ -58,7 +59,7 @@
 - Fix random shutdown
 - Replace Imgur with ImgBB (Many users requested this)
 - Add "Edit with Photopea"
-- Add Contributors in About popup 
+- Add Contributors in About popup
 ## [1.0.0] - 2021-11-10
 - First version
 
