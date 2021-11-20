@@ -168,6 +168,14 @@ body {
   background-position: center center;
 }
 
+.viewer-photopea {
+  background-image   : url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='%23ffffff' stroke='none' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' class='feather feather-share'%3E%3Cpath d='M3.9,0h16.2C22.3,0,24,1.7,24,3.9v16.2c0,2.2-1.7,3.9-3.9,3.9H6.4l0-10.3h0c0,0,0,0,0-0.1 c0-3.9,3.1-7.1,7-7.1c2.3,0,4.2,1.9,4.2,4.3S15.6,15,13.3,15c-0.8,0-1.4-0.6-1.4-1.4c0-0.8,0.6-1.4,1.4-1.4c0.8,0,1.4-0.6,1.4-1.4 c0-0.8-0.6-1.4-1.4-1.4c-2.3,0-4.2,1.9-4.2,4.3s1.9,4.3,4.2,4.3c3.9,0,7-3.2,7-7.1s-3.1-7.1-7-7.1c-5.4,0-9.8,4.4-9.8,9.9 c0,0,0,0.1,0,0.1h0l0,10.3c-2-0.2-3.6-1.8-3.6-3.9V3.9C0,1.7,1.7,0,3.9,0L3.9,0z'/%3E%3C/svg%3E");
+  width              : 16px;
+  height             : 16px;
+  background-repeat  : no-repeat;
+  background-position: center center;
+}
+
 .tui-image-editor-header-buttons {
   display: none;
 }
