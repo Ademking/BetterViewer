@@ -52,14 +52,26 @@
 - Print Image
 - Extract Text from Image
 - Edit in Photopea (Thanks to @bbbenji)
+- Reverse Image Search (using TinEye)
+- QR Code Scanner
+- Settings to customize Toolbar 
 
 # Changelog
+
+## [1.0.2] - 2021-11-28
+- Fix minor bugs
+- Add "Reverse Image Search"
+- Add "QR Code Scanner"
+- Add Settings window
+- Fix Shortcuts (Combo keys / Ctrl + Key
+
 ## [1.0.1] - 2021-11-20
 - Fix Crop problem
 - Fix random shutdown
 - Replace Imgur with ImgBB (Many users requested this)
 - Add "Edit with Photopea"
 - Add Contributors in About popup
+- Edit in Photopea (Thanks to @bbbenji)
 ## [1.0.0] - 2021-11-10
 - First version
 

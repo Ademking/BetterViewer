@@ -1,0 +1,236 @@
+/* switch */
+:root {
+  /*Background color when it's turned off*/
+  --vc-off-color: #4b4b4b;
+
+  /*Background color when it's turned on*/
+  --vc-on-color: #38cf5b;
+
+  /*Animation speed and type*/
+  --vc-animation-speed: 0.15s ease-out;
+
+  /*Font used by the text*/
+  --vc-font-family: Arial;
+
+  /*The size used*/
+  --vc-font-size: 11px;
+
+  /*The font weight*/
+  --vc-font-weight: 300;
+
+  /*Font color when the switch is on*/
+  --vc-on-font-color: white;
+
+  /*Font color when the switch is off*/
+  --vc-off-font-color: white;
+
+  /*How far the OFF text is from the right side*/
+  --vc-label-position-off: 12px;
+
+  /*How far the ON text is from the left side*/
+  --vc-label-position-on: 11px;
+
+  /*Small switch width*/
+  --vc-width: 50px;
+
+  /*Small switch height*/
+  --vc-height: 25px;
+
+  /*Border radius for the handle*/
+  --vc-handle-border-radius: 20px;
+
+  /*Border radius for the box*/
+  --vc-box-border-radius: 18px;
+
+  /*Shadow for the handle*/
+  --vc-handle-shadow: 1px 1px 5px rgba(0, 0, 0, 0.2);
+
+  /*Handle color*/
+  --vc-handle-color: white;
+
+  /*Handle width*/
+  --vc-handle-width: 15px;
+
+  /*Handle height*/
+  --vc-handle-height: 15px;
+
+  /*The handle's width while the toggle is clicked*/
+  --vc-onclick-width: 30px;
+
+  /*Handle's distance from the top*/
+  --vc-handle-top: 5px;
+}
+
+.vc-toggle-container * {
+  font-family       : var(--vc-font-family);
+  -webkit-transition: var(--vc-animation-speed);
+  -moz-transition   : var(--vc-animation-speed);
+  -o-transition     : var(--vc-animation-speed);
+  transition        : var(--vc-animation-speed);
+}
+
+.vc-switch {
+  width : var(--vc-width);
+  height: var(--vc-height);
+}
+
+.vc-toggle-container label {
+  position      : relative;
+  display       : inline-block;
+  vertical-align: top;
+  border-radius : var(--vc-box-border-radius);
+  cursor        : pointer;
+}
+
+.vc-switch-input {
+  position : absolute;
+  transform: translate3d(5px, 5px, 0);
+}
+
+.vc-switch-label {
+  position     : relative;
+  display      : block;
+  height       : inherit;
+  font-size    : var(--vc-font-size);
+  font-weight  : var(--vc-font-weight);
+  background   : var(--vc-off-color);
+  border-radius: inherit;
+}
+
+.vc-switch-label:before,
+.vc-switch-label:after {
+  position   : absolute;
+  top        : 50%;
+  margin-top : -0.5em;
+  line-height: 1.1;
+}
+
+.vc-switch-label:before {
+  content: attr(data-off);
+  color  : var(--vc-on-font-color);
+}
+
+.vc-switch-label:after {
+  content: attr(data-on);
+  color  : var(--vc-off-font-color);
+  opacity: 0;
+}
+
+.vc-switch-label:before {
+  right: var(--vc-label-position-off);
+  ;
+}
+
+.vc-switch-label:after {
+  left: var(--vc-label-position-on);
+  ;
+}
+
+.vc-switch-input:checked~.vc-switch-label {
+  background: var(--vc-on-color);
+}
+
+.vc-switch-input:checked~.vc-switch-label:before {
+  opacity: 0;
+}
+
+.vc-switch-input:checked~.vc-switch-label:after {
+  opacity: 1;
+}
+
+.vc-handle {
+  position     : absolute !important;
+  top          : var(--vc-handle-top);
+  left         : 5px;
+  background   : var(--vc-handle-color);
+  border-radius: var(--vc-handle-border-radius);
+  box-shadow   : var(--vc-handle-shadow);
+}
+
+.vc-handle {
+  width : var(--vc-handle-width);
+  height: var(--vc-handle-height);
+}
+
+.vc-handle:before {
+  content      : "";
+  top          : 50%;
+  left         : 50%;
+  position     : absolute !important;
+  margin       : -6px 0 0 -6px;
+  width        : 12px;
+  height       : 12px;
+  border-radius: 6px;
+}
+
+.vc-switch-label:active~.vc-handle,
+.vc-handle:active {
+  width: var(--vc-onclick-width);
+}
+
+.vc-switch-input:checked~.vc-handle {
+  left : unset;
+  right: 5px;
+}
+
+body {
+  padding: 0 10px;
+}
+
+table {
+  color: #ffffff;
+  width: 100%;
+}
+
+td {
+  padding-top   : 5px;
+  padding-bottom: 5px;
+  padding-right : 5px;
+}
+
+.togglebtn {
+  width     : 5%;
+  text-align: center;
+}
+
+.label {
+  width: 70%;
+}
+
+::-webkit-scrollbar {
+  width: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  border-radius: 10px;
+  background   : #404855;
+}
+
+::-webkit-scrollbar-thumb:window-inactive {
+  background: #181f2a;
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+.title {
+  color: #ffffff;
+  margin-bottom: 2px;
+}
+
+.note {
+  font-style: italic;
+  color    : #ffffff;
+  padding: 10px;
+  border-radius: 4px;
+  background-color: #00000033;
+}
+
+body {
+  display: none;
+}

@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings</title>
+    <link rel="stylesheet" href="css/settings.css">
+</head>
+<body>
+    <p class="note">Note: Settings changes will not take effect until you refresh the page</p>
+    <h2 class="title">Show / Hide Toolbar</h2>
+    
+    <table>
+        <tr>
+            <td class="label">Zoom In</td>
+            <td class="togglebtn">
+                <div class="toggle">
+                    <div class="vc-toggle-container">
+                        <label class="vc-switch">
+                        <input id="zoomIn" type="checkbox" class="vc-switch-input" checked />
+                        <span class="vc-switch-label" data-on="On" data-off="Off"></span>
+                        <span class="vc-handle"></span>
+                        </label>
+                    </div>
+                </div>
+            </td>
+        </tr>
+
+        <tr>
+            <td class="label">Zoom Out</td>
+            <td class="togglebtn">
+                <div class="toggle">
+                    <div class="vc-toggle-container">
+                        <label class="vc-switch">
+                        <input id="zoomOut" type="checkbox" class="vc-switch-input" checked />
+                        <span class="vc-switch-label" data-on="On" data-off="Off"></span>
+                        <span class="vc-handle"></span>
+                        </label>
+                    </div>
+                </div>
+            </td>
+        </tr>
+
+        <tr>
+            <td class="label">One to One</td>
+            <td class="togglebtn">
+                <div class="toggle">
+                    <div class="vc-toggle-container">
+                        <label class="vc-switch">
+                        <input id="oneToOne" type="checkbox" class="vc-switch-input" checked />
+                        <span class="vc-switch-label" data-on="On" data-off="Off"></span>
+                        <span class="vc-handle"></span>
+                        </label>
+                    </div>
+                </div>
+            </td>
+        </tr>
+
+        <tr>
+            <td class="label">Reset</td>
+            <td class="togglebtn">
+                <div class="toggle">
+                    <div class="vc-toggle-container">
+                        <label class="vc-switch">
+                        <input id="reset" type="checkbox" class="vc-switch-input" checked />
+                        <span class="vc-switch-label" data-on="On" data-off="Off"></span>
+                        <span class="vc-handle"></span>
+                        </label>
+                    </div>
+                </div>
+            </td>
+        </tr>
+
+        <tr>
+            <td class="label">Fullscreen</td>
+            <td class="togglebtn">
+                <div class="toggle">
+                    <div class="vc-toggle-container">
+                        <label class="vc-switch">
+                        <input id="play" type="checkbox" class="vc-switch-input" checked />
+                        <span class="vc-switch-label" data-on="On" data-off="Off"></span>
+                        <span class="vc-handle"></span>
+                        </label>
+                    </div>
+                </div>
+            </td>
+        </tr>
+
+        <tr>
+            <td class="label">Rotate Left</td>
+            <td class="togglebtn">
+                <div class="toggle">
+                    <div class="vc-toggle-container">
+                        <label class="vc-switch">
+                        <input id="rotateLeft" type="checkbox" class="vc-switch-input" checked />
+                        <span class="vc-switch-label" data-on="On" data-off="Off"></span>
+                        <span class="vc-handle"></span>
+                        </label>
+                    </div>
+                </div>
+            </td>
+        </tr>
+
+        <tr>
+            <td class="label">Rotate Right</td>
+            <td class="togglebtn">
+                <div class="toggle">
+                    <div class="vc-toggle-container">
+                        <label class="vc-switch">
+                        <input id="rotateRight" type="checkbox" class="vc-switch-input" checked />
+                        <span class="vc-switch-label" data-on="On" data-off="Off"></span>
+                        <span class="vc-handle"></span>
+                        </label>
+                    </div>
+                </div>
+            </td>
+        </tr>
+
+        <tr>
+            <td class="label">Flip Horizontal</td>
+            <td class="togglebtn">
+                <div class="toggle">
+                    <div class="vc-toggle-container">
+                        <label class="vc-switch">
+                        <input id="flipHorizontal" type="checkbox" class="vc-switch-input" checked />
+                        <span class="vc-switch-label" data-on="On" data-off="Off"></span>
+                        <span class="vc-handle"></span>
+                        </label>
+                    </div>
+                </div>
+            </td>
+        </tr>
+
+        <tr>
+            <td class="label">Flip Vertical</td>
+            <td class="togglebtn">
+                <div class="toggle">
+                    <div class="vc-toggle-container">
+                        <label class="vc-switch">
+                        <input id="flipVertical" type="checkbox" class="vc-switch-input" checked />
+                        <span class="vc-switch-label" data-on="On" data-off="Off"></span>
+                        <span class="vc-handle"></span>
+                        </label>
+                    </div>
+                </div>
+            </td>
+        </tr>
+
+        <tr>
+            <td class="label">Crop Image</td>
+            <td class="togglebtn">
+                <div class="toggle">
+                    <div class="vc-toggle-container">
+                        <label class="vc-switch">
+                        <input id="crop" type="checkbox" class="vc-switch-input" checked />
+                        <span class="vc-switch-label" data-on="On" data-off="Off"></span>
+                        <span class="vc-handle"></span>
+                        </label>
+                    </div>
+                </div>
+            </td>
+        </tr>
+
+        <tr>
+            <td class="label">Paint</td>
+            <td class="togglebtn">
+                <div class="toggle">
+                    <div class="vc-toggle-container">
+                        <label class="vc-switch">
+                        <input id="paint" type="checkbox" class="vc-switch-input" checked />
+                        <span class="vc-switch-label" data-on="On" data-off="Off"></span>
+                        <span class="vc-handle"></span>
+                        </label>
+                    </div>
+                </div>
+            </td>
+        </tr>
+
+        <tr>
+            <td class="label">Download</td>
+            <td class="togglebtn">
+                <div class="toggle">
+                    <div class="vc-toggle-container">
+                        <label class="vc-switch">
+                        <input id="download" type="checkbox" class="vc-switch-input" checked />
+                        <span class="vc-switch-label" data-on="On" data-off="Off"></span>
+                        <span class="vc-handle"></span>
+                        </label>
+                    </div>
+                </div>
+            </td>
+        </tr>
+
+        <tr>
+            <td class="label">Upload Image to ImgBB</td>
+            <td class="togglebtn">
+                <div class="toggle">
+                    <div class="vc-toggle-container">
+                        <label class="vc-switch">
+                        <input id="upload" type="checkbox" class="vc-switch-input" checked />
+                        <span class="vc-switch-label" data-on="On" data-off="Off"></span>
+                        <span class="vc-handle"></span>
+                        </label>
+                    </div>
+                </div>
+            </td>
+        </tr>
+
+        <tr>
+            <td class="label">Color Picker</td>
+            <td class="togglebtn">
+                <div class="toggle">
+                    <div class="vc-toggle-container">
+                        <label class="vc-switch">
+                        <input id="colorpicker" type="checkbox" class="vc-switch-input" checked />
+                        <span class="vc-switch-label" data-on="On" data-off="Off"></span>
+                        <span class="vc-handle"></span>
+                        </label>
+                    </div>
+                </div>
+            </td>
+        </tr>
+
+        <tr>
+            <td class="label">Details</td>
+            <td class="togglebtn">
+                <div class="toggle">
+                    <div class="vc-toggle-container">
+                        <label class="vc-switch">
+                        <input id="details" type="checkbox" class="vc-switch-input" checked />
+                        <span class="vc-switch-label" data-on="On" data-off="Off"></span>
+                        <span class="vc-handle"></span>
+                        </label>
+                    </div>
+                </div>
+            </td>
+        </tr>
+
+        <tr>
+            <td class="label">Toggle Theme</td>
+            <td class="togglebtn">
+                <div class="toggle">
+                    <div class="vc-toggle-container">
+                        <label class="vc-switch">
+                        <input id="theme" type="checkbox" class="vc-switch-input" checked />
+                        <span class="vc-switch-label" data-on="On" data-off="Off"></span>
+                        <span class="vc-handle"></span>
+                        </label>
+                    </div>
+                </div>
+            </td>
+        </tr>
+
+        <tr>
+            <td class="label">Print</td>
+            <td class="togglebtn">
+                <div class="toggle">
+                    <div class="vc-toggle-container">
+                        <label class="vc-switch">
+                        <input id="print" type="checkbox" class="vc-switch-input" checked />
+                        <span class="vc-switch-label" data-on="On" data-off="Off"></span>
+                        <span class="vc-handle"></span>
+                        </label>
+                    </div>
+                </div>
+            </td>
+        </tr>
+
+        <tr>
+            <td class="label">Extract Text</td>
+            <td class="togglebtn">
+                <div class="toggle">
+                    <div class="vc-toggle-container">
+                        <label class="vc-switch">
+                        <input id="ocr" type="checkbox" class="vc-switch-input" checked />
+                        <span class="vc-switch-label" data-on="On" data-off="Off"></span>
+                        <span class="vc-handle"></span>
+                        </label>
+                    </div>
+                </div>
+            </td>
+        </tr>
+
+        <tr>
+            <td class="label">Edit in Photopea</td>
+            <td class="togglebtn">
+                <div class="toggle">
+                    <div class="vc-toggle-container">
+                        <label class="vc-switch">
+                        <input id="photopea" type="checkbox" class="vc-switch-input" checked />
+                        <span class="vc-switch-label" data-on="On" data-off="Off"></span>
+                        <span class="vc-handle"></span>
+                        </label>
+                    </div>
+                </div>
+            </td>
+        </tr>
+
+        <tr>
+            <td class="label">Reverse Image Search</td>
+            <td class="togglebtn">
+                <div class="toggle">
+                    <div class="vc-toggle-container">
+                        <label class="vc-switch">
+                        <input id="tineye" type="checkbox" class="vc-switch-input" checked />
+                        <span class="vc-switch-label" data-on="On" data-off="Off"></span>
+                        <span class="vc-handle"></span>
+                        </label>
+                    </div>
+                </div>
+            </td>
+        </tr>
+
+        <tr>
+            <td class="label">QR Code Scanner</td>
+            <td class="togglebtn">
+                <div class="toggle">
+                    <div class="vc-toggle-container">
+                        <label class="vc-switch">
+                        <input id="qr" type="checkbox" class="vc-switch-input" checked />
+                        <span class="vc-switch-label" data-on="On" data-off="Off"></span>
+                        <span class="vc-handle"></span>
+                        </label>
+                    </div>
+                </div>
+            </td>
+        </tr>
+
+        <tr>
+            <td class="label">Help</td>
+            <td class="togglebtn">
+                <div class="toggle">
+                    <div class="vc-toggle-container">
+                        <label class="vc-switch">
+                        <input id="help" type="checkbox" class="vc-switch-input" checked />
+                        <span class="vc-switch-label" data-on="On" data-off="Off"></span>
+                        <span class="vc-handle"></span>
+                        </label>
+                    </div>
+                </div>
+            </td>
+        </tr>
+
+        <tr>
+            <td class="label">About</td>
+            <td class="togglebtn">
+                <div class="toggle">
+                    <div class="vc-toggle-container">
+                        <label class="vc-switch">
+                        <input id="about" type="checkbox" class="vc-switch-input" checked />
+                        <span class="vc-switch-label" data-on="On" data-off="Off"></span>
+                        <span class="vc-handle"></span>
+                        </label>
+                    </div>
+                </div>
+            </td>
+        </tr>
+
+        <tr>
+            <td class="label">Settings</td>
+            <td class="togglebtn">
+                <div class="toggle">
+                    <div class="vc-toggle-container">
+                        <label class="vc-switch">
+                        <input id="settings" type="checkbox" class="vc-switch-input" checked />
+                        <span class="vc-switch-label" data-on="On" data-off="Off"></span>
+                        <span class="vc-handle"></span>
+                        </label>
+                    </div>
+                </div>
+            </td>
+        </tr>
+
+        <tr>
+            <td class="label">Turn Off</td>
+            <td class="togglebtn">
+                <div class="toggle">
+                    <div class="vc-toggle-container">
+                        <label class="vc-switch">
+                        <input id="exit" type="checkbox" class="vc-switch-input" checked />
+                        <span class="vc-switch-label" data-on="On" data-off="Off"></span>
+                        <span class="vc-handle"></span>
+                        </label>
+                    </div>
+                </div>
+            </td>
+        </tr>
+    </table>
+    <script src="js/settings.js"></script>
+</body>
+</html>

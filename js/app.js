@@ -1,7 +1,16 @@
 // run when scripts and styles are loaded
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     if (request.type == "injected") {
-        init();
+        chrome.storage.sync.get('settings', function (settings) {
+            try {
+                if (settings.settings) {
+                    init(settings);
+                }
+            }
+            catch (e) {
+                console.error('error while loading settings: ', e);
+            }
+        });
     }
 });
 
@@ -9,11 +18,12 @@ let IS_PICKER_OPEN = false;
 let IS_DETAILS_OPEN = false;
 let IS_HELP_OPEN = false;
 let IS_CROP_OPEN = false;
+
+let viewer;
 let BACKGROUND_TYPE = "blurred";
 let ImgCanvas;
 let isFlippedHorizontally = false;
 let isFlippedVertically = false;
-let IMGUR_TOKEN = '405d491c9e67e9f';
 let IMGBB_TOKEN = '8be35a61597b285f9c95669fdc565b00';
 let WINBOX_CLASSES = [
     "no-scrollbar",
@@ -204,107 +214,104 @@ let tippyData = [
         text: 'Edit in Photopea',
     },
     {
+        type: 'tineye',
+        text: 'Reverse Image Search',
+    },
+    {
         type: 'about',
         text: 'About',
     },
+    {
+        type: 'qr',
+        text: 'QR Code Scanner',
+    },
+    {
+        type: 'settings',
+        text: 'Settings',
+    }
 ]
 
-/**
- * when key is pressed
- */
+// prevent default keyboard behavior (for example : ctrl + s or ctrl + f)
 document.addEventListener('keydown', function (e) {
-
-    // switch case by keycode
-    switch (e.key) {
-        case '0':
-            document.getElementsByClassName('viewer-reset')[0].click();
-            break;
-        case '1':
-            document.getElementsByClassName('viewer-one-to-one')[0].click();
-            break;
-        case 'S':
-        case 's':
-            document.getElementsByClassName('viewer-download')[0].click();
-            break;
-        case '+':
-            document.getElementsByClassName('viewer-zoom-in')[0].click();
-            break;
-        case '-':
-            document.getElementsByClassName('viewer-zoom-out')[0].click();
-            break;
-        case 'ArrowLeft':
-            document.getElementsByClassName('viewer-rotate-left')[0].click();
-            break;
-        case 'ArrowRight':
-            document.getElementsByClassName('viewer-rotate-right')[0].click();
-            break;
-        case 'A':
-        case 'a':
-            document.getElementsByClassName('viewer-flip-horizontal')[0].click();
-            break;
-        case 'Q':
-        case 'q':
-            document.getElementsByClassName('viewer-flip-vertical')[0].click();
-            break;
-        case 'X':
-        case 'x':
-            document.getElementsByClassName('viewer-crop')[0].click();
-            break;
-        case 'P':
-        case 'p':
-            document.getElementsByClassName('viewer-paint')[0].click();
-            break;
-        case 'C':
-        case 'c':
-            document.getElementsByClassName('viewer-colorpicker')[0].click();
-            break;
-        case 'D':
-        case 'd':
-            document.getElementsByClassName('viewer-details')[0].click();
-            break;
-        case 'H':
-        case 'h':
-            document.getElementsByClassName('viewer-help')[0].click();
-            break;
-        case 'F':
-        case 'f':
-            document.getElementsByClassName('viewer-play')[0].click();
-            break;
-        case 'M':
-        case 'm':
-            document.getElementsByClassName('viewer-print')[0].click();
-            break;
-        case 'T':
-        case 't':
-            document.getElementsByClassName('viewer-theme')[0].click();
-            break;
-        case 'E':
-        case 'e':
-            document.getElementsByClassName('viewer-exit')[0].click();
-            break;
-        case 'U':
-        case 'u':
-            document.getElementsByClassName('viewer-upload')[0].click();
-            break;
-        case 'G':
-        case 'g':
-            document.getElementsByClassName('viewer-photopea')[0].click();
-            break;
-        case 'W':
-        case 'w':
-            document.getElementsByClassName('viewer-ocr')[0].click();
-            break;
-        default:
-            break;
-    }
-
+    e.preventDefault();
 });
+
+/**
+ * NB: "mod" keyword same as "ctrl" - for cross-browser compatibility
+ */
+Mousetrap.bind('mod+0', () => {
+    document.getElementsByClassName('viewer-reset')[0].click();
+});
+Mousetrap.bind('mod+1', () => {
+    document.getElementsByClassName('viewer-one-to-one')[0].click();
+});
+Mousetrap.bind('mod+s', () => {
+    document.getElementsByClassName('viewer-download')[0].click();
+});
+Mousetrap.bind('mod++', () => {
+    document.getElementsByClassName('viewer-zoom-in')[0].click();
+});
+Mousetrap.bind('mod+-', () => {
+    document.getElementsByClassName('viewer-zoom-out')[0].click();
+});
+Mousetrap.bind('mod+left', () => {
+    document.getElementsByClassName('viewer-rotate-left')[0].click();
+});
+Mousetrap.bind('mod+right', () => {
+    document.getElementsByClassName('viewer-rotate-right')[0].click();
+});
+Mousetrap.bind('mod+a', () => {
+    document.getElementsByClassName('viewer-flip-horizontal')[0].click();
+});
+Mousetrap.bind('mod+q', () => {
+    document.getElementsByClassName('viewer-flip-vertical')[0].click();
+});
+Mousetrap.bind('mod+x', () => {
+    document.getElementsByClassName('viewer-crop')[0].click();
+});
+Mousetrap.bind('mod+p', () => {
+    document.getElementsByClassName('viewer-paint')[0].click();
+});
+Mousetrap.bind('mod+c', () => {
+    document.getElementsByClassName('viewer-colorpicker')[0].click();
+});
+Mousetrap.bind('mod+d', () => {
+    document.getElementsByClassName('viewer-details')[0].click();
+});
+Mousetrap.bind('mod+h', () => {
+    document.getElementsByClassName('viewer-help')[0].click();
+});
+Mousetrap.bind('mod+f', () => {
+    document.getElementsByClassName('viewer-play')[0].click();
+});
+Mousetrap.bind('mod+m', () => {
+    document.getElementsByClassName('viewer-print')[0].click();
+});
+Mousetrap.bind('mod+y', () => {
+    document.getElementsByClassName('viewer-theme')[0].click();
+});
+Mousetrap.bind('mod+e', () => {
+    document.getElementsByClassName('viewer-exit')[0].click();
+});
+Mousetrap.bind('mod+u', () => {
+    document.getElementsByClassName('viewer-upload')[0].click();
+});
+Mousetrap.bind('mod+g', () => {
+    document.getElementsByClassName('viewer-photopea')[0].click();
+});
+Mousetrap.bind('mod+o', () => {
+    document.getElementsByClassName('viewer-ocr')[0].click();
+});
+Mousetrap.bind('mod+j', () => {
+    document.getElementsByClassName('viewer-tineye')[0].click();
+});
+
 
 
 /**
  * Initializes the extension
  */
-function init() {
+function init(settings) {
 
     let imgElement = document.getElementsByTagName('img')[0]; // get img element
     // if img element is found
@@ -316,7 +323,7 @@ function init() {
 
 
         // init Viewer
-        const viewer = new Viewer(imgElement, {
+        viewer = new Viewer(imgElement, {
             inline: false,
             loading: false,
             interval: 0,
@@ -327,19 +334,21 @@ function init() {
             keyboard: false,
             backdrop: false, // prevent exit when click backdrop
             toolbar: {
-                zoomIn: {
+                next: false,
+                prev: false,
+                zoomIn: settings.settings.zoomIn && {
                     show: 1,
                     size: 'large',
                 },
-                zoomOut: {
+                zoomOut: settings.settings.zoomOut && {
                     show: 1,
                     size: 'large',
                 },
-                oneToOne: {
+                oneToOne: settings.settings.oneToOne && {
                     show: 1,
                     size: 'large',
                 },
-                reset: {
+                reset: settings.settings.reset && {
                     show: 1,
                     size: 'large',
                     click: function () {
@@ -348,8 +357,7 @@ function init() {
                         window.dispatchEvent(new Event('resize'));
                     }
                 },
-                prev: false,
-                play: {
+                play: settings.settings.play && {
                     show: 1,
                     size: 'large',
                     click: function () {
@@ -360,24 +368,23 @@ function init() {
                             });
                     }
                 },
-                next: false,
-                rotateLeft: {
+                rotateLeft: settings.settings.rotateLeft && {
                     show: 1,
                     size: 'large',
                 },
-                rotateRight: {
+                rotateRight: settings.settings.rotateRight && {
                     show: 1,
                     size: 'large',
                 },
-                flipHorizontal: {
+                flipHorizontal: settings.settings.flipHorizontal && {
                     show: 1,
                     size: 'large',
                 },
-                flipVertical: {
+                flipVertical: settings.settings.flipVertical && {
                     show: 1,
                     size: 'large',
                 },
-                crop: {
+                crop: settings.settings.crop && {
                     show: 1,
                     size: 'large',
                     click: function () {
@@ -388,7 +395,7 @@ function init() {
 
                     }
                 },
-                paint: {
+                paint: settings.settings.paint && {
                     show: 1,
                     size: 'large',
                     click: function () {
@@ -431,7 +438,7 @@ function init() {
                                     // replace image with cropped image
                                     imgElements[i].src = newImgBase64;
                                 }
-                                
+
                                 // trigger resize event in setTimeout
                                 setTimeout(function () {
                                     window.dispatchEvent(new Event('resize'));
@@ -445,14 +452,14 @@ function init() {
                         }).show(viewer.image.src);
                     }
                 },
-                download: {
+                download: settings.settings.download && {
                     show: 1,
                     size: 'large',
                     click: function () {
                         download(viewer.image);
                     }
                 },
-                upload: {
+                upload: settings.settings.upload && {
                     show: 1,
                     size: 'large',
                     click: function () {
@@ -519,7 +526,7 @@ function init() {
 
                     }
                 },
-                colorpicker: {
+                colorpicker: settings.settings.colorpicker && {
                     show: 1,
                     size: 'large',
                     click: async function () {
@@ -624,7 +631,7 @@ function init() {
                         }
                     }
                 },
-                details: {
+                details: settings.settings.details && {
                     show: 1,
                     size: 'large',
                     click: async function () {
@@ -694,7 +701,7 @@ function init() {
 
                     }
                 },
-                theme: {
+                theme: settings.settings.theme && {
                     show: 1,
                     size: 'large',
                     click: function () {
@@ -703,18 +710,17 @@ function init() {
 
                     }
                 },
-                print: {
+                print: settings.settings.print && {
                     show: 1,
                     size: 'large',
                     click: function () {
                         printImage(viewer.image);
                     }
                 },
-                ocr: {
+                ocr: settings.settings.ocr && {
                     show: 1,
                     size: 'large',
                     click: function () {
-
 
                         let ocrPreviewBox = new WinBox("Image To Text: Select Region", {
                             id: 'ocr-preview',
@@ -737,10 +743,7 @@ function init() {
                             }
 
                         });
-
-
                         ocrPreviewBox.show();
-
                         let ocrControlBox = new WinBox("Image To Text: Settings", {
                             id: 'ocr-settings',
                             class: WINBOX_CLASSES,
@@ -772,14 +775,10 @@ function init() {
                                 document.querySelector('#ocr-result-box').remove();
                             }
                         });
-
-
                         ocrControlBox.show();
-
                         let croppr = new Croppr('#croppr', {
                             startSize: [50, 20]
                         });
-
 
                         Object.keys(ocrLangList).forEach(function (key) {
                             let option = document.createElement('option');
@@ -790,10 +789,6 @@ function init() {
                             }
                             document.querySelector('#ocr-languages').appendChild(option);
                         });
-
-
-
-
                         // when btn-extract-text clicked
                         document.getElementById('btn-extract-text').addEventListener('click', function () {
 
@@ -907,22 +902,15 @@ function init() {
 
 
                         var cropInstance = new Croppr('#croppr', {});
-                     
-                        // for each key in object ocr
-                        for (const [key, value] of Object.entries(ocrLangList)) {
-                            console.log(`${key}: ${value}`);
-                        }
 
-
-
-
-
-
-
+                        // // for each key in object ocr
+                        // for (const [key, value] of Object.entries(ocrLangList)) {
+                        //     console.log(`${key}: ${value}`);
+                        // }
 
                     }
                 },
-                photopea: {
+                photopea: settings.settings.photopea && {
                     show: 1,
                     size: 'large',
                     click: function () {
@@ -973,7 +961,123 @@ function init() {
                             });
                     }
                 },
-                help: {
+                tineye: settings.settings.tineye && {
+                    show: 1,
+                    size: 'large',
+                    click: function () {
+
+
+                        // toastify
+                        let x = document.createElement("div");
+                        // set flex
+                        x.style.display = "flex";
+                        // set element inner html
+                        x.innerHTML = `<i class="gg-spinner"></i> Opening in TinEye... Please wait`;
+
+                        let loadingToast = Toastify({
+                            node: x,
+                            duration: 1000,
+                            newWindow: true,
+                            close: false,
+                            gravity: 'bottom', // `top` or `bottom`
+                            position: 'right', // `left`, `center` or `right`
+                            stopOnFocus: true, // Prevents dismissing of toast on hover
+                            style: {
+                                color: '#ffffff',
+                                background: '#000000',
+                            },
+                            onClick: function () { } // Callback after click
+                        }).showToast();
+
+                        setTimeout(function () {
+                            let currentUrl = encodeURIComponent(window.location.href);
+                            var action_url = 'http://tineye.com/search?url=' + currentUrl;
+                            window.open(action_url, '_blank').focus();
+                        }, 1000);
+                    }
+                },
+                qr: settings.settings.qr && {
+                    show: 1,
+                    size: 'large',
+                    click: function () {
+
+                        // show loading toast
+                        let x = document.createElement("div");
+                        // set flex
+                        x.style.display = "flex";
+                        // set element inner html
+                        x.innerHTML = `<i class="gg-spinner"></i> Scanning QR code... Please wait`;
+
+                        let loadingToast = Toastify({
+                            node: x,
+                            duration: 9999,
+                            newWindow: true,
+                            close: false,
+                            gravity: 'bottom', // `top` or `bottom`
+                            position: 'right', // `left`, `center` or `right`
+                            stopOnFocus: true, // Prevents dismissing of toast on hover
+                            style: {
+                                color: '#ffffff',
+                                background: '#000000',
+                            },
+                            onClick: function () { } // Callback after click
+                        }).showToast();
+
+                        // remove loading toast
+                        setTimeout(function () {
+                            let toastifyElems = document.querySelectorAll('.toastify');
+                            toastifyElems.forEach(element => {
+                                element.remove()
+                            });
+
+                            qrcode.callback = function (res) {
+                                if (res instanceof Error) {
+                                    showNotification(`❌ No QR code found.`, '#ffffff', '#000000');
+                                } else {
+                                    //alert(res);
+                                    // show winbox
+
+
+                                    let ocrResultBox = new WinBox("QR Code Result", {
+                                        id: 'ocr-result-box',
+                                        class: WINBOX_CLASSES,
+                                        index: 9999,
+                                        width: '500px',
+                                        height: '165px',
+                                        top: '10px',
+                                        bottom: '10px',
+                                        right: '10px',
+                                        left: '10px',
+                                        x: "center",
+                                        y: "center",
+                                        background: "rgba(0,0,0,0.9)",
+                                        html: `
+                                        <div class="ocr-result">
+                                            <textarea id="qr-textarea" rows="5">${res}</textarea>
+                                            <button id="btn-copytext" class="ocr-button" role="button">Copy to clipboard</button>
+                                        </div>`,
+                                    });
+
+                                    ocrResultBox.show();
+
+                                    // when btn-extract-text clicked
+                                    document.getElementById('btn-copytext').addEventListener('click', function () {
+                                        showNotification('Copied to clipboard', '#ffffff', '#000000');
+                                        copyToClipboard(document.querySelector('#qr-textarea').value);
+                                    });
+
+
+                                }
+                            };
+                            let b64Img = getBase64Image(viewer.image);
+                            qrcode.decode(b64Img);
+
+                        }, 500);
+
+
+                    }
+                },
+                help: settings.settings.help && {
                     show: 1,
                     size: 'large',
                     click: function () {
@@ -990,11 +1094,11 @@ function init() {
                                 bottom: '10px',
                                 right: '10px',
                                 left: '10px',
-                                width: '720px',
+                                width: '700px',
                                 height: '423px',
                                 background: "rgba(0,0,0,0.9)",
                                 index: 9999,
-                                url: "https://www.youtube-nocookie.com/embed/3p7Jrdx2jOc?autoplay=1&color=white&controls=0&disablekb=1&loop=1&modestbranding=1&rel=0",
+                                url: "https://www.youtube-nocookie.com/embed/3p7Jrdx2jOc?autoplay=1&color=white&controls=0&disablekb=1&loop=1&modestbranding=1&rel=0&mute=1",
                                 onclose: function () {
                                     IS_HELP_OPEN = false;
                                 }
@@ -1010,11 +1114,11 @@ function init() {
                                 bottom: '10px',
                                 right: '10px',
                                 left: '10px',
-                                width: '250px',
+                                width: '300px',
                                 height: '450px',
                                 background: "rgba(0,0,0,0.9)",
                                 index: 9999,
-                                url: chrome.runtime.getURL('help/shortcuts.html'),
+                                url: chrome.runtime.getURL('pages/shortcuts.html'),
                                 onclose: function () {
                                     IS_HELP_OPEN = false;
                                 }
@@ -1023,7 +1127,45 @@ function init() {
 
                     }
                 },
-                exit: {
+                settings: settings.settings.settings && {
+                    show: 1,
+                    size: 'large',
+                    click: function () {
+                        // open winbox
+                        new WinBox("Settings", {
+                            class: WINBOX_CLASSES,
+                            index: 9999,
+                            x: "center",
+                            y: "center",
+                            top: '10px',
+                            bottom: '10px',
+                            right: '10px',
+                            left: '10px',
+                            width: '300px',
+                            height: '400px',
+                            background: "rgba(0,0,0,0.9)",
+                            url: chrome.runtime.getURL('pages/settings.html'),
+                        })
+                    }
+                },
+                about: settings.settings.about && {
+                    show: 1,
+                    size: 'large',
+                    click: function () {
+                        new WinBox("About", {
+                            class: WINBOX_CLASSES,
+                            index: 9999,
+                            x: "center",
+                            y: "center",
+                            width: '700px',
+                            height: '500px',
+                            background: "rgba(0,0,0,0.9)",
+                            index: 9999,
+                            url: chrome.runtime.getURL('pages/about.html'),
+                        });
+                    }
+                },
+                exit: settings.settings.exit && {
                     show: 1,
                     size: 'large',
                     click: function () {
@@ -1043,24 +1185,6 @@ function init() {
                     }
 
                 },
-                about: {
-                    show: 1,
-                    size: 'large',
-                    click: function () {
-                        new WinBox("About", {
-                            class: WINBOX_CLASSES,
-                            index: 9999,
-                            x: "center",
-                            y: "center",
-                            width: '700px',
-                            height: '500px',
-                            background: "rgba(0,0,0,0.9)",
-                            index: 9999,
-                            url: chrome.runtime.getURL('help/about.html'),
-                        });
-                    }
-                },
-
 
             },
 
@@ -1141,7 +1265,7 @@ function injectCSS(css) {
         return;
     }
     let style = document.createElement('style');
-    style.innerHTML = css;
+    style.innerHTML = DOMPurify.sanitize(css);
     head.appendChild(style);
 }
 
@@ -1274,8 +1398,6 @@ function crop(viewer, url, width, height) {
     }, 100);
 
 }
-
-
 
 // canvas function
 function useCanvas(el, image, callback) {
@@ -1587,5 +1709,21 @@ function jsonViewer(json, collapsible = false) {
 
     return parseObject(json);
 };
+
+
+// listen to messages from iframe
+window.addEventListener('message', function (message) {
+    if (message.data.type == "settings") {
+        let user_settings = message.data.settings
+        // save using chrome.storage
+        chrome.storage.sync.set({
+            settings: user_settings
+        }, function () {
+            // Notify that we saved.
+            showNotification('Settings saved successfully', '#ffffff', '#000000');
+        });
+    }
+});
+
 
 

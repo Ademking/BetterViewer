@@ -5,13 +5,16 @@
 * 3. If it is not injected, add tabId to InjectedTabs
 * 4. In OnUpdated after image being loaded, check if tabId is in InjectedTabs
 * 5. If it is, inject the script and css
+* 6. If tab is closed, remove tabId from InjectedTabs
 */
 let InjectedTabs = []; // list of tabIds that are currently being injected
+let uninstallFormUrl = "https://forms.gle/CNhnnirVXK8tRNFX6";
+let welcomeUrl = "https://betterviewer.surge.sh/welcome.html";
 
 // when tab is created or reloaded
 chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
-
-    if (changeInfo.status == 'complete') {
+    
+    if (changeInfo.status == 'loading') {
         // check if tab is marked as injected
         if (InjectedTabs.includes(tabId)) {
             chrome.tabs.executeScript(tabId, {
@@ -46,7 +49,7 @@ chrome.webRequest.onHeadersReceived.addListener(function (details) {
 
         // check if image
         if (res && res.indexOf('image') !== -1 && InjectedTabs.indexOf(details.tabId) === -1) {
-           
+
             // add tab to injected list
             InjectedTabs.push(details.tabId);
 
@@ -69,6 +72,41 @@ chrome.webRequest.onHeadersReceived.addListener(function (details) {
 }, ['responseHeaders', 'blocking']);
 
 
+// when the extension is installed or upgraded ...
+chrome.runtime.onInstalled.addListener(function (details) {
+    if (details.reason === "install") {
+        // Open when installeds
+        chrome.tabs.create({
+            url: "https://betterviewer.surge.sh/welcome.html"
+        });
+        set_default_settings()
+        // open when extension is uninstalled
+        let uninstallUrl = "https://forms.gle/CNhnnirVXK8tRNFX6"
+        if (chrome.runtime.setUninstallURL) {
+            chrome.runtime.setUninstallURL(uninstallUrl);
+        }
+
+    } else if (details.reason === "update") {
+        set_default_settings();
+        // set uninstall form url
+        let uninstallUrl = "https://forms.gle/CNhnnirVXK8tRNFX6"
+        if (chrome.runtime.setUninstallURL) {
+            chrome.runtime.setUninstallURL(uninstallUrl);
+        }
+    } else if (details.reason === "chrome_update") {
+        // When browser is updated
+    } else if (details.reason === "shared_module_update") {
+        // When a shared module is updated
+    }
+});
+
+// when any tab closed, remove it from injected list
+chrome.tabs.onRemoved.addListener(function (tabid, removed) {
+    // remove tab from injected list   
+    InjectedTabs.splice(InjectedTabs.indexOf(tabid), 1);
+});
+
+
 /**
  * Helper function: get header from headers
  * @param {header} headers 
@@ -84,25 +122,39 @@ function getHeaderFromHeaders(headers, headerName) {
     }
 }
 
-
-// when the extension is installed or upgraded ...
-chrome.runtime.onInstalled.addListener(function (details) {
-    if (details.reason === "install") {
-        // Code to be executed on first install
-        chrome.tabs.create({
-            url: "https://betterviewer.surge.sh/welcome.html"
-        });
-    } else if (details.reason === "update") {
-        // When extension is updated
-    } else if (details.reason === "chrome_update") {
-        // When browser is updated
-    } else if (details.reason === "shared_module_update") {
-        // When a shared module is updated
-    }
-});
-
-// when any tab closed, remove it from injected list
-chrome.tabs.onRemoved.addListener(function(tabid, removed) {
-    // remove tab from injected list   
-    InjectedTabs.splice(InjectedTabs.indexOf(tabid), 1);
-});
+/**
+ * Helper function: set default settings
+ */
+function set_default_settings(){
+     // set default settings
+     chrome.storage.sync.set({
+        settings: {
+            zoomIn: true,
+            zoomOut: true,
+            oneToOne: true,
+            reset: true,
+            play: true,
+            rotateLeft: true,
+            rotateRight: true,
+            flipHorizontal: true,
+            flipVertical: true,
+            crop: true,
+            paint: true,
+            download: true,
+            upload: true,
+            colorpicker: true,
+            details: true,
+            theme: true,
+            print: true,
+            ocr: true,
+            photopea: true,
+            tineye: true,
+            help: true,
+            settings: true,
+            tineye: true,
+            qr: true,
+            exit: true,
+            about: true,
+        }
+    });
+}
