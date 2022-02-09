@@ -21,7 +21,7 @@ function bundleJS(cb) {
     './js/app.js'
   ])
     .pipe(concat('all.js'))
-    .pipe(uglify())
+    //.pipe(uglify())
     .pipe(dest('dist/'));
     cb();
 }

@@ -1,9 +1,11 @@
 {
     "name": "BetterViewer",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "manifest_version": 2,
     "background": {
-        "scripts": ["background.js"],
+        "scripts": [
+            "background.js"
+        ],
         "persistent": true
     },
     "browser_action": {
@@ -24,6 +26,5 @@
         "48": "icons/48.png",
         "128": "icons/128.png"
     },
-    "content_security_policy":"default-src 'self'; connect-src 'self' https://*/*"
-
+    "content_security_policy": "default-src 'self'; connect-src 'self' https://*/*"
 }

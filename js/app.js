@@ -33,7 +33,7 @@ let WINBOX_CLASSES = [
     "no-resize",
     "no-animation"
 ]
-var ocrLangList = {
+let ocrLangList = {
     'Afrikaans': 'afr',
     'Albanian': 'sqi',
     'Amharic': 'amh',
@@ -313,6 +313,10 @@ Mousetrap.bind('mod+j', () => {
  */
 function init(settings) {
 
+
+    BACKGROUND_TYPE = settings.settings.default_theme;
+
+
     let imgElement = document.getElementsByTagName('img')[0]; // get img element
     // if img element is found
     if (imgElement) {
@@ -328,7 +332,7 @@ function init(settings) {
             loading: false,
             interval: 0,
             zoomable: true,
-            transition: false,
+            transition: true,
             navbar: false,
             title: false,
             keyboard: false,
@@ -354,6 +358,11 @@ function init(settings) {
                     click: function () {
                         viewer.image.src = window.location.href;
                         viewer.reset();
+                        setTimeout(() => {
+                            if (settings.settings.toolbar_position === 'top') {
+                                viewer.move(0, 50);
+                            }
+                        }, 100)
                         window.dispatchEvent(new Event('resize'));
                     }
                 },
@@ -363,8 +372,10 @@ function init(settings) {
                     click: function () {
                         viewer.image.requestFullscreen()
                             .then(function () {
+                                // console.log('requestFullscreen success');
                             })
                             .catch(function (error) {
+                                console.error(error);
                             });
                     }
                 },
@@ -390,7 +401,19 @@ function init(settings) {
                     click: function () {
                         if (!IS_CROP_OPEN) {
                             IS_CROP_OPEN = true;
-                            crop(viewer, viewer.image.src, viewer.image.width, viewer.image.height);
+                            // reset viewer
+                            //viewer.reset();
+                            let reset = viewer.reset();
+                            setTimeout(() => {
+                                if (settings.settings.toolbar_position === 'top') {
+                                    viewer.move(0, 50);
+                                }
+                            }, 100)
+                            if (reset) {
+                                crop(viewer, viewer.image.src, viewer.image.width, viewer.image.height);
+                            }
+
+
                         }
 
                     }
@@ -409,7 +432,6 @@ function init(settings) {
                             width: '90%',
                             height: '90%',
                             background: "rgba(0,0,0,0.9)",
-                            index: 9999,
                             html: `<div id="paint-wrapper"></div>`,
                         });
 
@@ -434,9 +456,13 @@ function init(settings) {
 
                                 let imgElements = document.getElementsByTagName('img');
                                 // loop through all img elements
-                                for (let i = 0; i < imgElements.length; i++) {
-                                    // replace image with cropped image
-                                    imgElements[i].src = newImgBase64;
+                                // for (let i = 0; i < imgElements.length; i++) {
+                                //     // replace image with cropped image
+                                //     imgElements[i].src = newImgBase64;
+                                // }
+
+                                for (let elem of imgElements) {
+                                    elem.src = newImgBase64;
                                 }
 
                                 // trigger resize event in setTimeout
@@ -444,7 +470,12 @@ function init(settings) {
                                     window.dispatchEvent(new Event('resize'));
                                 }, 100);
 
-                                showNotification('Image saved successfully', '#ffffff', '#000000');
+                                showNotification('💾 Image saved successfully', '#ffffff', '#000000', settings);
+                                setTimeout(() => {
+                                    if (settings.settings.toolbar_position === 'top') {
+                                        viewer.move(0, 50);
+                                    }
+                                }, 100);
 
                                 winboxPaint.close();
                                 done(true);
@@ -476,19 +507,19 @@ function init(settings) {
                         // set element inner html
                         x.innerHTML = `<i class="gg-spinner"></i> Uploading image... Please wait`;
 
-                        let loadingToast = Toastify({
+                        Toastify({
                             node: x,
                             duration: 999999,
                             newWindow: true,
                             close: false,
-                            gravity: 'bottom', // `top` or `bottom`
-                            position: 'right', // `left`, `center` or `right`
+                            gravity: settings.settings.notification_gravity, // `top` or `bottom`
+                            position: settings.settings.notification_position, // `left`, `center` or `right`
                             stopOnFocus: true, // Prevents dismissing of toast on hover
                             style: {
                                 color: '#ffffff',
                                 background: '#000000',
                             },
-                            onClick: function () { } // Callback after click
+                            //onClick: function () { } // Callback after click
                         }).showToast();
 
                         // upload image to imgur
@@ -499,10 +530,10 @@ function init(settings) {
                         // })
 
                         // upload base64 to ImgBB
-                        var formdata = new FormData();
+                        let formdata = new FormData();
                         formdata.append("image", base64);
 
-                        var requestOptions = {
+                        let requestOptions = {
                             method: 'POST',
                             body: formdata,
                             redirect: 'follow'
@@ -519,8 +550,8 @@ function init(settings) {
                                 });
 
                                 copyToClipboard(res.data.image.url);
-                                showNotification('Image uploaded successfully ✔️', '#ffffff', '#000000');
-                                showNotification(`URL copied to clipboard`, '#ffffff', '#000000');
+                                showNotification('✔️ Image uploaded successfully', '#ffffff', '#000000', settings);
+                                showNotification(`📋 URL copied to clipboard`, '#ffffff', '#000000', settings);
 
                             });
 
@@ -607,7 +638,7 @@ function init(settings) {
                             // when image clicked
                             viewer.image.addEventListener('click', function (e) {
                                 if (IS_PICKER_OPEN) {
-                                    handleImageClickOnPicker(e, viewer, canvas, pickr, x, y);
+                                    handleImageClickOnPicker(e, viewer, canvas, pickr, x, y, settings);
                                 }
                                 else {
                                     this.removeEventListener('click', arguments.callee);
@@ -637,26 +668,30 @@ function init(settings) {
                     click: async function () {
                         if (!IS_DETAILS_OPEN) {
                             IS_DETAILS_OPEN = true;
-                            new WinBox("Details", {
-                                class: [
-                                    //"no-scrollbar",
-                                    "no-max",
-                                    "no-min",
-                                    "no-full",
-                                    "no-resize",
-                                    "no-animation"
-                                ],
-                                index: 9999,
-                                background: "rgba(0,0,0,0.9)",
-                                x: "20px",
-                                y: "20px",
-                                width: '350px',
-                                height: '40%',
-                                html: `<div id="details-wrapper"></div>`,
-                                onclose: function () {
-                                    IS_DETAILS_OPEN = false;
-                                }
-                            });
+                            try {
+                                new WinBox("Details", {
+                                    class: [
+                                        //"no-scrollbar",
+                                        "no-max",
+                                        "no-min",
+                                        "no-full",
+                                        "no-resize",
+                                        "no-animation"
+                                    ],
+                                    index: 9999,
+                                    background: "rgba(0,0,0,0.9)",
+                                    x: "20px",
+                                    y: "20px",
+                                    width: '350px',
+                                    height: '40%',
+                                    html: `<div id="details-wrapper"></div>`,
+                                    onclose: function () {
+                                        IS_DETAILS_OPEN = false;
+                                    }
+                                });
+                            } catch (error) {
+                                console.error(error);
+                            }
                         }
 
                         let img2 = viewer.image
@@ -673,7 +708,7 @@ function init(settings) {
                         EXIF.getData(img2, function () {
                             let allMetaData = EXIF.getAllTags(this);
                             // add all metadata to wrapper
-                            let wrapper = document.getElementById('details-wrapper');
+                            // let wrapper = document.getElementById('details-wrapper');
 
                             delete allMetaData.ImageWidth;
                             delete allMetaData.ImageHeight;
@@ -684,7 +719,7 @@ function init(settings) {
 
 
 
-                            var el = document.querySelector('#details-wrapper');
+                            let el = document.querySelector('#details-wrapper');
                             el.innerHTML = jsonViewer(allMetaData, true);
 
 
@@ -706,7 +741,7 @@ function init(settings) {
                     size: 'large',
                     click: function () {
                         // blur --> light --> dark
-                        changeTheme(imgElement.src);
+                        changeTheme(viewer.image.src, settings);
 
                     }
                 },
@@ -722,24 +757,26 @@ function init(settings) {
                     size: 'large',
                     click: function () {
 
+                        let v = viewer;
+                        let url = viewer.image.src;
+                        let width = viewer.image.width;
+                        let height = viewer.image.height;
+
+
                         let ocrPreviewBox = new WinBox("Image To Text: Select Region", {
                             id: 'ocr-preview',
                             class: WINBOX_CLASSES,
                             modal: false,
                             index: 9999,
                             x: "center",
-                            y: "10%",
-                            width: viewer.image.width,
-                            height: viewer.image.height + 33,
+                            y: "center",
+                            width: width + 7,
+                            height: height + 40,
                             background: "rgba(0,0,0,0.9)",
-                            html: `<div>
-                                <img src="${viewer.image.src}" id="croppr"/>
-                            </div>`,
+                            html: `<div id="parent-crop"></div>`,
                             onclose: function () {
-
                                 document.querySelector('#ocr-preview').remove();
                                 document.querySelector('#ocr-settings').remove();
-
                             }
 
                         });
@@ -776,8 +813,30 @@ function init(settings) {
                             }
                         });
                         ocrControlBox.show();
-                        let croppr = new Croppr('#croppr', {
-                            startSize: [50, 20]
+                        let imgCropper = tinycrop.create({
+                            parent: '#parent-crop',
+                            image: url,
+                            bounds: {
+                                width: width,
+                                height: height
+                            },
+                            backgroundColors: ['#fff', '#f3f3f3'],
+                            selection: {
+                                color: '#212121CC',
+                                activeColor: '#ff0000CC',
+                                minWidth: 10,
+                                minHeight: 10,
+                                x: v.image.naturalWidth / 2 - width / 2,
+                                y: v.image.naturalHeight / 2 - height / 2,
+                                width: width,
+                                height: height
+                            },
+                            onInit: () => { console.log('Initialised') }
+                        });
+
+                        let region; // contains the cropped region
+                        imgCropper.on('change', (r) => {
+                            region = r;
                         });
 
                         Object.keys(ocrLangList).forEach(function (key) {
@@ -796,112 +855,109 @@ function init(settings) {
                             let selectedLang = document.querySelector('#ocr-languages').value;
 
 
-                            const cropRect = croppr.getValue();
+
+
+                            const cropRect = region;
                             const canvas = document.createElement("canvas");
                             const context = canvas.getContext("2d");
+                            const imageObj = new Image();
                             canvas.width = cropRect.width;
                             canvas.height = cropRect.height;
-                            context.drawImage(
-                                croppr.imageEl,
-                                cropRect.x,
-                                cropRect.y,
-                                cropRect.width,
-                                cropRect.height,
-                                0,
-                                0,
-                                canvas.width,
-                                canvas.height,
-                            );
-                            let ImgUrl = canvas.toDataURL();
+                            imageObj.src = url;
 
-                            // create html element with text
-                            let x = document.createElement("div");
-                            // set flex
-                            x.style.display = "flex";
-                            // set element inner html
-                            x.innerHTML = `<i class="gg-spinner"></i> Extracting Text`;
+                            imageObj.onload = function () {
+                                context.drawImage(imageObj, cropRect.x, cropRect.y, cropRect.width, cropRect.height, 0, 0, cropRect.width, cropRect.height);
+                                let ImgUrl = canvas.toDataURL();
 
 
-                            let loadingToast = Toastify({
-                                node: x,
-                                duration: 999999,
-                                newWindow: true,
-                                close: false,
-                                gravity: 'bottom', // `top` or `bottom`
-                                position: 'right', // `left`, `center` or `right`
-                                stopOnFocus: true, // Prevents dismissing of toast on hover
-                                style: {
-                                    color: '#ffffff',
-                                    background: '#000000',
-                                },
-                                onClick: function () { } // Callback after click
-                            }).showToast();
+                                console.log(ImgUrl);
 
 
-                            // tesseract to ocr
-                            Tesseract.recognize(
-                                ImgUrl,
-                                selectedLang,
-                                { logger: m => console.log(m) }
-                            ).then(({ data: { text } }) => {
-
-                                // remove all toasts
-                                let toastifyElems = document.querySelectorAll('.toastify');
-                                toastifyElems.forEach(element => {
-                                    element.remove()
-                                });
-
-                                let ocrResElem = document.querySelector('#ocr-textarea');
-                                if (ocrResElem) {// if exists, then update
-                                    ocrResElem.innerHTML = text;
-                                }
-                                else { // create new winbox
-
-                                    document.querySelector('#ocr-preview').remove();
-                                    document.querySelector('#ocr-settings').remove();
+                                // create html element with text
+                                let x = document.createElement("div");
+                                // set flex
+                                x.style.display = "flex";
+                                // set element inner html
+                                x.innerHTML = `<i class="gg-spinner"></i> Extracting Text`;
 
 
-                                    let ocrResultBox = new WinBox("Result", {
-                                        id: 'ocr-result-box',
-                                        class: WINBOX_CLASSES,
-                                        index: 9999,
-                                        width: '500px',
-                                        height: '320px',
-                                        top: '10px',
-                                        bottom: '10px',
-                                        right: '10px',
-                                        left: '10px',
-                                        x: "center",
-                                        y: "center",
 
-                                        background: "rgba(0,0,0,0.9)",
-                                        html: `<div class="ocr-result">
+                                Toastify({
+                                    node: x,
+                                    duration: 999999,
+                                    newWindow: true,
+                                    close: false,
+                                    gravity: settings.settings.notification_gravity, // `top` or `bottom`
+                                    position: settings.settings.notification_position, // `left`, `center` or `right`
+                                    stopOnFocus: true, // Prevents dismissing of toast on hover
+                                    style: {
+                                        color: '#ffffff',
+                                        background: '#000000',
+                                    },
+                                }).showToast();
+
+                                // tesseract to ocr
+                                Tesseract.recognize(
+                                    ImgUrl,
+                                    selectedLang,
+                                    { logger: m => console.log(m) }
+                                ).then(({ data: { text } }) => {
+
+                                    // remove all toasts
+                                    let toastifyElems = document.querySelectorAll('.toastify');
+                                    toastifyElems.forEach(element => {
+                                        element.remove()
+                                    });
+
+                                    let ocrResElem = document.querySelector('#ocr-textarea');
+                                    if (ocrResElem) {// if exists, then update
+                                        ocrResElem.innerHTML = text;
+                                    }
+                                    else { // create new winbox
+
+                                        document.querySelector('#ocr-preview').remove();
+                                        document.querySelector('#ocr-settings').remove();
+
+
+                                        let ocrResultBox = new WinBox("Result", {
+                                            id: 'ocr-result-box',
+                                            class: WINBOX_CLASSES,
+                                            index: 9999,
+                                            width: '500px',
+                                            height: '320px',
+                                            top: '10px',
+                                            bottom: '10px',
+                                            right: '10px',
+                                            left: '10px',
+                                            x: "center",
+                                            y: "center",
+
+                                            background: "rgba(0,0,0,0.9)",
+                                            html: `<div class="ocr-result">
                                         <textarea id="ocr-textarea" rows="10">${text}</textarea>
                                         <button id="btn-copytext" class="ocr-button" role="button">Copy to clipboard</button>
                                     </div>`,
-                                    });
+                                        });
 
-                                    ocrResultBox.show();
+                                        ocrResultBox.show();
 
-                                    // when btn-extract-text clicked
-                                    document.getElementById('btn-copytext').addEventListener('click', function () {
-                                        showNotification('Copied to clipboard', '#ffffff', '#000000');
-                                        copyToClipboard(document.querySelector('#ocr-textarea').value);
-                                    });
+                                        // when btn-extract-text clicked
+                                        document.getElementById('btn-copytext').addEventListener('click', function () {
+                                            showNotification('📋 Copied to clipboard', '#ffffff', '#000000', settings);
+                                            copyToClipboard(document.querySelector('#ocr-textarea').value);
+                                        });
+
+                                    }
+                                })
+                            }
 
 
-
-
-
-
-
-                                }
-                            })
                         });
+                        try {
 
-
-
-                        var cropInstance = new Croppr('#croppr', {});
+                        } catch (error) {
+                            console.error(error);
+                        }
 
                         // // for each key in object ocr
                         // for (const [key, value] of Object.entries(ocrLangList)) {
@@ -923,19 +979,18 @@ function init(settings) {
                         // set element inner html
                         x.innerHTML = `<i class="gg-spinner"></i> Opening in Photopea... Please wait`;
 
-                        let loadingToast = Toastify({
+                        Toastify({
                             node: x,
                             duration: 999999,
                             newWindow: true,
                             close: false,
-                            gravity: 'bottom', // `top` or `bottom`
-                            position: 'right', // `left`, `center` or `right`
+                            gravity: settings.settings.notification_gravity, // `top` or `bottom`
+                            position: settings.settings.notification_position, // `left`, `center` or `right`
                             stopOnFocus: true, // Prevents dismissing of toast on hover
                             style: {
                                 color: '#ffffff',
                                 background: '#000000',
                             },
-                            onClick: function () { } // Callback after click
                         }).showToast();
 
 
@@ -957,7 +1012,7 @@ function init(settings) {
 
                                 window.open(urlEncoded, '_blank').focus();
 
-                                showNotification(`Image opened in Photopea`, '#ffffff', '#000000');
+                                showNotification(`📂 Image opened in Photopea successfully`, '#ffffff', '#000000', settings);
                             });
                     }
                 },
@@ -974,24 +1029,23 @@ function init(settings) {
                         // set element inner html
                         x.innerHTML = `<i class="gg-spinner"></i> Opening in TinEye... Please wait`;
 
-                        let loadingToast = Toastify({
+                        Toastify({
                             node: x,
                             duration: 1000,
                             newWindow: true,
                             close: false,
-                            gravity: 'bottom', // `top` or `bottom`
-                            position: 'right', // `left`, `center` or `right`
+                            gravity: settings.settings.notification_gravity, // `top` or `bottom`
+                            position: settings.settings.notification_position, // `left`, `center` or `right`
                             stopOnFocus: true, // Prevents dismissing of toast on hover
                             style: {
                                 color: '#ffffff',
                                 background: '#000000',
                             },
-                            onClick: function () { } // Callback after click
                         }).showToast();
 
                         setTimeout(function () {
                             let currentUrl = encodeURIComponent(window.location.href);
-                            var action_url = 'http://tineye.com/search?url=' + currentUrl;
+                            let action_url = 'http://tineye.com/search?url=' + currentUrl;
                             window.open(action_url, '_blank').focus();
                         }, 1000);
                     }
@@ -1008,19 +1062,18 @@ function init(settings) {
                         // set element inner html
                         x.innerHTML = `<i class="gg-spinner"></i> Scanning QR code... Please wait`;
 
-                        let loadingToast = Toastify({
+                        Toastify({
                             node: x,
                             duration: 9999,
                             newWindow: true,
                             close: false,
-                            gravity: 'bottom', // `top` or `bottom`
-                            position: 'right', // `left`, `center` or `right`
+                            gravity: settings.settings.notification_gravity, // `top` or `bottom`
+                            position: settings.settings.notification_position, // `left`, `center` or `right`
                             stopOnFocus: true, // Prevents dismissing of toast on hover
                             style: {
                                 color: '#ffffff',
                                 background: '#000000',
                             },
-                            onClick: function () { } // Callback after click
                         }).showToast();
 
                         // remove loading toast
@@ -1032,7 +1085,7 @@ function init(settings) {
 
                             qrcode.callback = function (res) {
                                 if (res instanceof Error) {
-                                    showNotification(`❌ No QR code found.`, '#ffffff', '#000000');
+                                    showNotification(`❌ No QR code found.`, '#ffffff', '#000000', settings);
                                 } else {
                                     //alert(res);
                                     // show winbox
@@ -1062,7 +1115,7 @@ function init(settings) {
 
                                     // when btn-extract-text clicked
                                     document.getElementById('btn-copytext').addEventListener('click', function () {
-                                        showNotification('Copied to clipboard', '#ffffff', '#000000');
+                                        showNotification('📋 Copied to clipboard', '#ffffff', '#000000', settings);
                                         copyToClipboard(document.querySelector('#qr-textarea').value);
                                     });
 
@@ -1085,44 +1138,46 @@ function init(settings) {
                         if (!IS_HELP_OPEN) {
                             IS_HELP_OPEN = true;
 
-                            new WinBox("Help", {
-                                class: WINBOX_CLASSES,
-                                index: 9999,
-                                x: "center",
-                                y: "center",
-                                top: '10px',
-                                bottom: '10px',
-                                right: '10px',
-                                left: '10px',
-                                width: '700px',
-                                height: '423px',
-                                background: "rgba(0,0,0,0.9)",
-                                index: 9999,
-                                url: "https://www.youtube-nocookie.com/embed/3p7Jrdx2jOc?autoplay=1&color=white&controls=0&disablekb=1&loop=1&modestbranding=1&rel=0&mute=1",
-                                onclose: function () {
-                                    IS_HELP_OPEN = false;
-                                }
-                            })
+                            try {
+                                new WinBox("Help", {
+                                    class: WINBOX_CLASSES,
+                                    index: 9999,
+                                    x: "center",
+                                    y: "center",
+                                    top: '10px',
+                                    bottom: '10px',
+                                    right: '10px',
+                                    left: '10px',
+                                    width: '700px',
+                                    height: '423px',
+                                    background: "rgba(0,0,0,0.9)",
+                                    url: "https://www.youtube-nocookie.com/embed/3p7Jrdx2jOc?autoplay=1&color=white&controls=0&disablekb=1&loop=1&modestbranding=1&rel=0&mute=1",
+                                    onclose: function () {
+                                        IS_HELP_OPEN = false;
+                                    }
+                                })
 
 
-                            new WinBox("Shortcuts", {
-                                class: WINBOX_CLASSES,
-                                index: 9999,
-                                x: "right",
-                                y: "center",
-                                top: '10px',
-                                bottom: '10px',
-                                right: '10px',
-                                left: '10px',
-                                width: '300px',
-                                height: '450px',
-                                background: "rgba(0,0,0,0.9)",
-                                index: 9999,
-                                url: chrome.runtime.getURL('pages/shortcuts.html'),
-                                onclose: function () {
-                                    IS_HELP_OPEN = false;
-                                }
-                            });
+                                new WinBox("Shortcuts", {
+                                    class: WINBOX_CLASSES,
+                                    index: 9999,
+                                    x: "right",
+                                    y: "center",
+                                    top: '10px',
+                                    bottom: '10px',
+                                    right: '10px',
+                                    left: '10px',
+                                    width: '300px',
+                                    height: '450px',
+                                    background: "rgba(0,0,0,0.9)",
+                                    url: chrome.runtime.getURL('pages/shortcuts.html'),
+                                    onclose: function () {
+                                        IS_HELP_OPEN = false;
+                                    }
+                                });
+                            } catch (error) {
+                                console.error(error);
+                            }
                         }
 
                     }
@@ -1132,37 +1187,44 @@ function init(settings) {
                     size: 'large',
                     click: function () {
                         // open winbox
-                        new WinBox("Settings", {
-                            class: WINBOX_CLASSES,
-                            index: 9999,
-                            x: "center",
-                            y: "center",
-                            top: '10px',
-                            bottom: '10px',
-                            right: '10px',
-                            left: '10px',
-                            width: '300px',
-                            height: '400px',
-                            background: "rgba(0,0,0,0.9)",
-                            url: chrome.runtime.getURL('pages/settings.html'),
-                        })
+                        try {
+                            new WinBox("Settings", {
+                                class: WINBOX_CLASSES,
+                                index: 9999,
+                                x: "center",
+                                y: "center",
+                                top: '10px',
+                                bottom: '10px',
+                                right: '10px',
+                                left: '10px',
+                                width: '350px',
+                                height: '400px',
+                                background: "rgba(0,0,0,0.9)",
+                                url: chrome.runtime.getURL('pages/settings.html'),
+                            })
+                        } catch (error) {
+                            console.error(error);
+                        }
                     }
                 },
                 about: settings.settings.about && {
                     show: 1,
                     size: 'large',
                     click: function () {
-                        new WinBox("About", {
-                            class: WINBOX_CLASSES,
-                            index: 9999,
-                            x: "center",
-                            y: "center",
-                            width: '700px',
-                            height: '500px',
-                            background: "rgba(0,0,0,0.9)",
-                            index: 9999,
-                            url: chrome.runtime.getURL('pages/about.html'),
-                        });
+                        try {
+                            new WinBox("About", {
+                                class: WINBOX_CLASSES,
+                                index: 9999,
+                                x: "center",
+                                y: "center",
+                                width: '700px',
+                                height: '500px',
+                                background: "rgba(0,0,0,0.9)",
+                                url: chrome.runtime.getURL('pages/about.html'),
+                            });
+                        } catch (error) {
+                            console.error(error);
+                        }
                     }
                 },
                 exit: settings.settings.exit && {
@@ -1185,31 +1247,159 @@ function init(settings) {
                     }
 
                 },
+                more: {
+                    show: 1,
+                    size: 'large',
+                    click: function () {
+
+                        // get all viewer buttons
+                        let viewerButtons = document.querySelectorAll('div.viewer-toolbar > ul > li');
+
+                        let btnsExceptMore = Array.prototype.slice.call(viewerButtons).filter(function (el) {
+                            return !el.classList.contains('viewer-more');
+                        })
+
+                        btnsExceptMore.forEach(btn => {
+                          // toggle display of each button
+                          
+                        
+                          let cssObj = window.getComputedStyle(btn, null);
+                          let display = cssObj.getPropertyValue("display");
+                          
+                            if (display === 'none') {
+                                btn.style.display = 'list-item';
+                                btn.style.opacity = 1;
+                                // append class
+                                btn.classList.add('fade-in-right');
+                            }
+                            else {
+                                btn.style.display = 'none';
+                                btn.style.opacity = 0;
+                                
+                            }
+                        
+                        })
+                    }
+                }
 
             },
+            ready() {
+
+
+                // hide all at start 
+                if (settings.settings.hide_all_at_start) {
+
+                     // get all viewer buttons
+                     let viewerButtons = document.querySelectorAll('div.viewer-toolbar > ul > li');
+
+                     let btnsExceptMore = Array.prototype.slice.call(viewerButtons).filter(function (el) {
+                         return !el.classList.contains('viewer-more');
+                     })
+
+                     btnsExceptMore.forEach(btn => {
+                       // toggle display of each button
+                       
+                     
+                       let cssObj = window.getComputedStyle(btn, null);
+                       let display = cssObj.getPropertyValue("display");
+                       
+                         if (display === 'none') {
+                             btn.style.display = 'list-item';
+                             btn.style.opacity = 1;
+                             // append class
+                             btn.classList.add('fade-in-right');
+                         }
+                         else {
+                             btn.style.display = 'none';
+                             btn.style.opacity = 0;
+                             
+                         }
+                     
+                     })
+
+
+                }
+
+
+                setTimeout(() => {
+                    if (settings.settings.toolbar_position === 'top') {
+                        viewer.move(0, 50);
+                    }
+                }, 100)
+            }
 
         });
+
+
+        // change zoom
+
+        let lightTheme = `
+        transition: all 0.5s ease;
+        background-image: none;
+        background-color: #ffffff;
+        filter: blur(0px);
+        -webkit-filter: blur(0px);
+        height: 100%;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: cover;
+        width: 100vw;
+        height: 100vh;
+        transform: scale(1.3);
+        `;
+
+        let darktheme = `
+        transition: all 0.5s ease;
+        background-image: none;
+        background-color: #0e1217;
+        filter: blur(0px);
+        -webkit-filter: blur(0px);
+        height: 100%;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: cover;
+        width: 100vw;
+        height: 100vh;
+        transform: scale(1.3);
+        opacity: 0;
+        `
+
+        let blurrytheme = `
+        transition: none;
+        background-image: url(${imgElement.src});
+        background-color: none;
+        filter: blur(15px);
+        -webkit-filter: blur(15px);
+        height: 100%;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: cover;
+        width: 100vw;
+        height: 100vh;
+        transform: scale(1.3);
+        opacity: 1;
+        `
+
+        let currentTheme = (bg) => {
+            if (bg === 'light') {
+                return lightTheme;
+            } else if (bg === 'dark') {
+                return darktheme;
+            }
+            return blurrytheme;
+        }
 
 
         // inject css
         injectCSS(`
             .blurry-bg {
-                background-image: url("${imgElement.src}");
-                filter: blur(15px);
-                -webkit-filter: blur(15px);
-                height: 100%;
-                background-position: center;
-                background-repeat: no-repeat;
-                background-size: cover;
-                width: 100vw;
-                height: 100vh;
-                transform: scale(1.3); 
+                ${currentTheme(BACKGROUND_TYPE)}
             }
             /* Make blur darker */
             .blurry-bg:before {
                 content: '';
                 background-color: #000;
-                opacity: 0.5;
+                opacity: ${BACKGROUND_TYPE === 'blurred' ? 0.5 : 0};
                 width: 100%;
                 height: 100%;
                 z-index: 1;
@@ -1218,26 +1408,35 @@ function init(settings) {
                 left: 0;
             }
             img{
-                display: none;
+                display: none
+            }
+            .viewer-footer {
+                bottom: ${(settings.settings.toolbar_position) === 'bottom' ? '0px' : 'unset'} !important;
+                top: ${(settings.settings.toolbar_position) === 'top' ? '10px' : 'unset'} !important;
             }
             `);
 
+
+
         // show the viewer
         viewer.show();
+
+
+
         setTippyText(tippyData);
 
     }
     else {
         // No img element, then... maybe it's a svg ?
-        let svgElement = document.getElementsByTagName('svg')[0]; // get svg element
-        if (svgElement) {
-            let base64 = svgToBase64(svgElement);
-            // redirect to svg viewer
+        // let svgElement = document.getElementsByTagName('svg')[0]; // get svg element
+        // if (svgElement) {
+        //     // let base64 = svgToBase64(svgElement);
+        //     // redirect to svg viewer
 
-        }
-        else {
-            // I don't know what it is, but I don't care about it
-        }
+        // }
+        // else {
+        //     // I don't know what it is, and I don't care about it
+        // }
     }
 }
 
@@ -1250,8 +1449,7 @@ function svgToBase64(svgElement) {
     let svgString = new XMLSerializer().serializeToString(svgElement);
     let decoded = unescape(encodeURIComponent(svgString));
     let base64 = btoa(decoded)
-    let imgSource = `data:image/svg+xml;base64,${base64}`;
-    return imgSource;
+    return `data:image/svg+xml;base64,${base64}`;
 }
 
 /**
@@ -1310,89 +1508,158 @@ function download(image) {
  * @param {*} width 
  * @param {*} height 
  */
-function crop(viewer, url, width, height) {
-
-    // make viewer smaller 
-    viewer.zoom(-0.5);
+function crop(v, url, width, height) {
 
     // create new winbox
     let winbox = new WinBox("Crop Image", {
+        id: "winbox-crop-image",
         class: WINBOX_CLASSES,
-        width: width,
-        height: height + 33,
+
+        width: width + 7,
+        // height + 10% 
+        height: height + 40 + 36,
         x: "center",
         y: "center",
         index: 9999,
         background: "rgba(0,0,0,0.9)",
         html: `
-        <div>
-            <img id="crop-img" src="${url}">
-        </div>
+        <div id="parent-crop"></div>
+        <button id="btn-crop-img" class="ocr-button crop-btn" style="margin: 0px;" role="button">✂️ Crop</button>
         `,
         onclose: function () {
             // reset viewer zoom
-            viewer.zoom(0.5);
+            //  v.zoom(0.5);
             IS_CROP_OPEN = false;
         }
     });
 
-    winbox.show();
 
-    let croppr = new Croppr('#crop-img', {
-        startSize: ["80", "80"]
+
+
+    let imgCropper = tinycrop.create({
+        parent: '#parent-crop',
+        image: url,
+        bounds: {
+            width: width,
+            height: height
+        },
+        backgroundColors: ['#fff', '#f3f3f3'],
+        selection: {
+            color: '#212121CC',
+            activeColor: '#ff0000CC',
+            minWidth: 10,
+            minHeight: 10,
+            x: v.image.naturalWidth / 2 - width / 2,
+            y: v.image.naturalHeight / 2 - height / 2,
+            width: width,
+            height: height
+        },
+        onInit: () => { console.log('Initialised') }
     });
 
-    setTimeout(function () {
-        // inject inside div
-        let selectionDiv = document.querySelector(".croppr-region")
-        let cropDiv = document.createElement('div');
-        cropDiv.innerHTML = `<div class="center-crop-btn"><i class="confirm-icon"></i></div>`;
-        selectionDiv.appendChild(cropDiv);
+    let region; // contains the cropped region
+    imgCropper.on('change', (r) => {
+        console.log('change', r);
+        region = r;
+    });
 
-        cropDiv.addEventListener('click', function () {
-            const cropRect = croppr.getValue();
+    // const image = document.getElementById('crop-img');
+
+
+    setTimeout(function () {
+        // get crop btn and add event listener
+        let cropBtn = document.getElementById('btn-crop-img');
+
+        cropBtn.addEventListener('click', function () {
+
+
+            const cropRect = region;
             const canvas = document.createElement("canvas");
             const context = canvas.getContext("2d");
+            const imageObj = new Image();
             canvas.width = cropRect.width;
             canvas.height = cropRect.height;
-            context.drawImage(
-                croppr.imageEl,
-                cropRect.x,
-                cropRect.y,
-                cropRect.width,
-                cropRect.height,
-                0,
-                0,
-                canvas.width,
-                canvas.height,
-            );
-            let ImgUrl = canvas.toDataURL();
+            imageObj.src = url;
+            imageObj.onload = function () {
+                context.drawImage(imageObj, cropRect.x, cropRect.y, cropRect.width, cropRect.height, 0, 0, cropRect.width, cropRect.height);
+                let ImgUrl = canvas.toDataURL();
+                v.image.src = ImgUrl;
 
-            viewer.image.src = ImgUrl;
+                switch (BACKGROUND_TYPE) {
+                    case 'blurred':
+                        injectCSS(`
+                        .blurry-bg {
+                            background-image: url("${ImgUrl}");
+                        }`);
+                        break;
+                    case 'light':
+                        break;
+                    case 'dark':
+                        break;
+                    default:
+                        break;
+                }
 
-            switch (BACKGROUND_TYPE) {
-                case 'blurred':
-                    injectCSS(`
-                    .blurry-bg {
-                        background-image: url("${ImgUrl}");
-                    }`);
-                    break;
-                case 'light':
-                    break;
-                case 'dark':
-                    break;
-                default:
-                    break;
-            }
 
-            setTimeout(function () {
-                viewer.zoom(0.5);
-                window.dispatchEvent(new Event('resize'));
-            }, 100);
+                setTimeout(function () {
+                    window.dispatchEvent(new Event('resize'));
+                    IS_CROP_OPEN = false;
+                    winbox.close();
+                }, 100);
 
-            //showNotification("Image cropped successfully", '#ffffff', '#000000')
-            IS_CROP_OPEN = false;
-            winbox.close();
+            };
+
+
+
+            // image.addEventListener('load', () => {
+
+
+
+            //     console.log(image)
+            //     context.drawImage(
+            //         //croppr.imageEl,
+            //         v.element,
+            //         cropRect.x,
+            //         cropRect.y,
+            //         cropRect.width,
+            //         cropRect.height,
+            //         0,
+            //         0,
+            //         canvas.width,
+            //         canvas.height,
+            //     );
+            // });
+
+            //
+
+
+
+
+            //v.image.src = ImgUrl;
+
+            // switch (BACKGROUND_TYPE) {
+            //     case 'blurred':
+            //         injectCSS(`
+            //         .blurry-bg {
+            //             background-image: url("${ImgUrl}");
+            //         }`);
+            //         break;
+            //     case 'light':
+            //         break;
+            //     case 'dark':
+            //         break;
+            //     default:
+            //         break;
+            // }
+
+            // setTimeout(function () {
+            //     v.zoom(0.5);
+            //     window.dispatchEvent(new Event('resize'));
+            // }, 100);
+
+            // //showNotification("Image cropped successfully", '#ffffff', '#000000', settings)
+            // IS_CROP_OPEN = false;
+            // winbox.close();
 
         });
     }, 100);
@@ -1409,7 +1676,7 @@ function useCanvas(el, image, callback) {
 }
 
 function componentToHex(c) {
-    var hex = c.toString(16);
+    let hex = c.toString(16);
     return hex.length == 1 ? "0" + hex : hex;
 }
 function rgbToHex(r, g, b) {
@@ -1417,7 +1684,7 @@ function rgbToHex(r, g, b) {
 }
 
 function findPos(obj) {
-    var curleft = 0, curtop = 0;
+    let curleft = 0, curtop = 0;
     if (obj.offsetParent) {
         do {
             curleft += obj.offsetLeft;
@@ -1428,37 +1695,40 @@ function findPos(obj) {
     return undefined;
 }
 
-function resetColorPicker(winboxPicker, viewer) {
+function resetColorPicker(winboxPicker, v) {
     //console.log(e);
 }
 
-const handleImageClickOnPicker = (e, viewer, canvas, pickr, x, y) => {
+const handleImageClickOnPicker = (e, v, canvas, pickr, x, y, settings) => {
 
     if (e.offsetX) {
         x = e.offsetX;
         y = e.offsetY;
     }
 
-    useCanvas(canvas, viewer.image, () => {
+
+    console.log(settings);
+
+    useCanvas(canvas, v.image, () => {
         // get image data
         let p = canvas.getContext('2d').getImageData(x, y, 1, 1).data;
         // show info
         pickr.setColor(rgbToHex(p[0], p[1], p[2]));
         copyToClipboard(rgbToHex(p[0], p[1], p[2]));
-        showNotification(`${rgbToHex(p[0], p[1], p[2]).toUpperCase()} copied to clipboard`, getColorByBgColor(rgbToHex(p[0], p[1], p[2])), rgbToHex(p[0], p[1], p[2]));
+        showNotification(`${rgbToHex(p[0], p[1], p[2]).toUpperCase()} copied to clipboard`, getColorByBgColor(rgbToHex(p[0], p[1], p[2])), rgbToHex(p[0], p[1], p[2]), settings);
     });
 
 }
 
-const handleMouseMoveOnPicker = (e, viewer, canvas, pickr, x, y) => {
+const handleMouseMoveOnPicker = (e, v, canvas, pickr, x, y) => {
 
     if (e.offsetX) {
         x = e.offsetX;
         y = e.offsetY;
     }
-    useCanvas(canvas, viewer.image, function () {
+    useCanvas(canvas, v.image, function () {
         // get image data
-        var p = canvas.getContext('2d').getImageData(x, y, 1, 1).data;
+        let p = canvas.getContext('2d').getImageData(x, y, 1, 1).data;
         pickr.setColor(rgbToHex(p[0], p[1], p[2]));
     });
 
@@ -1500,7 +1770,7 @@ function copyToClipboard(textToCopy) {
             textArea.remove();
         });
     }
-};
+}
 
 
 function printImage(image) {
@@ -1519,12 +1789,11 @@ function getBase64Image(img) {
     canvas.height = img.naturalHeight;
     let ctx = canvas.getContext("2d");
     ctx.drawImage(img, 0, 0);
-    let dataURL = canvas.toDataURL();
-    return dataURL;
+    return canvas.toDataURL();
 }
 
 
-function changeTheme(imgsrc) {
+function changeTheme(imgsrc, settings) {
 
     let lightTheme = `background-image: url("data:image/svg+xml,%0A%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' class='feather feather-sun'%3E%3Ccircle cx='12' cy='12' r='5'%3E%3C/circle%3E%3Cline x1='12' y1='1' x2='12' y2='3'%3E%3C/line%3E%3Cline x1='12' y1='21' x2='12' y2='23'%3E%3C/line%3E%3Cline x1='4.22' y1='4.22' x2='5.64' y2='5.64'%3E%3C/line%3E%3Cline x1='18.36' y1='18.36' x2='19.78' y2='19.78'%3E%3C/line%3E%3Cline x1='1' y1='12' x2='3' y2='12'%3E%3C/line%3E%3Cline x1='21' y1='12' x2='23' y2='12'%3E%3C/line%3E%3Cline x1='4.22' y1='19.78' x2='5.64' y2='18.36'%3E%3C/line%3E%3Cline x1='18.36' y1='5.64' x2='19.78' y2='4.22'%3E%3C/line%3E%3C/svg%3E");`
     let darkTheme = `background-image: url("data:image/svg+xml,%0A%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' class='feather feather-moon'%3E%3Cpath d='M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z'%3E%3C/path%3E%3C/svg%3E");`
@@ -1532,7 +1801,7 @@ function changeTheme(imgsrc) {
 
     switch (BACKGROUND_TYPE) {
         case 'blurred':
-            showNotification('☀️ Light Background', '#000000', '#ffffff');
+            showNotification('☀️ Light Background', '#000000', '#ffffff', settings);
             injectCSS(`
                 .viewer-theme {
                     ${darkTheme}
@@ -1559,7 +1828,7 @@ function changeTheme(imgsrc) {
             BACKGROUND_TYPE = 'light';
             break;
         case 'light':
-            showNotification('🌑 Dark Background', '#ffffff', '#000000');
+            showNotification('🌑 Dark Background', '#ffffff', '#000000', settings);
             injectCSS(`
             .viewer-theme {
                 ${blurTheme}
@@ -1577,6 +1846,7 @@ function changeTheme(imgsrc) {
                         width: 100vw;
                         height: 100vh;
                         transform: scale(1.3); 
+                        opacity: 0;
             }
             .blurry-bg:before {
                 opacity: 0;
@@ -1586,7 +1856,7 @@ function changeTheme(imgsrc) {
             break;
         case 'dark':
             // change to blurred
-            showNotification('💧 Blurred Background', '#ffffff', '#404040');
+            showNotification('💧 Blurred Background', '#ffffff', '#404040', settings);
             injectCSS(`
             .viewer-theme {
                 ${lightTheme}
@@ -1604,6 +1874,7 @@ function changeTheme(imgsrc) {
                 width: 100vw;
                 height: 100vh;
                 transform: scale(1.3); 
+                opacity: 1;
             }
             .blurry-bg:before {
                 opacity: 0.5;
@@ -1614,33 +1885,33 @@ function changeTheme(imgsrc) {
 }
 
 
-function showNotification(text, textColor, bgColor, seconds = 5000, gravity = 'bottom', position = 'right') {
+function showNotification(text, textColor, bgColor, settings) {
+
     Toastify({
         text: `${text}`,
-        duration: seconds,
+        duration: 3000,
         newWindow: true,
         close: false,
-        gravity: gravity, // `top` or `bottom`
-        position: position, // `left`, `center` or `right`
+        gravity: settings.settings.notification_gravity, // `top` or `bottom`
+        position: settings.settings.notification_position, // `left`, `center` or `right`
         stopOnFocus: true, // Prevents dismissing of toast on hover
         style: {
             color: textColor,
             background: bgColor,
-        },
-        onClick: function () { } // Callback after click
+        }
     }).showToast();
 }
 
 
 function jsonViewer(json, collapsible = false) {
-    var TEMPLATES = {
+    let TEMPLATES = {
         item: '<div class="json__item"><div class="json__key">%KEY%</div><div class="json__value json__value--%TYPE%">%VALUE%</div></div>',
         itemCollapsible: '<label class="json__item json__item--collapsible"><input type="checkbox" class="json__toggle"/><div class="json__key">%KEY%</div><div class="json__value json__value--type-%TYPE%">%VALUE%</div>%CHILDREN%</label>',
         itemCollapsibleOpen: '<label class="json__item json__item--collapsible"><input type="checkbox" checked class="json__toggle"/><div class="json__key">%KEY%</div><div class="json__value json__value--type-%TYPE%">%VALUE%</div>%CHILDREN%</label>'
     };
 
     function createItem(key, value, type) {
-        var element = TEMPLATES.item.replace('%KEY%', key);
+        let element = TEMPLATES.item.replace('%KEY%', key);
 
         if (type == 'string') {
             element = element.replace('%VALUE%', '"' + value + '"');
@@ -1654,13 +1925,13 @@ function jsonViewer(json, collapsible = false) {
     }
 
     function createCollapsibleItem(key, value, type, children) {
-        var tpl = 'itemCollapsible';
+        let tpl = 'itemCollapsible';
 
         if (collapsible) {
             tpl = 'itemCollapsibleOpen';
         }
 
-        var element = TEMPLATES[tpl].replace('%KEY%', key);
+        let element = TEMPLATES[tpl].replace('%KEY%', key);
 
         element = element.replace('%VALUE%', type);
         element = element.replace('%TYPE%', type);
@@ -1670,10 +1941,10 @@ function jsonViewer(json, collapsible = false) {
     }
 
     function handleChildren(key, value, type) {
-        var html = '';
+        let html = '';
 
-        for (var item in value) {
-            var _key = item,
+        for (let item in value) {
+            let _key = item,
                 _val = value[item];
 
             html += handleItem(_key, _val);
@@ -1683,7 +1954,7 @@ function jsonViewer(json, collapsible = false) {
     }
 
     function handleItem(key, value) {
-        var type = typeof value;
+        let type = typeof value;
 
         if (typeof value === 'object') {
             return handleChildren(key, value, type);
@@ -1693,10 +1964,10 @@ function jsonViewer(json, collapsible = false) {
     }
 
     function parseObject(obj) {
-        _result = '<div class="json">';
+        let _result = '<div class="json">';
 
-        for (var item in obj) {
-            var key = item,
+        for (let item in obj) {
+            let key = item,
                 value = obj[item];
 
             _result += handleItem(key, value);
@@ -1708,7 +1979,7 @@ function jsonViewer(json, collapsible = false) {
     }
 
     return parseObject(json);
-};
+}
 
 
 // listen to messages from iframe
@@ -1720,7 +1991,12 @@ window.addEventListener('message', function (message) {
             settings: user_settings
         }, function () {
             // Notify that we saved.
-            showNotification('Settings saved successfully', '#ffffff', '#000000');
+            showNotification('💾 Settings saved successfully', '#ffffff', '#000000', message.data);
+            setTimeout(() => {
+                // reload window after saving
+                window.location.reload();
+
+            }, 1000)
         });
     }
 });
