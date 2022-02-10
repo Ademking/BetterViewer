@@ -1,6 +1,12 @@
 <h1 align="center">
-    <img src="https://user-images.githubusercontent.com/12462188/141027406-7d2fecc5-0a4c-4389-adac-5cf9f7f317f3.png" alt="Logo">
+    <img src="https://user-images.githubusercontent.com/12462188/141027406-7d2fecc5-0a4c-4389-adac-5cf9f7f317f3.png" alt="Logo" width="200">
 </h1>
+
+<div align="center">
+            <img src="https://img.shields.io/github/release/Ademking/BetterViewer?style=for-the-badge&sort=semver">
+            <img src="https://img.shields.io/github/stars/Ademking/BetterViewer?style=for-the-badge&sort=semver">
+            <img src="https://img.shields.io/chrome-web-store/rating/llcpfkbjgkpmapiidpnohffjmmnhpmpb?style=for-the-badge">
+</div>
 
 <h3 align="center">
     Fast, Simple, Easy image viewer.
@@ -13,7 +19,7 @@
 <p align="center">With BetterViewer you can use various keyboard shortcuts to quickly pan, zoom images, edit and a lot more!</p>
 
 <p align="center">
-    Chrome Web Store: <a href="https://chrome.google.com/webstore/detail/betterviewer/llcpfkbjgkpmapiidpnohffjmmnhpmpb">Click Here</a>
+    The extension is available for <a href="https://chrome.google.com/webstore/detail/betterviewer/llcpfkbjgkpmapiidpnohffjmmnhpmpb">Google Chrome</a>, <a href="https://addons.mozilla.org/en-US/firefox/addon/betterviewer">Firefox</a> and <a href="https://microsoftedge.microsoft.com/addons/detail/betterviewer/jfladbainajdjpmdjpgndbgmkgibeddg">Microsoft Edge</a>
 </p>
 
 <p align="center">
@@ -57,6 +63,18 @@
 - Settings to customize Toolbar 
 
 # Changelog
+
+## [1.0.3] - 2022-02-10
+- Fix major bugs (Croppig issues, Going back issues, etc...)
+- Add [Firefox](https://addons.mozilla.org/en-US/firefox/addon/betterviewer) Compatibilty 
+- Fix Cropping issues
+- Zoom In / Zoom Out is now smoother
+- Fix some UI issues
+- Add new settings
+- Add "Default theme" setting
+- Add "Toolbar position" setting
+- Add "Notification toolbar" setting
+- Add "Show/Hide all tools at the start" setting
 
 ## [1.0.2] - 2021-11-28
 - Fix minor bugs
