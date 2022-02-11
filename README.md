@@ -18,8 +18,10 @@
 
 <p align="center">With BetterViewer you can use various keyboard shortcuts to quickly pan, zoom images, edit and a lot more!</p>
 
-<p align="center">
-    The extension is available for <a href="https://chrome.google.com/webstore/detail/betterviewer/llcpfkbjgkpmapiidpnohffjmmnhpmpb">Google Chrome</a>, <a href="https://addons.mozilla.org/en-US/firefox/addon/betterviewer">Firefox</a> and <a href="https://microsoftedge.microsoft.com/addons/detail/betterviewer/jfladbainajdjpmdjpgndbgmkgibeddg">Microsoft Edge</a>
+<p align="center">    
+   <a href="https://chrome.google.com/webstore/detail/betterviewer/llcpfkbjgkpmapiidpnohffjmmnhpmpb"><img src="./images/download-chrome.svg"></a>
+   <a href="https://microsoftedge.microsoft.com/addons/detail/betterviewer/jfladbainajdjpmdjpgndbgmkgibeddg"><img src="./images/edge.svg"></a>
+   <a href="https://addons.mozilla.org/en-US/firefox/addon/betterviewer"><img src="./images/firefox.svg"></a>
 </p>
 
 <p align="center">
