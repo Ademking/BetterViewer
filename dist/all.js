@@ -2591,6 +2591,16 @@ e=a[0],c=a[2]):(d=a[2],e=a[0],c=a[1]);if(0>function(a,b,c){var d=b.x;b=b.y;retur
 
                     item.appendChild(img);
                     list.appendChild(item);
+
+                    /**
+                     *  Upon loading the DOM, delete the duplicate image that
+                     *  Chrome likes to force into the page.
+                     */
+                    if (navigator.userAgent.indexOf("Chrome") != -1) {
+                        let duplicateImage = document.body.getElementsByTagName('img')[0];
+                        duplicateImage.remove();
+                    }
+
                     items.push(item);
                 }
             });
