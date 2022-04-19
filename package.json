@@ -1,16 +1,16 @@
 {
   "name": "BetterViewer",
-  "version": "1.0.3",
-  "description": "",
+  "version": "1.0.4",
+  "description": "A browser extension for better image viewing experience",
   "main": "background.js",
   "scripts": {
     "start": "gulp",
     "chrome-release": "zip -r betterviewer-chrome.zip . -i \"css/*\" \"dist/*\" \"help/*\" \"icons/*\" \"pages/*\" \"LICENSE\" \"background.js\" \"manifest.json\" \"CODE_OF_CONDUCT.md\" \"README.md\"",
-    "firefox-release": "rename manifest.json manifest.json.chrome && rename manifest-firefox.json manifest.json && zip -r betterviewer-firefox.zip . -i \"css/*\" \"dist/*\" \"help/*\" \"icons/*\" \"pages/*\" \"LICENSE\" \"background.js\" \"manifest.json\" \"CODE_OF_CONDUCT.md\" \"README.md\" && rename manifest.json manifest-firefox.json && rename manifest.json.chrome manifest.json",
+    "firefox-release": "mv manifest.json manifest.json.chrome && mv manifest-firefox.json manifest.json && zip -r betterviewer-firefox.zip . -i \"css/*\" \"dist/*\" \"help/*\" \"icons/*\" \"pages/*\" \"LICENSE\" \"background.js\" \"manifest.json\" \"CODE_OF_CONDUCT.md\" \"README.md\" && mv manifest.json manifest-firefox.json && mv manifest.json.chrome manifest.json",
     "release": "npm run chrome-release && npm run firefox-release"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": ["betterviewer", "image", "viewer", "browser", "extension", "better"],
+  "author": "Adem Kouki <ademkingnew@gmail.com> (https://github.com/Ademking/BetterViewer)",
   "license": "ISC",
   "devDependencies": {
     "gulp": "^4.0.2",

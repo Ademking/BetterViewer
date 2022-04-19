@@ -51,7 +51,7 @@
 - Rotate Left / Rotate Right
 - Flip Horizontal / Flip Vertical
 - Crop Image
-- Paint
+- Photo Editor (Adjust, Draw, Watermark, Filters, Finetune, Resize, Export As PNG, JPEG, JPG, WEBP)
 - Download Image
 - Upload Image to imgBB
 - Color picker
@@ -59,12 +59,18 @@
 - Change background color (Dark / Light / Blurred)
 - Print Image
 - Extract Text from Image
-- Edit in Photopea (Thanks to @bbbenji)
-- Reverse Image Search (using TinEye)
+- Edit in Photopea
+- Reverse Image Search
 - QR Code Scanner
 - Settings to customize Toolbar 
 
 # Changelog
+
+## [1.0.4] - 2022-04-19
+- Add New Photo Editor [Filerobot Image Editor](https://scaleflex.github.io/filerobot-image-editor/) (Adjust, Draw, Watermark, Filters, Finetune, Resize, Export As PNG, JPEG, JPG, WEBP)
+- Fix a bug where Chrome/Edge adds a duplicate image (Thanks to @patrykdziurkowski)
+- Remove Photo Editor [Painterro](https://github.com/devforth/painterro)
+
 
 ## [1.0.3] - 2022-02-10
 - Fix major bugs (Croppig issues, Going back issues, etc...)
@@ -104,7 +110,8 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
 <!-- markdownlint-disable -->
 <table>
   <tr>
-    <td align="center"><a href="https://github.com/bbbenji"><img src="https://avatars.githubusercontent.com/u/1678118?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Benji</b></sub></a><br /><a href="https://github.com/Ademking/BetterViewer/commits?author=bbbenji" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/bbbenji"><img src="https://avatars.githubusercontent.com/u/1678118?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Benji</b></sub></a><br /><a href="https://github.com/Ademking/BetterViewer/commits?author=bbbenji" title="Code">💻</a></td>     
+     <td align="center"><a href="https://github.com/patrykdziurkowski"><img src="https://avatars.githubusercontent.com/u/58700826?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Patryk Dziurkowski</b></sub></a><br /><a href="https://github.com/Ademking/BetterViewer/commits?author=patrykdziurkowski" title="Code">💻</a></td>
   </tr>
 </table>
 

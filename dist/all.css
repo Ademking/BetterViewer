@@ -1,96 +1,65 @@
-select.ptro-input[data-id=fontName] {
-  width: 150px !important;
+.SfxModal-Wrapper {
+  z-index: 99999 !important;
 }
 
-.ptro-tool-ctl-name {
-  display: none !important;
+#SfxPopper {
+  z-index: 999999 !important;
+}
+.FIE_topbar-close-button {
+  visibility: hidden;
 }
 
-.ptro-named-btn {
-  width: 75px !important;
+.SfxSelect-root:hover,
+.SfxInput-root:hover {
+  color: #000000 !important;
 }
 
-.ptro-substrate{
-  display: none !important;
+.SfxColorPicker-action .SfxSelect-Label,
+.SfxColorPicker-action .SfxInput-Base {
+  color: #000000 !important;
 }
 
-.ptro-resize-widget :not(#paint-wrapper-wrapper > div.ptro-color-widget-wrapper.ptro-common-widget-wrapper.ptro-v-middle > div){
-  width: 400px !important;
+.FIE_carousel-prev-button,
+.FIE_carousel-next-button {
+  background: #0f1419 !important;
 }
 
-.ptro-resize-widget {
-  width: 400px !important;
+.SfxModalTitle-LabelPrimary,
+.FIE_save-file-name-input,
+.FIE_save-extension-selector.SfxInput-root.SfxSelect-root,
+.FIE_resize-width-option.SfxInput-root > input,
+.FIE_resize-height-option.SfxInput-root > input {
+  color: #000000 !important;
+}
+
+.eEDOa-d.FIE_resize-width-option.SfxInput-root  ,
+.eEDOa-d.FIE_resize-height-option.SfxInput-root 
+{
+  background-color: #ffffff !important;
+}
+/*
+
+.FIE_canvas-container, .FIE_tab {
+    background: transparent !important;
 }
 
 
-.tool-controls {
-  padding: 10px !important;
+[aria-selected="false"] .FIE_tab-label {
+    color: #fff !important;
 }
 
-
-.ptro-wrapper .ptro-settings-widget {
-  width: 400px !important;
+[aria-selected="false"]:hover svg {
+    color: rgb(19, 19, 19) !important;
 }
 
-
-td.ptro-label.ptro-resize-table-left {
-  padding-right: 20px !important;
+:not(button) > svg:not([color]) {
+    color: #ffffff !important
 }
 
-.ptro-input {
-  border          : 1px solid #202020 !important;
-  background-color: #1a1a1a !important;
-  color           : #f5f5f5 !important;
-}
+.FIE_tab [aria-selected="true"] svg{
+    color: red !important
+} */
 
-.ptro-scroller::-webkit-scrollbar-track {
-  border          : 1px solid black;
-  background-color: #333333;
-}
-
-.ptro-scroller::-webkit-scrollbar {
-  width           : 10px;
-  height          : 10px;
-  background-color: #333333;
-}
-
-.ptro-scroller::-webkit-scrollbar-thumb {
-  background-color: #000000;
-}
-
-.ptro-color-control,
-.ptro-info,
-.ptro-label {
-  color: #ffffff !important;
-}
-
-.ptro-color-main {
-  background-color: #242424 !important;
-}
-
-.ptro-wrapper {
-  background-color: #363636 !important;
-}
-
-.ptro-color-control {
-  background-color: #131313 !important;
-}
-
-.ptro-pallet .ptro-color-main .ptro-v-middle-in {
-  width: 200px !important;
-}
-
-.ptro-icon-btn {
-  border-radius: 50% !important;
-}
-
-.ptro-icon {
-  font-size: 16px !important;
-}
-
-.ptro-color-active-control{
-  background-color: #3b3b3b !important;
-}
 /*! Pickr 1.8.2 MIT | https://github.com/Simonwep/pickr */
 .pickr {
     position : relative;

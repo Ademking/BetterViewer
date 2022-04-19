@@ -25,6 +25,7 @@ let ImgCanvas;
 let isFlippedHorizontally = false;
 let isFlippedVertically = false;
 let IMGBB_TOKEN = '8be35a61597b285f9c95669fdc565b00';
+let isKeypressEnabled = false;
 let WINBOX_CLASSES = [
     "no-scrollbar",
     "no-max",
@@ -183,7 +184,7 @@ let tippyData = [
     },
     {
         type: 'paint',
-        text: 'Paint',
+        text: 'Photo Editor',
     },
     {
         type: 'print',
@@ -231,9 +232,15 @@ let tippyData = [
     }
 ]
 
-// prevent default keyboard behavior (for example : ctrl + s or ctrl + f)
+// Prevent default keyboard behavior (for example : ctrl + s or ctrl + f)
+// Except F11 (Suggestion from some users)
 document.addEventListener('keydown', function (e) {
-    e.preventDefault();
+    if (!isKeypressEnabled) {
+        if (e.key !== 'F11') { // f11 is the only exception
+            e.preventDefault();
+        }
+    }
+
 });
 
 /**
@@ -423,64 +430,246 @@ function init(settings) {
                     size: 'large',
                     click: function () {
 
+                        isKeypressEnabled = true;
                         // create new winbox
-                        let winboxPaint = new WinBox("Paint", {
-                            class: WINBOX_CLASSES,
+                        let winboxPaint = new WinBox("Photo Editor", {
+                            class: [
+                                "no-scrollbar",
+                                "no-min",
+                                "no-animation"
+                            ],
                             index: 9999,
                             x: "center",
                             y: "center",
                             width: '90%',
                             height: '90%',
                             background: "rgba(0,0,0,0.9)",
-                            html: `<div id="paint-wrapper"></div>`,
+                            html: `<div id="paint-wrapper" style="width: 100%; height: 100%"></div>`,
                         });
 
                         winboxPaint.show();
 
 
-                        window.p = Painterro({
-                            hideByEsc: true,
-                            saveByEnter: true,
-                            hiddenTools: [
-                                'open', 'close', 'resize', 'eraser'
-                            ],
-                            id: 'paint-wrapper',
-                            availableLineWidths: [1, 2, 4, 8, 16, 64],
-                            availableEraserWidths: [1, 2, 4, 8, 16, 64],
-                            availableFontSizes: [1, 2, 4, 8, 16, 64],
-                            availableArrowLengths: [10, 20, 30, 40, 50, 60],
-                            defaultTool: 'brush',
-                            saveHandler: (image, done) => {
+                        const config = {
 
-                                let newImgBase64 = image.asDataURL();
+                            theme: {
+                                palette: {
+                                    'txt-primary': '#ffffff',
+                                    'txt-primary-invert': '#ffffff',
+                                    //   'txt-secondary': '#ffffff',
+                                    //  'txt-secondary-invert': '#ffffff',
+                                    // 'txt-placeholder': '#ffffff',
+                                    'accent-primary': '#1E262C',
+                                    'accent-primary-hover': '#000000',
+                                    'accent-primary-active': '#000000',
+                                    // 'accent-primary-disabled': '#ffffff',
+                                    'bg-primary': '#00000000', // canvas bg
+                                    //'bg-primary-hover': '#000000',
+                                    //'bg-primary-active': '#000000',
+                                    //'bg-primary-0-5-opacity': '#ffffff',
+                                    //'bg-secondary': '#ffffff',
+                                    //'icons-primary': '#ffffff',
+                                    //'icons-primary-opacity-0-6': '#ffffff',
+                                    //'icons-secondary': '#ffffff',
+                                    // 'btn-primary-text': '#ffffff',
+                                    // 'btn-disabled-text': '#ffffff',
+                                    // 'link-primary': '#ffffff',
+                                    // 'link-hover': '#ffffff',
+                                    // 'link-active': '#ffffff',
+                                    // 'borders-primary': '#ffffff',
+                                    // 'borders-secondary': '#ffffff',
+                                    // 'borders-strong': '#ffffff',
+                                    // 'borders-invert': '#ffffff',
+                                    // 'border-active-bottom': '#ffffff',
+                                    // 'active-secondary': '#ffffff',
+                                    // 'active-secondary-hover': '#ffffff',
+                                    // 'active-secondary-active': '#ffffff',
+                                    // 'tag': '#ffffff',
+                                    // 'error': '#ffffff',
+                                    // 'success': '#ffffff',
+                                    // 'warning': '#ffffff',
+                                    // 'info': '#ffffff',
+                                    // 'light-shadow': '#ffffff',
+                                },
 
+                            },
+                            onBeforeSave: function (imageFileInfo) {
+                                // prevent default behavior
+                                return false;
+                            },
+                            onSave: function (imageData, imageDesignState) {
+
+                                console.log("~ imageDesignState", imageDesignState)
+                                console.log("~ imageData", imageData)
+                                let newImgBase64 = imageData.imageBase64;
                                 let imgElements = document.getElementsByTagName('img');
-                                // loop through all img elements
-                                // for (let i = 0; i < imgElements.length; i++) {
-                                //     // replace image with cropped image
-                                //     imgElements[i].src = newImgBase64;
-                                // }
-
                                 for (let elem of imgElements) {
                                     elem.src = newImgBase64;
                                 }
-
                                 // trigger resize event in setTimeout
                                 setTimeout(function () {
                                     window.dispatchEvent(new Event('resize'));
                                 }, 100);
-
                                 showNotification('💾 Image saved successfully', '#ffffff', '#000000', settings);
                                 setTimeout(() => {
                                     if (settings.settings.toolbar_position === 'top') {
                                         viewer.move(0, 50);
                                     }
                                 }, 100);
-
                                 winboxPaint.close();
-                                done(true);
+
+                            },
+                            moreSaveOptions:
+                                [
+                                    {
+                                        label: 'Save as new file',
+                                        onClick: (triggerSaveModal, triggerSave) => triggerSaveModal((...args) => { 
+                                            
+                                            
+
+                                            let a = document.createElement("a"); 
+                                            a.href = args[0].imageBase64;
+                                            a.download = args[0].fullName
+                                            a.click();
+                                           
+                                            showNotification('💾 Image downloaded successfully', '#ffffff', '#000000', settings);
+                                        
+                                        }),
+                                    },
+
+
+                                ]
+                            ,
+                            source: viewer.image.src,
+                            //onSave: (editedImageObject, designState) => console.log('saved', editedImageObject, designState),
+                            annotationsCommon: {
+                                fill: '#ff0000',
+                            },
+                            Text: { text: 'Your Text Here...' },
+                            translations: {
+                                profile: 'Profile',
+                                coverPhoto: 'Cover photo',
+                                facebook: 'Facebook',
+                                socialMedia: 'Social Media',
+                                fbProfileSize: '180x180px',
+                                fbCoverPhotoSize: '820x312px',
+                            },
+                            Crop: {
+                                presetsItems: [
+                                    {
+                                        titleKey: 'classicTv',
+                                        descriptionKey: '4:3',
+                                        ratio: 4 / 3,
+                                        // icon: CropClassicTv, // optional, CropClassicTv is a React Function component. Possible (React Function component, string or HTML Element)
+                                    },
+                                    {
+                                        titleKey: 'cinemascope',
+                                        descriptionKey: '21:9',
+                                        ratio: 21 / 9,
+                                        // icon: CropCinemaScope, // optional, CropCinemaScope is a React Function component.  Possible (React Function component, string or HTML Element)
+                                    },
+                                ],
+                                presetsFolders: [
+                                    {
+                                        titleKey: 'socialMedia', // will be translated into Social Media as backend contains this translation key
+                                        // icon: Social, // optional, Social is a React Function component. Possible (React Function component, string or HTML Element)
+                                        groups: [
+                                            {
+                                                titleKey: 'facebook',
+                                                items: [
+                                                    {
+                                                        titleKey: 'profile',
+                                                        width: 180,
+                                                        height: 180,
+                                                        descriptionKey: 'fbProfileSize',
+                                                    },
+                                                    {
+                                                        titleKey: 'coverPhoto',
+                                                        width: 820,
+                                                        height: 312,
+                                                        descriptionKey: 'fbCoverPhotoSize',
+                                                    },
+                                                ],
+                                            },
+                                        ],
+                                    },
+                                ],
+                            },
+                            tabsIds: [window.FilerobotImageEditor.TABS.ADJUST,
+                            window.FilerobotImageEditor.TABS.ANNOTATE,
+                            window.FilerobotImageEditor.TABS.WATERMARK,
+                            window.FilerobotImageEditor.TABS.FILTERS,
+                            window.FilerobotImageEditor.TABS.FINETUNE,
+                            window.FilerobotImageEditor.TABS.RESIZE,
+
+
+
+                            ], // or ['Adjust', 'Annotate', 'Watermark']
+                            defaultTabId: window.FilerobotImageEditor.TABS.ANNOTATE, // or 'Annotate'
+                            defaultToolId: window.FilerobotImageEditor.TOOLS.TEXT, // or 'Text'
+                        };
+
+                        console.log(window.FilerobotImageEditor.TABS)
+
+                        // Assuming we have a div with id="editor_container"
+                        const filerobotImageEditor = new FilerobotImageEditor(
+                            document.querySelector('#paint-wrapper'),
+                            config
+                        );
+
+                        filerobotImageEditor.render({
+                            onClose: (closingReason) => {
+                                console.log('Closing reason', closingReason);
+                                filerobotImageEditor.terminate();
                             }
-                        }).show(viewer.image.src);
+                        });
+
+
+
+
+                        // window.p = Painterro({
+                        //     hideByEsc: true,
+                        //     saveByEnter: true,
+                        //     hiddenTools: [
+                        //         'open', 'close', 'resize', 'eraser'
+                        //     ],
+                        //     id: 'paint-wrapper',
+                        //     availableLineWidths: [1, 2, 4, 8, 16, 64],
+                        //     availableEraserWidths: [1, 2, 4, 8, 16, 64],
+                        //     availableFontSizes: [1, 2, 4, 8, 16, 64],
+                        //     availableArrowLengths: [10, 20, 30, 40, 50, 60],
+                        //     defaultTool: 'brush',
+                        //     saveHandler: (image, done) => {
+
+                        //         let newImgBase64 = image.asDataURL();
+
+                        //         let imgElements = document.getElementsByTagName('img');
+                        //         // loop through all img elements
+                        //         // for (let i = 0; i < imgElements.length; i++) {
+                        //         //     // replace image with cropped image
+                        //         //     imgElements[i].src = newImgBase64;
+                        //         // }
+
+                        //         for (let elem of imgElements) {
+                        //             elem.src = newImgBase64;
+                        //         }
+
+                        //         // trigger resize event in setTimeout
+                        //         setTimeout(function () {
+                        //             window.dispatchEvent(new Event('resize'));
+                        //         }, 100);
+
+                        //         showNotification('💾 Image saved successfully', '#ffffff', '#000000', settings);
+                        //         setTimeout(() => {
+                        //             if (settings.settings.toolbar_position === 'top') {
+                        //                 viewer.move(0, 50);
+                        //             }
+                        //         }, 100);
+
+                        //         winboxPaint.close();
+                        //         done(true);
+                        //     }
+                        // }).show(viewer.image.src);
                     }
                 },
                 download: settings.settings.download && {
@@ -1260,12 +1449,12 @@ function init(settings) {
                         })
 
                         btnsExceptMore.forEach(btn => {
-                          // toggle display of each button
-                          
-                        
-                          let cssObj = window.getComputedStyle(btn, null);
-                          let display = cssObj.getPropertyValue("display");
-                          
+                            // toggle display of each button
+
+
+                            let cssObj = window.getComputedStyle(btn, null);
+                            let display = cssObj.getPropertyValue("display");
+
                             if (display === 'none') {
                                 btn.style.display = 'list-item';
                                 btn.style.opacity = 1;
@@ -1275,9 +1464,9 @@ function init(settings) {
                             else {
                                 btn.style.display = 'none';
                                 btn.style.opacity = 0;
-                                
+
                             }
-                        
+
                         })
                     }
                 }
@@ -1289,33 +1478,33 @@ function init(settings) {
                 // hide all at start 
                 if (settings.settings.hide_all_at_start) {
 
-                     // get all viewer buttons
-                     let viewerButtons = document.querySelectorAll('div.viewer-toolbar > ul > li');
+                    // get all viewer buttons
+                    let viewerButtons = document.querySelectorAll('div.viewer-toolbar > ul > li');
 
-                     let btnsExceptMore = Array.prototype.slice.call(viewerButtons).filter(function (el) {
-                         return !el.classList.contains('viewer-more');
-                     })
+                    let btnsExceptMore = Array.prototype.slice.call(viewerButtons).filter(function (el) {
+                        return !el.classList.contains('viewer-more');
+                    })
 
-                     btnsExceptMore.forEach(btn => {
-                       // toggle display of each button
-                       
-                     
-                       let cssObj = window.getComputedStyle(btn, null);
-                       let display = cssObj.getPropertyValue("display");
-                       
-                         if (display === 'none') {
-                             btn.style.display = 'list-item';
-                             btn.style.opacity = 1;
-                             // append class
-                             btn.classList.add('fade-in-right');
-                         }
-                         else {
-                             btn.style.display = 'none';
-                             btn.style.opacity = 0;
-                             
-                         }
-                     
-                     })
+                    btnsExceptMore.forEach(btn => {
+                        // toggle display of each button
+
+
+                        let cssObj = window.getComputedStyle(btn, null);
+                        let display = cssObj.getPropertyValue("display");
+
+                        if (display === 'none') {
+                            btn.style.display = 'list-item';
+                            btn.style.opacity = 1;
+                            // append class
+                            btn.classList.add('fade-in-right');
+                        }
+                        else {
+                            btn.style.display = 'none';
+                            btn.style.opacity = 0;
+
+                        }
+
+                    })
 
 
                 }

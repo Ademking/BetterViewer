@@ -1,0 +1,61 @@
+.SfxModal-Wrapper {
+  z-index: 99999 !important;
+}
+
+#SfxPopper {
+  z-index: 999999 !important;
+}
+.FIE_topbar-close-button {
+  visibility: hidden;
+}
+
+.SfxSelect-root:hover,
+.SfxInput-root:hover {
+  color: #000000 !important;
+}
+
+.SfxColorPicker-action .SfxSelect-Label,
+.SfxColorPicker-action .SfxInput-Base {
+  color: #000000 !important;
+}
+
+.FIE_carousel-prev-button,
+.FIE_carousel-next-button {
+  background: #0f1419 !important;
+}
+
+.SfxModalTitle-LabelPrimary,
+.FIE_save-file-name-input,
+.FIE_save-extension-selector.SfxInput-root.SfxSelect-root,
+.FIE_resize-width-option.SfxInput-root > input,
+.FIE_resize-height-option.SfxInput-root > input {
+  color: #000000 !important;
+}
+
+.eEDOa-d.FIE_resize-width-option.SfxInput-root  ,
+.eEDOa-d.FIE_resize-height-option.SfxInput-root 
+{
+  background-color: #ffffff !important;
+}
+/*
+
+.FIE_canvas-container, .FIE_tab {
+    background: transparent !important;
+}
+
+
+[aria-selected="false"] .FIE_tab-label {
+    color: #fff !important;
+}
+
+[aria-selected="false"]:hover svg {
+    color: rgb(19, 19, 19) !important;
+}
+
+:not(button) > svg:not([color]) {
+    color: #ffffff !important
+}
+
+.FIE_tab [aria-selected="true"] svg{
+    color: red !important
+} */
