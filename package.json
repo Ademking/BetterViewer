@@ -9,7 +9,14 @@
     "firefox-release": "mv manifest.json manifest.json.chrome && mv manifest-firefox.json manifest.json && zip -r betterviewer-firefox.zip . -i \"css/*\" \"dist/*\" \"help/*\" \"icons/*\" \"pages/*\" \"LICENSE\" \"background.js\" \"manifest.json\" \"CODE_OF_CONDUCT.md\" \"README.md\" && mv manifest.json manifest-firefox.json && mv manifest.json.chrome manifest.json",
     "release": "npm run chrome-release && npm run firefox-release"
   },
-  "keywords": ["betterviewer", "image", "viewer", "browser", "extension", "better"],
+  "keywords": [
+    "betterviewer",
+    "image",
+    "viewer",
+    "browser",
+    "extension",
+    "better"
+  ],
   "author": "Adem Kouki <ademkingnew@gmail.com> (https://github.com/Ademking/BetterViewer)",
   "license": "ISC",
   "devDependencies": {
