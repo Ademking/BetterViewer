@@ -14,7 +14,7 @@
 
 <p align="center">BetterViewer makes image viewing faster, easier, and more fun.</p>
 
-<p align="center">BetterViewer was designed as a replacement for the image viewing mode built into Chrome-based web browsers.</p>
+<p align="center">BetterViewer was designed as a replacement for the image viewing mode built into Firefox & Chrome-based web browsers.</p>
 
 <p align="center">With BetterViewer you can use various keyboard shortcuts to quickly pan, zoom images, edit and a lot more!</p>
 
