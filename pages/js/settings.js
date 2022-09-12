@@ -7,12 +7,14 @@ let currentSettings = () => {
     });
     let toolbar_position = document.querySelector('#toolbar-position').value;
     let default_theme = document.querySelector('#default-theme').value;
+    let zoom_ratio = document.querySelector('#zoom-ratio').value;
     // split notification position
     let notification_position_array = document.querySelector('#toast-position').value.split('-'); // for example: top-right
     settings['notification_gravity'] = notification_position_array[0];
     settings['notification_position'] = notification_position_array[1];
     settings['toolbar_position'] = toolbar_position;
     settings['default_theme'] = default_theme;
+    settings['zoom_ratio'] = zoom_ratio;
 
     return settings;
 }
@@ -61,6 +63,8 @@ window.addEventListener('load', () => {
         let notification_position = settings.settings.notification_position;
         // get toolbar_position
         let toolbar_position = settings.settings.toolbar_position;
+        // get zoom_ratio
+        let zoom_ratio = settings.settings.zoom_ratio;
 
 
         // update notif value with storage settings
@@ -69,6 +73,8 @@ window.addEventListener('load', () => {
         document.querySelector('#toolbar-position').value = toolbar_position;
         // update default theme
         document.querySelector('#default-theme').value = default_theme;
+        // update zoom ratio
+        document.querySelector('#zoom-ratio').value = zoom_ratio;
 
         try {
             for (let setting in settings.settings) {

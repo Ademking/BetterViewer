@@ -2655,11 +2655,11 @@ e=a[0],c=a[2]):(d=a[2],e=a[0],c=a[1]);if(0>function(a,b,c){var d=b.x;b=b.y;retur
                     break;
 
                 case 'zoom-in':
-                    this.zoom(0.1, true);
+                    this.zoom(options.zoomRatio, true);
                     break;
 
                 case 'zoom-out':
-                    this.zoom(-0.1, true);
+                    this.zoom(-options.zoomRatio, true);
                     break;
 
                 case 'one-to-one':
@@ -5193,6 +5193,9 @@ function init(settings) {
 
     BACKGROUND_TYPE = settings.settings.default_theme;
 
+    // checks the zoom setting - if it's nulled, then the default is set to 0.1 (10%)
+    settings.settings.zoom_ratio == null ? settings.settings.zoom_ratio = 0.1 : zoomSetting = settings.settings.zoom_ratio;
+    zoomSetting = settings.settings.zoom_ratio;
 
     let imgElement = document.getElementsByTagName('img')[0]; // get img element
     // if img element is found
@@ -5214,6 +5217,7 @@ function init(settings) {
             title: false,
             keyboard: false,
             backdrop: false, // prevent exit when click backdrop
+            zoomRatio: zoomSetting,
             toolbar: {
                 next: false,
                 prev: false,
@@ -6390,7 +6394,6 @@ function init(settings) {
         });
 
 
-        // change zoom
 
         let lightTheme = `
         transition: all 0.5s ease;
