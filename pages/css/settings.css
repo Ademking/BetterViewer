@@ -240,7 +240,7 @@ body {
   display: none;
 }
 
-select {
+select, #zoom-ratio {
   border          : 1px solid #dcdcdccc;
   background-color: transparent;
   color           : white;
@@ -248,6 +248,11 @@ select {
   border-radius   : 4px;
   width           : 100px !important;
   font-size       : 12px;
+}
+
+#zoom-ratio {
+  box-sizing: border-box;
+  padding-left: 7px;
 }
 
 select option {

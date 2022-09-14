@@ -183,6 +183,7 @@ function set_default_settings(){
             qr: true,
             exit: true,
             about: true,
+            zoom_ratio: 0.1, // 0.1 is +/- 10% Zoom, 0.5 is +/- 50% Zoom, etc...
             notification_gravity: "top", // top, bottom
             notification_position: "right", // left, right
             toolbar_position: "bottom", // top, bottom
