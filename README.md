@@ -62,19 +62,23 @@
 - Edit in Photopea
 - Reverse Image Search
 - QR Code Scanner
-- Settings to customize Toolbar 
+- Settings to customize Toolbar
 
 # Changelog
 
+## [1.0.5] - 2022-09-14
+- Add "Zoom Ratio" option to Settings. (Thanks to @Metacor)
+
 ## [1.0.4] - 2022-04-19
+
 - Add New Photo Editor [Filerobot Image Editor](https://scaleflex.github.io/filerobot-image-editor/) (Adjust, Draw, Watermark, Filters, Finetune, Resize, Export As PNG, JPEG, JPG, WEBP)
 - Fix a bug where Chrome/Edge adds a duplicate image (Thanks to @patrykdziurkowski)
 - Remove Photo Editor [Painterro](https://github.com/devforth/painterro)
 
-
 ## [1.0.3] - 2022-02-10
+
 - Fix major bugs (Croppig issues, Going back issues, etc...)
-- Add [Firefox](https://addons.mozilla.org/en-US/firefox/addon/betterviewer) Compatibilty 
+- Add [Firefox](https://addons.mozilla.org/en-US/firefox/addon/betterviewer) Compatibilty
 - Fix Cropping issues
 - Zoom In / Zoom Out is now smoother
 - Fix some UI issues
@@ -85,6 +89,7 @@
 - Add "Show/Hide all tools at the start" setting
 
 ## [1.0.2] - 2021-11-28
+
 - Fix minor bugs
 - Add "Reverse Image Search"
 - Add "QR Code Scanner"
@@ -92,13 +97,16 @@
 - Fix Shortcuts (Combo keys / Ctrl + Key
 
 ## [1.0.1] - 2021-11-20
+
 - Fix Crop problem
 - Fix random shutdown
 - Replace Imgur with ImgBB (Many users requested this)
 - Add "Edit with Photopea"
 - Add Contributors in About popup
 - Edit in Photopea (Thanks to @bbbenji)
+
 ## [1.0.0] - 2021-11-10
+
 - First version
 
 ## Contributors ✨
@@ -112,6 +120,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
   <tr>
     <td align="center"><a href="https://github.com/bbbenji"><img src="https://avatars.githubusercontent.com/u/1678118?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Benji</b></sub></a><br /><a href="https://github.com/Ademking/BetterViewer/commits?author=bbbenji" title="Code">💻</a></td>     
      <td align="center"><a href="https://github.com/patrykdziurkowski"><img src="https://avatars.githubusercontent.com/u/58700826?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Patryk Dziurkowski</b></sub></a><br /><a href="https://github.com/Ademking/BetterViewer/commits?author=patrykdziurkowski" title="Code">💻</a></td>
+     <td align="center"><a href="https://github.com/patrykdziurkowski"><img src="https://avatars.githubusercontent.com/u/35663695?v=4" width="100px;" alt=""/><br /><sub><b>Metacor</b></sub></a><br /><a href="https://github.com/Ademking/BetterViewer/commits?author=Metacor" title="Code">💻</a></td>
   </tr>
 </table>
 

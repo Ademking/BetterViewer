@@ -1,6 +1,6 @@
 {
   "name": "BetterViewer",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "A browser extension for better image viewing experience",
   "main": "background.js",
   "scripts": {
