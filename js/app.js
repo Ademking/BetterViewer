@@ -232,92 +232,291 @@ let tippyData = [
     }
 ]
 
-// Prevent default keyboard behavior (for example : ctrl + s or ctrl + f)
-// Except F11 (Suggestion from some users)
-document.addEventListener('keydown', function (e) {
-    if (!isKeypressEnabled) {
-        if (e.key !== 'F11') { // f11 is the only exception
-            e.preventDefault();
+// ~~~ Custom Shortcut Hotkeys Section ~~~ \\
+chrome.storage.sync.get("shortcutHotkeys", (shortcutHotkeys) => {
+    const sc_sc = shortcutHotkeys.shortcutHotkeys;
+
+    document.addEventListener("keydown", function (e) {
+        console.log(e);
+        let activeModifier;
+        if (e.ctrlKey) {activeModifier = "mod";} else if (e.shiftKey) {activeModifier = "shift";} else if (e.altKey) {activeModifier = "alt";};
+       
+        if (!isKeypressEnabled) {
+            // if shortcut toggle = on { set custom hotkey; activate shortcut}
+            if (sc_sc.zoomInToggle === true) {
+                const hotkeyMod = sc_sc.zoom_in_mod;
+                const hotkeyKey = sc_sc.zoom_in_key;
+                const customHotkey = hotkeyMod + "+" + hotkeyKey;
+
+                // prevent the default shortcut
+                if (activeModifier === hotkeyMod && e.key === hotkeyKey) {e.preventDefault();}
+
+                // uses the custom hotkey to execute the selected shortcut
+                Mousetrap.bind(customHotkey, () => {
+                    document.getElementsByClassName('viewer-zoom-in')[0].click();
+                });
+            }
+            
+            if (sc_sc.zoomOutToggle === true) {
+                const hotkeyMod = sc_sc.zoom_out_mod;
+                const hotkeyKey = sc_sc.zoom_out_key;
+                const customHotkey = hotkeyMod + "+" + hotkeyKey;
+
+                if (activeModifier === hotkeyMod && e.key === hotkeyKey) {e.preventDefault();}
+
+                Mousetrap.bind(customHotkey, () => {
+                    document.getElementsByClassName('viewer-zoom-out')[0].click();
+                });
+            }
+            
+            if (sc_sc.oneToOneToggle === true) {
+                const hotkeyMod = sc_sc.one_to_one_mod
+                const hotkeyKey = sc_sc.one_to_one_key
+                const customHotkey = hotkeyMod + "+" + hotkeyKey;
+
+                if (activeModifier === hotkeyMod && e.key === hotkeyKey) {e.preventDefault();}
+
+                Mousetrap.bind(customHotkey, () => {
+                    document.getElementsByClassName('viewer-one-to-one')[0].click();
+                });
+            }
+            
+            if (sc_sc.resetToggle === true) {
+                const hotkeyMod = sc_sc.reset_mod;
+                const hotkeyKey = sc_sc.reset_key;
+                const customHotkey = hotkeyMod + "+" + hotkeyKey;
+
+                if (activeModifier === hotkeyMod && e.key === hotkeyKey) {e.preventDefault();}
+
+                Mousetrap.bind(customHotkey, () => {
+                    document.getElementsByClassName("viewer-reset")[0].click();
+                });
+            }
+            
+            if (sc_sc.fullscreenToggle === true) {
+                const hotkeyMod = sc_sc.fullscreen_mod;
+                const hotkeyKey = sc_sc.fullscreen_key;
+                const customHotkey = hotkeyMod + "+" + hotkeyKey;
+
+                if (activeModifier === hotkeyMod && e.key === hotkeyKey) {e.preventDefault();}
+
+                Mousetrap.bind(customHotkey, () => {
+                    document.getElementsByClassName('viewer-play')[0].click();
+                });
+            }
+            
+            if (sc_sc.rotateLeftToggle === true) {
+                const hotkeyMod = sc_sc.rotate_left_mod;
+                const hotkeyKey = sc_sc.rotate_left_key;
+                const customHotkey = hotkeyMod + "+" + hotkeyKey;
+
+                if (activeModifier === hotkeyMod && e.key === hotkeyKey) {e.preventDefault();}
+
+                Mousetrap.bind(customHotkey, () => {
+                    document.getElementsByClassName('viewer-rotate-left')[0].click();
+                });
+            }
+            
+            if (sc_sc.rotateRightToggle === true) {
+                const hotkeyMod = sc_sc.rotate_right_mod;
+                const hotkeyKey = sc_sc.rotate_right_key;
+                const customHotkey = hotkeyMod + "+" + hotkeyKey;
+
+                if (activeModifier === hotkeyMod && e.key === hotkeyKey) {e.preventDefault();}
+
+                Mousetrap.bind(customHotkey, () => {
+                    document.getElementsByClassName('viewer-rotate-right')[0].click();
+                });
+            }
+            
+            if (sc_sc.flipHorizontalToggle === true) {
+                const hotkeyMod = sc_sc.flip_horizontal_mod;
+                const hotkeyKey = sc_sc.flip_horizontal_key;
+                const customHotkey = hotkeyMod + "+" + hotkeyKey;
+
+                if (activeModifier === hotkeyMod && e.key === hotkeyKey) {e.preventDefault();}
+
+                Mousetrap.bind(customHotkey, () => {
+                    document.getElementsByClassName('viewer-flip-horizontal')[0].click();
+                });
+            }
+            
+            if (sc_sc.flipVerticalToggle === true) {
+                const hotkeyMod = sc_sc.flip_vertical_mod;
+                const hotkeyKey = sc_sc.flip_vertical_key;
+                const customHotkey = hotkeyMod + "+" + hotkeyKey;
+
+                if (activeModifier === hotkeyMod && e.key === hotkeyKey) {e.preventDefault();}
+
+                Mousetrap.bind(customHotkey, () => {
+                    document.getElementsByClassName('viewer-flip-vertical')[0].click();
+                });
+            }
+            
+            if (sc_sc.cropImageToggle === true) {
+                const hotkeyMod = sc_sc.crop_mod;
+                const hotkeyKey = sc_sc.crop_key;
+                const customHotkey = hotkeyMod + "+" + hotkeyKey;
+
+                if (activeModifier === hotkeyMod && e.key === hotkeyKey) {e.preventDefault();}
+
+                Mousetrap.bind(customHotkey, () => {
+                    document.getElementsByClassName('viewer-crop')[0].click();
+                });
+            }
+            
+            if (sc_sc.photoEditorToggle === true) {
+                const hotkeyMod = sc_sc.photo_editor_mod;
+                const hotkeyKey = sc_sc.photo_editor_key;
+                const customHotkey = hotkeyMod + "+" + hotkeyKey;
+
+                if (activeModifier === hotkeyMod && e.key === hotkeyKey) {e.preventDefault();}
+
+                Mousetrap.bind(customHotkey, () => {
+                    document.getElementsByClassName('viewer-paint')[0].click();
+                });
+            }
+            
+            if (sc_sc.downloadToggle === true) {
+                const hotkeyMod = sc_sc.download_mod;
+                const hotkeyKey = sc_sc.download_key;
+                const customHotkey = hotkeyMod + "+" + hotkeyKey;
+
+                if (activeModifier === hotkeyMod && e.key === hotkeyKey) {e.preventDefault();}
+
+                Mousetrap.bind(customHotkey, () => {
+                    document.getElementsByClassName('viewer-download')[0].click();
+                });
+            }
+            
+            if (sc_sc.uploadImageToggle === true) {
+                const hotkeyMod = sc_sc.upload_mod;
+                const hotkeyKey = sc_sc.upload_key;
+                const customHotkey = hotkeyMod + "+" + hotkeyKey;
+
+                if (activeModifier === hotkeyMod && e.key === hotkeyKey) {e.preventDefault();}
+
+                Mousetrap.bind(customHotkey, () => {
+                    document.getElementsByClassName('viewer-upload')[0].click();
+                });
+            }
+            
+            if (sc_sc.colorPickerToggle === true) {
+                const hotkeyMod = sc_sc.color_picker_mod;
+                const hotkeyKey = sc_sc.color_picker_key;
+                const customHotkey = hotkeyMod + "+" + hotkeyKey;
+
+                if (activeModifier === hotkeyMod && e.key === hotkeyKey) {e.preventDefault();}
+
+                Mousetrap.bind(customHotkey, () => {
+                    document.getElementsByClassName('viewer-colorpicker')[0].click();
+                });
+            }
+            
+            if (sc_sc.detailsToggle === true) {
+                const hotkeyMod = sc_sc.details_mod;
+                const hotkeyKey = sc_sc.details_key;
+                const customHotkey = hotkeyMod + "+" + hotkeyKey;
+
+                if (activeModifier === hotkeyMod && e.key === hotkeyKey) {e.preventDefault();}
+
+                Mousetrap.bind(customHotkey, () => {
+                    document.getElementsByClassName('viewer-details')[0].click();
+                });
+            }
+            
+            if (sc_sc.themeToggle === true) {
+                const hotkeyMod = sc_sc.theme_mod;
+                const hotkeyKey = sc_sc.theme_key;
+                const customHotkey = hotkeyMod + "+" + hotkeyKey;
+
+                if (activeModifier === hotkeyMod && e.key === hotkeyKey) {e.preventDefault();}
+
+                Mousetrap.bind(customHotkey, () => {
+                    document.getElementsByClassName('viewer-theme')[0].click();
+                });
+            }
+            
+            if (sc_sc.printImageToggle === true) {
+                const hotkeyMod = sc_sc.print_mod;
+                const hotkeyKey = sc_sc.print_key;
+                const customHotkey = hotkeyMod + "+" + hotkeyKey;
+
+                if (activeModifier === hotkeyMod && e.key === hotkeyKey) {e.preventDefault();}
+
+                Mousetrap.bind(customHotkey, () => {
+                    document.getElementsByClassName('viewer-print')[0].click();
+                });
+            }
+            
+            if (sc_sc.extractTextToggle === true) {
+                const hotkeyMod = sc_sc.extract_text_mod;
+                const hotkeyKey = sc_sc.extract_text_key;
+                const customHotkey = hotkeyMod + "+" + hotkeyKey;
+
+                if (activeModifier === hotkeyMod && e.key === hotkeyKey) {e.preventDefault();}
+
+                Mousetrap.bind(customHotkey, () => {
+                    document.getElementsByClassName('viewer-ocr')[0].click();
+                });
+            }
+            
+            if (sc_sc.photopeaToggle === true) {
+                const hotkeyMod = sc_sc.photopea_mod;
+                const hotkeyKey = sc_sc.photopea_key;
+                const customHotkey = hotkeyMod + "+" + hotkeyKey;
+
+                if (activeModifier === hotkeyMod && e.key === hotkeyKey) {e.preventDefault();}
+
+                Mousetrap.bind(customHotkey, () => {
+                    document.getElementsByClassName('viewer-photopea')[0].click();
+                });
+            }
+            
+            if (sc_sc.reverseSearchToggle === true) {
+                const hotkeyMod = sc_sc.reverse_search_mod;
+                const hotkeyKey = sc_sc.reverse_search_key;
+                const customHotkey = hotkeyMod + "+" + hotkeyKey;
+
+                if (activeModifier === hotkeyMod && e.key === hotkeyKey) {e.preventDefault();}
+
+                Mousetrap.bind(customHotkey, () => {
+                    document.getElementsByClassName('viewer-tineye')[0].click();
+                });
+            }
+            
+            if (sc_sc.helpToggle === true) {
+                const hotkeyMod = sc_sc.help_mod;
+                const hotkeyKey = sc_sc.help_key;
+                const customHotkey = hotkeyMod + "+" + hotkeyKey;
+
+                if (activeModifier === hotkeyMod && e.key === hotkeyKey) {e.preventDefault();}
+
+                Mousetrap.bind(customHotkey, () => {
+                    document.getElementsByClassName('viewer-help')[0].click();
+                });
+            }
+            
+            if (sc_sc.turnOffToggle === true) {
+                const hotkeyMod = sc_sc.turn_off_mod;
+                const hotkeyKey = sc_sc.turn_off_key;
+                const customHotkey = hotkeyMod + "+" + hotkeyKey;
+
+                if (activeModifier === hotkeyMod && e.key === hotkeyKey) {e.preventDefault();}
+
+                Mousetrap.bind(customHotkey, () => {
+                    document.getElementsByClassName('viewer-exit')[0].click();
+                });
+            }
+            
         }
-    }
-
-});
-
-/**
- * NB: "mod" keyword same as "ctrl" - for cross-browser compatibility
- */
-Mousetrap.bind('mod+0', () => {
-    document.getElementsByClassName('viewer-reset')[0].click();
-});
-Mousetrap.bind('mod+1', () => {
-    document.getElementsByClassName('viewer-one-to-one')[0].click();
-});
-Mousetrap.bind('mod+s', () => {
-    document.getElementsByClassName('viewer-download')[0].click();
-});
-Mousetrap.bind('mod++', () => {
-    document.getElementsByClassName('viewer-zoom-in')[0].click();
-});
-Mousetrap.bind('mod+-', () => {
-    document.getElementsByClassName('viewer-zoom-out')[0].click();
-});
-Mousetrap.bind('mod+left', () => {
-    document.getElementsByClassName('viewer-rotate-left')[0].click();
-});
-Mousetrap.bind('mod+right', () => {
-    document.getElementsByClassName('viewer-rotate-right')[0].click();
-});
-Mousetrap.bind('mod+a', () => {
-    document.getElementsByClassName('viewer-flip-horizontal')[0].click();
-});
-Mousetrap.bind('mod+q', () => {
-    document.getElementsByClassName('viewer-flip-vertical')[0].click();
-});
-Mousetrap.bind('mod+x', () => {
-    document.getElementsByClassName('viewer-crop')[0].click();
-});
-Mousetrap.bind('mod+p', () => {
-    document.getElementsByClassName('viewer-paint')[0].click();
-});
-Mousetrap.bind('mod+c', () => {
-    document.getElementsByClassName('viewer-colorpicker')[0].click();
-});
-Mousetrap.bind('mod+d', () => {
-    document.getElementsByClassName('viewer-details')[0].click();
-});
-Mousetrap.bind('mod+h', () => {
-    document.getElementsByClassName('viewer-help')[0].click();
-});
-Mousetrap.bind('mod+f', () => {
-    document.getElementsByClassName('viewer-play')[0].click();
-});
-Mousetrap.bind('mod+m', () => {
-    document.getElementsByClassName('viewer-print')[0].click();
-});
-Mousetrap.bind('mod+y', () => {
-    document.getElementsByClassName('viewer-theme')[0].click();
-});
-Mousetrap.bind('mod+e', () => {
-    document.getElementsByClassName('viewer-exit')[0].click();
-});
-Mousetrap.bind('mod+u', () => {
-    document.getElementsByClassName('viewer-upload')[0].click();
-});
-Mousetrap.bind('mod+g', () => {
-    document.getElementsByClassName('viewer-photopea')[0].click();
-});
-Mousetrap.bind('mod+o', () => {
-    document.getElementsByClassName('viewer-ocr')[0].click();
-});
-Mousetrap.bind('mod+j', () => {
-    document.getElementsByClassName('viewer-tineye')[0].click();
+    });
 });
 
 
 
-/**
- * Initializes the extension
- */
+
+ // ~~~ Initializes the Extension ~~~ \\
 function init(settings) {
 
 
@@ -1360,8 +1559,8 @@ function init(settings) {
                                     bottom: '10px',
                                     right: '10px',
                                     left: '10px',
-                                    width: '300px',
-                                    height: '450px',
+                                    width: '550px',
+                                    height: '90%',
                                     background: "rgba(0,0,0,0.9)",
                                     url: chrome.runtime.getURL('pages/shortcuts.html'),
                                     onclose: function () {
@@ -2094,6 +2293,24 @@ function showNotification(text, textColor, bgColor, settings) {
     }).showToast();
 }
 
+// hardcoded toast position for the shortcut.html save button -- fix if possible
+function showNotificationShortcuts(text, textColor, bgColor) {
+
+    Toastify({
+        text: `${text}`,
+        duration: 3000,
+        newWindow: true,
+        close: false,
+        gravity: 'top', // `top` or `bottom`
+        position: 'right', // `left`, `center` or `right`
+        stopOnFocus: true, // Prevents dismissing of toast on hover
+        style: {
+            color: textColor,
+            background: bgColor,
+        }
+    }).showToast();
+}
+
 
 function jsonViewer(json, collapsible = false) {
     let TEMPLATES = {
@@ -2187,10 +2404,24 @@ window.addEventListener('message', function (message) {
             setTimeout(() => {
                 // reload window after saving
                 window.location.reload();
-
             }, 1000)
         });
-    }
+    };
+
+    if (message.data.type == "shortcutHotkeys") {
+        let user_shortcutHotkeys = message.data.shortcutHotkeys
+        // save using chrome.storage
+        chrome.storage.sync.set({
+            shortcutHotkeys: user_shortcutHotkeys,
+        }, function () {
+            // Notify that we saved.
+            showNotificationShortcuts('💾 Shortcuts saved successfully', '#ffffff', '#000000', message.data);
+            setTimeout(() => {
+                // reload window after saving
+                window.location.reload();
+            }, 1000)
+        });
+    };
 });
 
 
