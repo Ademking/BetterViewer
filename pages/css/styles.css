@@ -38,6 +38,10 @@ a {
     text-align: center;
 }
 
+.inner-container {
+    margin: auto;
+}
+
 p {
     font-size: 12px;
 }

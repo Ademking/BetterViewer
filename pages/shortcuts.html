@@ -6,31 +6,641 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="css/kbd.min.css">
     <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/shortcuts.css">
 
-    <title>Help</title>
+    <title>Shortcuts</title>
 </head>
 <body>
-    <p><kdb class="kbc-button">Ctrl</kdb> + <kdb class="kbc-button">+</kdb> : Zoom in</p>
-    <p><kdb class="kbc-button">Ctrl</kdb> + <kdb class="kbc-button">-</kdb> : Zoom out</p>
-    <p><kdb class="kbc-button">Ctrl</kdb> + <kdb class="kbc-button">0</kdb> : Reset</p>
-    <p><kdb class="kbc-button">Ctrl</kdb> + <kdb class="kbc-button">1</kdb> : Toggle actual size</p>
-    <p><kdb class="kbc-button">Ctrl</kdb> + <kdb class="kbc-button">←</kdb> : Rotate left</p>
-    <p><kdb class="kbc-button">Ctrl</kdb> + <kdb class="kbc-button">→</kdb> : Rotate right</p>
-    <p><kdb class="kbc-button">Ctrl</kdb> + <kdb class="kbc-button">A</kdb> : Flip horizontal</p>
-    <p><kdb class="kbc-button">Ctrl</kdb> + <kdb class="kbc-button">Q</kdb> : Flip vertical</p>
-    <p><kdb class="kbc-button">Ctrl</kdb> + <kdb class="kbc-button">F</kdb> : Fullscreen</p>
-    <p><kdb class="kbc-button">Ctrl</kdb> + <kdb class="kbc-button">X</kdb> : Crop image</p>
-    <p><kdb class="kbc-button">Ctrl</kdb> + <kdb class="kbc-button">C</kdb> : Color picker</p>
-    <p><kdb class="kbc-button">Ctrl</kdb> + <kdb class="kbc-button">P</kdb> : Paint</p>
-    <p><kdb class="kbc-button">Ctrl</kdb> + <kdb class="kbc-button">D</kdb> : Image details</p>
-    <p><kdb class="kbc-button">Ctrl</kdb> + <kdb class="kbc-button">Y</kdb> : Change theme</p>
-    <p><kdb class="kbc-button">Ctrl</kdb> + <kdb class="kbc-button">H</kdb> : Help</p>
-    <p><kdb class="kbc-button">Ctrl</kdb> + <kdb class="kbc-button">S</kdb> : Download image</p>
-    <p><kdb class="kbc-button">Ctrl</kdb> + <kdb class="kbc-button">U</kdb> : Upload image to Imgur</p>
-    <p><kdb class="kbc-button">Ctrl</kdb> + <kdb class="kbc-button">M</kdb> : Print</p>
-    <p><kdb class="kbc-button">Ctrl</kdb> + <kdb class="kbc-button">O</kdb> : Extract text from image</p>
-    <p><kdb class="kbc-button">Ctrl</kdb> + <kdb class="kbc-button">G</kdb> : Edit in Photopea</p>
-    <p><kdb class="kbc-button">Ctrl</kdb> + <kdb class="kbc-button">E</kdb> : Turn off</p>
-    
+    <div class="main">
+        <div class="type-header-container">
+            <span class="kbc-button default-btn">Default</span>
+            <span class="kbc-button custom-btn">Custom</span>
+        </div>
+
+        <p>
+            <tr>
+                <td class="togglebtn">
+                    <div class="toggle">
+                        <div class="vc-toggle-container">
+                            <kdb class="kbc-button shortcut-mod">Ctrl</kdb>
+                            +
+                            <kdb class="kbc-button shortcut-key">+</kdb>
+                            :
+                            <span class="kbc-button">Zoom in</span>
+                            <select id="zoom-in-mod" class="kbc-button custom-hotkey-modifier">
+                                <option value="none">None</option>
+                                <option value="mod">Control</option>
+                                <option value="shift">Shift</option>
+                                <option value="alt">Alt</option>
+                            </select>
+                            <input id="zoom-in-key" type="text" class="kbc-button custom-hotkey-key" />
+                            <label class="vc-switch">
+                                <input id="zoomInToggle" type="checkbox" class="vc-switch-input" checked />
+                                <span class="vc-switch-label" data-on="On" data-off="Off"></span>
+                                <span class="vc-handle"></span>
+                            </label>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        </p>
+
+        <p>
+            <tr>
+                <td class="togglebtn">
+                    <div class="toggle">
+                        <div class="vc-toggle-container">
+                            <kdb class="kbc-button shortcut-mod">Ctrl</kdb>
+                            +
+                            <kdb class="kbc-button shortcut-key">-</kdb>
+                            :
+                            <span class="kbc-button">Zoom out</span>
+                            <select id="zoom-out-mod" class="kbc-button custom-hotkey-modifier">
+                                <option value="none">None</option>
+                                <option value="mod">Control</option>
+                                <option value="shift">Shift</option>
+                                <option value="alt">Alt</option>
+                            </select>
+                            <input id="zoom-out-key" type="text" class="kbc-button custom-hotkey-key" />
+                            <label class="vc-switch">
+                                <input id="zoomOutToggle" type="checkbox" class="vc-switch-input" checked />
+                                <span class="vc-switch-label" data-on="On" data-off="Off"></span>
+                                <span class="vc-handle"></span>
+                            </label>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        </p>
+
+        <p>
+            <tr>
+                <td class="togglebtn">
+                    <div class="toggle">
+                        <div class="vc-toggle-container">
+                            <kdb class="kbc-button shortcut-mod">Ctrl</kdb>
+                            +
+                            <kdb class="kbc-button shortcut-key">1</kdb>
+                            :
+                            <span class="kbc-button">1:1</span>
+                            <select id="one-to-one-mod" class="kbc-button custom-hotkey-modifier">
+                                <option value="none">None</option>
+                                <option value="mod">Control</option>
+                                <option value="shift">Shift</option>
+                                <option value="alt">Alt</option>
+                            </select>
+                            <input id="one-to-one-key" type="text" class="kbc-button custom-hotkey-key" />
+                            <label class="vc-switch">
+                                <input id="oneToOneToggle" type="checkbox" class="vc-switch-input" checked />
+                                <span class="vc-switch-label" data-on="On" data-off="Off"></span>
+                                <span class="vc-handle"></span>
+                            </label>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        </p>
+
+        <p>
+            <tr>
+                <td class="togglebtn">
+                    <div class="toggle">
+                        <div class="vc-toggle-container">
+                            <kdb class="kbc-button shortcut-mod">Ctrl</kdb>
+                            +
+                            <kdb class="kbc-button shortcut-key">0</kdb>
+                            :
+                            <span class="kbc-button">Reset</span>
+                            <select id="reset-mod" class="kbc-button custom-hotkey-modifier">
+                                <option value="none">None</option>
+                                <option value="mod">Control</option>
+                                <option value="shift">Shift</option>
+                                <option value="alt">Alt</option>
+                            </select>
+                            <input id="reset-key" type="text" class="kbc-button custom-hotkey-key" />
+                            <label class="vc-switch">
+                                <input id="resetToggle" type="checkbox" class="vc-switch-input" checked />
+                                <span class="vc-switch-label" data-on="On" data-off="Off"></span>
+                                <span class="vc-handle"></span>
+                            </label>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        </p>
+
+        <p>
+            <tr>
+                <td class="togglebtn">
+                    <div class="toggle">
+                        <div class="vc-toggle-container">
+                            <kdb class="kbc-button shortcut-mod">Ctrl</kdb>
+                            +
+                            <kdb class="kbc-button shortcut-key">F</kdb>
+                            :
+                            <span class="kbc-button">Fullscreen</span>
+                            <select id="fullscreen-mod" class="kbc-button custom-hotkey-modifier">
+                                <option value="none">None</option>
+                                <option value="mod">Control</option>
+                                <option value="shift">Shift</option>
+                                <option value="alt">Alt</option>
+                            </select>
+                            <input id="fullscreen-key" type="text" class="kbc-button custom-hotkey-key" />
+                            <label class="vc-switch">
+                                <input id="fullscreenToggle" type="checkbox" class="vc-switch-input" checked />
+                                <span class="vc-switch-label" data-on="On" data-off="Off"></span>
+                                <span class="vc-handle"></span>
+                            </label>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        </p>
+
+        <p>
+            <tr>
+                <td class="togglebtn">
+                    <div class="toggle">
+                        <div class="vc-toggle-container">
+                            <kdb class="kbc-button shortcut-mod">Ctrl</kdb>
+                            +
+                            <kdb class="kbc-button shortcut-key">←</kdb>
+                            :
+                            <span class="kbc-button">Rotate left</span>
+                            <select id="rotate-left-mod" class="kbc-button custom-hotkey-modifier">
+                                <option value="none">None</option>
+                                <option value="mod">Control</option>
+                                <option value="shift">Shift</option>
+                                <option value="alt">Alt</option>
+                            </select>
+                            <input id="rotate-left-key" type="text" class="kbc-button custom-hotkey-key" />
+                            <label class="vc-switch">
+                                <input id="rotateLeftToggle" type="checkbox" class="vc-switch-input" checked />
+                                <span class="vc-switch-label" data-on="On" data-off="Off"></span>
+                                <span class="vc-handle"></span>
+                            </label>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        </p>
+
+        <p>
+            <tr>
+                <td class="togglebtn">
+                    <div class="toggle">
+                        <div class="vc-toggle-container">
+                            <kdb class="kbc-button shortcut-mod">Ctrl</kdb>
+                            +
+                            <kdb class="kbc-button shortcut-key">→</kdb>
+                            :
+                            <span class="kbc-button">Rotate right</span>
+                            <select id="rotate-right-mod" class="kbc-button custom-hotkey-modifier">
+                                <option value="none">None</option>
+                                <option value="mod">Control</option>
+                                <option value="shift">Shift</option>
+                                <option value="alt">Alt</option>
+                            </select>
+                            <input id="rotate-right-key" type="text" class="kbc-button custom-hotkey-key" />
+                            <label class="vc-switch">
+                                <input id="rotateRightToggle" type="checkbox" class="vc-switch-input" checked />
+                                <span class="vc-switch-label" data-on="On" data-off="Off"></span>
+                                <span class="vc-handle"></span>
+                            </label>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        </p>
+
+        <p>
+            <tr>
+                <td class="togglebtn">
+                    <div class="toggle">
+                        <div class="vc-toggle-container">
+                            <kdb class="kbc-button shortcut-mod">Ctrl</kdb>
+                            +
+                            <kdb class="kbc-button shortcut-key">A</kdb>
+                            :
+                            <span class="kbc-button">Flip horizontal</span>
+                            <select id="flip-horizontal-mod" class="kbc-button custom-hotkey-modifier">
+                                <option value="none">None</option>
+                                <option value="mod">Control</option>
+                                <option value="shift">Shift</option>
+                                <option value="alt">Alt</option>
+                            </select>
+                            <input id="flip-horizontal-key" type="text" class="kbc-button custom-hotkey-key" />
+                            <label class="vc-switch">
+                                <input id="flipHorizontalToggle" type="checkbox" class="vc-switch-input" checked />
+                                <span class="vc-switch-label" data-on="On" data-off="Off"></span>
+                                <span class="vc-handle"></span>
+                            </label>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        </p>
+
+        <p>
+            <tr>
+                <td class="togglebtn">
+                    <div class="toggle">
+                        <div class="vc-toggle-container">
+                            <kdb class="kbc-button shortcut-mod">Ctrl</kdb>
+                            +
+                            <kdb class="kbc-button shortcut-key">Q</kdb>
+                            :
+                            <span class="kbc-button">Flip vertical</span>
+                            <select id="flip-vertical-mod" class="kbc-button custom-hotkey-modifier">
+                                <option value="none">None</option>
+                                <option value="mod">Control</option>
+                                <option value="shift">Shift</option>
+                                <option value="alt">Alt</option>
+                            </select>
+                            <input id="flip-vertical-key" type="text" class="kbc-button custom-hotkey-key" />
+                            <label class="vc-switch">
+                                <input id="flipVerticalToggle" type="checkbox" class="vc-switch-input" checked />
+                                <span class="vc-switch-label" data-on="On" data-off="Off"></span>
+                                <span class="vc-handle"></span>
+                            </label>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        </p>
+
+        <p>
+            <tr>
+                <td class="togglebtn">
+                    <div class="toggle">
+                        <div class="vc-toggle-container">
+                            <kdb class="kbc-button shortcut-mod">Ctrl</kdb>
+                            +
+                            <kdb class="kbc-button shortcut-key">X</kdb>
+                            :
+                            <span class="kbc-button">Crop Image</span>
+                            <select id="crop-mod" class="kbc-button custom-hotkey-modifier">
+                                <option value="none">None</option>
+                                <option value="mod">Control</option>
+                                <option value="shift">Shift</option>
+                                <option value="alt">Alt</option>
+                            </select>
+                            <input id="crop-key" type="text" class="kbc-button custom-hotkey-key" />
+                            <label class="vc-switch">
+                                <input id="cropImageToggle" type="checkbox" class="vc-switch-input" checked />
+                                <span class="vc-switch-label" data-on="On" data-off="Off"></span>
+                                <span class="vc-handle"></span>
+                            </label>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        </p>
+
+        <p>
+            <tr>
+                <td class="togglebtn">
+                    <div class="toggle">
+                        <div class="vc-toggle-container">
+                            <kdb class="kbc-button shortcut-mod">Ctrl</kdb>
+                            +
+                            <kdb class="kbc-button shortcut-key">M</kdb>
+                            :
+                            <span class="kbc-button">Photo Editor</span>
+                            <select id="photo-editor-mod" class="kbc-button custom-hotkey-modifier">
+                                <option value="none">None</option>
+                                <option value="mod">Control</option>
+                                <option value="shift">Shift</option>
+                                <option value="alt">Alt</option>
+                            </select>
+                            <input id="photo-editor-key" type="text" class="kbc-button custom-hotkey-key" />
+                            <label class="vc-switch">
+                                <input id="photoEditorToggle" type="checkbox" class="vc-switch-input" checked />
+                                <span class="vc-switch-label" data-on="On" data-off="Off"></span>
+                                <span class="vc-handle"></span>
+                            </label>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        </p>
+
+        <p>
+            <tr>
+                <td class="togglebtn">
+                    <div class="toggle">
+                        <div class="vc-toggle-container">
+                            <kdb class="kbc-button shortcut-mod">Ctrl</kdb>
+                            +
+                            <kdb class="kbc-button shortcut-key">S</kdb>
+                            :
+                            <span class="kbc-button">Download</span>
+                            <select id="download-mod" class="kbc-button custom-hotkey-modifier">
+                                <option value="none">None</option>
+                                <option value="mod">Control</option>
+                                <option value="shift">Shift</option>
+                                <option value="alt">Alt</option>
+                            </select>
+                            <input id="download-key" type="text" class="kbc-button custom-hotkey-key" />
+                            <label class="vc-switch">
+                                <input id="downloadToggle" type="checkbox" class="vc-switch-input" checked />
+                                <span class="vc-switch-label" data-on="On" data-off="Off"></span>
+                                <span class="vc-handle"></span>
+                            </label>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        </p>
+
+        <p>
+            <tr>
+                <td class="togglebtn">
+                    <div class="toggle">
+                        <div class="vc-toggle-container">
+                            <kdb class="kbc-button shortcut-mod">Ctrl</kdb>
+                            +
+                            <kdb class="kbc-button shortcut-key">U</kdb>
+                            :
+                            <span class="kbc-button">Upload Image</span>
+                            <select id="upload-mod" class="kbc-button custom-hotkey-modifier">
+                                <option value="none">None</option>
+                                <option value="mod">Control</option>
+                                <option value="shift">Shift</option>
+                                <option value="alt">Alt</option>
+                            </select>
+                            <input id="upload-key" type="text" class="kbc-button custom-hotkey-key" />
+                            <label class="vc-switch">
+                                <input id="uploadImageToggle" type="checkbox" class="vc-switch-input" checked />
+                                <span class="vc-switch-label" data-on="On" data-off="Off"></span>
+                                <span class="vc-handle"></span>
+                            </label>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        </p>
+
+        <p>
+            <tr>
+                <td class="togglebtn">
+                    <div class="toggle">
+                        <div class="vc-toggle-container">
+                            <kdb class="kbc-button shortcut-mod">Ctrl</kdb>
+                            +
+                            <kdb class="kbc-button shortcut-key">C</kdb>
+                            :
+                            <span class="kbc-button">Color Picker</span>
+                            <select id="color-picker-mod" class="kbc-button custom-hotkey-modifier">
+                                <option value="none">None</option>
+                                <option value="mod">Control</option>
+                                <option value="shift">Shift</option>
+                                <option value="alt">Alt</option>
+                            </select>
+                            <input id="color-picker-key" type="text" class="kbc-button custom-hotkey-key" />
+                            <label class="vc-switch">
+                                <input id="colorPickerToggle" type="checkbox" class="vc-switch-input" checked />
+                                <span class="vc-switch-label" data-on="On" data-off="Off"></span>
+                                <span class="vc-handle"></span>
+                            </label>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        </p>
+
+        <p>
+            <tr>
+                <td class="togglebtn">
+                    <div class="toggle">
+                        <div class="vc-toggle-container">
+                            <kdb class="kbc-button shortcut-mod">Ctrl</kdb>
+                            +
+                            <kdb class="kbc-button shortcut-key">D</kdb>
+                            :
+                            <span class="kbc-button">Details</span>
+                            <select id="details-mod" class="kbc-button custom-hotkey-modifier">
+                                <option value="none">None</option>
+                                <option value="mod">Control</option>
+                                <option value="shift">Shift</option>
+                                <option value="alt">Alt</option>
+                            </select>
+                            <input id="details-key" type="text" class="kbc-button custom-hotkey-key"/>
+                            <label class="vc-switch">
+                                <input id="detailsToggle" type="checkbox" class="vc-switch-input" checked />
+                                <span class="vc-switch-label" data-on="On" data-off="Off"></span>
+                                <span class="vc-handle"></span>
+                            </label>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        </p>
+
+        <p>
+            <tr>
+                <td class="togglebtn">
+                    <div class="toggle">
+                        <div class="vc-toggle-container">
+                            <kdb class="kbc-button shortcut-mod">Ctrl</kdb>
+                            +
+                            <kdb class="kbc-button shortcut-key">Y</kdb>
+                            :
+                            <span class="kbc-button">Toggle theme</span>
+                            <select id="theme-mod" class="kbc-button custom-hotkey-modifier">
+                                <option value="none">None</option>
+                                <option value="mod">Control</option>
+                                <option value="shift">Shift</option>
+                                <option value="alt">Alt</option>
+                            </select>
+                            <input id="theme-key" type="text" class="kbc-button custom-hotkey-key" />
+                            <label class="vc-switch">
+                                <input id="themeToggle" type="checkbox" class="vc-switch-input" checked />
+                                <span class="vc-switch-label" data-on="On" data-off="Off"></span>
+                                <span class="vc-handle"></span>
+                            </label>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        </p>
+
+        <p>
+            <tr>
+                <td class="togglebtn">
+                    <div class="toggle">
+                        <div class="vc-toggle-container">
+                            <kdb class="kbc-button shortcut-mod">Ctrl</kdb>
+                            +
+                            <kdb class="kbc-button shortcut-key">P</kdb>
+                            :
+                            <span class="kbc-button">Print Image</span>
+                            <select id="print-mod" class="kbc-button custom-hotkey-modifier">
+                                <option value="none">None</option>
+                                <option value="mod">Control</option>
+                                <option value="shift">Shift</option>
+                                <option value="alt">Alt</option>
+                            </select>
+                            <input id="print-key" type="text" class="kbc-button custom-hotkey-key" />
+                            <label class="vc-switch">
+                                <input id="printImageToggle" type="checkbox" class="vc-switch-input" checked />
+                                <span class="vc-switch-label" data-on="On" data-off="Off"></span>
+                                <span class="vc-handle"></span>
+                            </label>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        </p>
+
+        <p>
+            <tr>
+                <td class="togglebtn">
+                    <div class="toggle">
+                        <div class="vc-toggle-container">
+                            <kdb class="kbc-button shortcut-mod">Ctrl</kdb>
+                            +
+                            <kdb class="kbc-button shortcut-key">O</kdb>
+                            :
+                            <span class="kbc-button">Extract Text</span>
+                            <select id="extract-text-mod" class="kbc-button custom-hotkey-modifier">
+                                <option value="none">None</option>
+                                <option value="mod">Control</option>
+                                <option value="shift">Shift</option>
+                                <option value="alt">Alt</option>
+                            </select>
+                            <input id="extract-text-key" type="text" class="kbc-button custom-hotkey-key" />
+                            <label class="vc-switch">
+                                <input id="extractTextToggle" type="checkbox" class="vc-switch-input" checked />
+                                <span class="vc-switch-label" data-on="On" data-off="Off"></span>
+                                <span class="vc-handle"></span>
+                            </label>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        </p>
+
+        <p>
+            <tr>
+                <td class="togglebtn">
+                    <div class="toggle">
+                        <div class="vc-toggle-container">
+                            <kdb class="kbc-button shortcut-mod">Ctrl</kdb>
+                            +
+                            <kdb class="kbc-button shortcut-key">G</kdb>
+                            :
+                            <span class="kbc-button">Edit in Photopea</span>
+                            <select id="photopea-mod" class="kbc-button custom-hotkey-modifier">
+                                <option value="none">None</option>
+                                <option value="mod">Control</option>
+                                <option value="shift">Shift</option>
+                                <option value="alt">Alt</option>
+                            </select>
+                            <input id="photopea-key" type="text" class="kbc-button custom-hotkey-key" />
+                            <label class="vc-switch">
+                                <input id="photopeaToggle" type="checkbox" class="vc-switch-input" checked />
+                                <span class="vc-switch-label" data-on="On" data-off="Off"></span>
+                                <span class="vc-handle"></span>
+                            </label>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        </p>
+
+        <p>
+            <tr>
+                <td class="togglebtn">
+                    <div class="toggle">
+                        <div class="vc-toggle-container">
+                            <kdb class="kbc-button shortcut-mod">Ctrl</kdb>
+                            +
+                            <kdb class="kbc-button shortcut-key">j</kdb>
+                            :
+                            <span class="kbc-button">Reverse Search</span>
+                            <select id="reverse-search-mod" class="kbc-button custom-hotkey-modifier">
+                                <option value="none">None</option>
+                                <option value="mod">Control</option>
+                                <option value="shift">Shift</option>
+                                <option value="alt">Alt</option>
+                            </select>
+                            <input id="reverse-search-key" type="text" class="kbc-button custom-hotkey-key" />
+                            <label class="vc-switch">
+                                <input id="reverseSearchToggle" type="checkbox" class="vc-switch-input" checked />
+                                <span class="vc-switch-label" data-on="On" data-off="Off"></span>
+                                <span class="vc-handle"></span>
+                            </label>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        </p>
+
+        <p>
+            <tr>
+                <td class="togglebtn">
+                    <div class="toggle">
+                        <div class="vc-toggle-container">
+                            <kdb class="kbc-button shortcut-mod">Ctrl</kdb>
+                            +
+                            <kdb class="kbc-button shortcut-key">H</kdb>
+                            :
+                            <span class="kbc-button">Help</span>
+                            <select id="help-mod" class="kbc-button custom-hotkey-modifier">
+                                <option value="none">None</option>
+                                <option value="mod">Control</option>
+                                <option value="shift">Shift</option>
+                                <option value="alt">Alt</option>
+                            </select>
+                            <input id="help-key" type="text" class="kbc-button custom-hotkey-key" />
+                            <label class="vc-switch">
+                                <input id="helpToggle" type="checkbox" class="vc-switch-input" checked />
+                                <span class="vc-switch-label" data-on="On" data-off="Off"></span>
+                                <span class="vc-handle"></span>
+                            </label>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        </p>
+
+        <p>
+            <tr>
+                <td class="togglebtn">
+                    <div class="toggle">
+                        <div class="vc-toggle-container">
+                            <kdb class="kbc-button shortcut-mod">Ctrl</kdb>
+                            +
+                            <kdb class="kbc-button shortcut-key">E</kdb>
+                            :
+                            <span class="kbc-button">Turn off</span>
+                            <select id="turn-off-mod" class="kbc-button custom-hotkey-modifier">
+                                <option value="none">None</option>
+                                <option value="mod">Control</option>
+                                <option value="shift">Shift</option>
+                                <option value="alt">Alt</option>
+                            </select>
+                            <input id="turn-off-key" type="text" class="kbc-button custom-hotkey-key" />
+                            <label class="vc-switch">
+                                <input id="turnOffToggle" type="checkbox" class="vc-switch-input" checked />
+                                <span class="vc-switch-label" data-on="On" data-off="Off"></span>
+                                <span class="vc-handle"></span>
+                            </label>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        </p>
+    </div>
+
+    <div class="footer">
+        <div>
+            <button id="save-btn" class="save-and-reload" role="button">💾 Save and Reload</button>
+        </div>
+    </div>
+
+    <script src="js/shortcuts.js"></script>
+
 </body>
 </html>

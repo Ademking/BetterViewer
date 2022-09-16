@@ -120,7 +120,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
   <tr>
     <td align="center"><a href="https://github.com/bbbenji"><img src="https://avatars.githubusercontent.com/u/1678118?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Benji</b></sub></a><br /><a href="https://github.com/Ademking/BetterViewer/commits?author=bbbenji" title="Code">💻</a></td>     
      <td align="center"><a href="https://github.com/patrykdziurkowski"><img src="https://avatars.githubusercontent.com/u/58700826?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Patryk Dziurkowski</b></sub></a><br /><a href="https://github.com/Ademking/BetterViewer/commits?author=patrykdziurkowski" title="Code">💻</a></td>
-     <td align="center"><a href="https://github.com/patrykdziurkowski"><img src="https://avatars.githubusercontent.com/u/35663695?v=4" width="100px;" alt=""/><br /><sub><b>Metacor</b></sub></a><br /><a href="https://github.com/Ademking/BetterViewer/commits?author=Metacor" title="Code">💻</a></td>
+     <td align="center"><a href="https://github.com/metacor"><img src="https://avatars.githubusercontent.com/u/35663695?v=4" width="100px;" alt=""/><br /><sub><b>Metacor</b></sub></a><br /><a href="https://github.com/Ademking/BetterViewer/commits?author=Metacor" title="Code">💻</a></td>
   </tr>
 </table>
 
