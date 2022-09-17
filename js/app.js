@@ -229,7 +229,6 @@ chrome.storage.sync.get("shortcutHotkeys", (shortcutHotkeys) => {
     const sc_sc = shortcutHotkeys.shortcutHotkeys;
 
     document.addEventListener("keydown", function (e) {
-        console.log(e);
         let activeModifier;
         if (e.ctrlKey) {activeModifier = "mod";} else if (e.shiftKey) {activeModifier = "shift";} else if (e.altKey) {activeModifier = "alt";};
        
@@ -240,12 +239,11 @@ chrome.storage.sync.get("shortcutHotkeys", (shortcutHotkeys) => {
                 const hotkeyKey = sc_sc.zoom_in_key;
                 const customHotkey = hotkeyMod + "+" + hotkeyKey;
 
-                // prevent the default shortcut
-                if (activeModifier === hotkeyMod && e.key === hotkeyKey) {e.preventDefault();}
-
                 // uses the custom hotkey to execute the selected shortcut
-                Mousetrap.bind(customHotkey, () => {
-                    document.getElementsByClassName('viewer-zoom-in')[0].click();
+                Mousetrap.bind(customHotkey, (e) => {
+                  document.getElementsByClassName('viewer-zoom-in')[0].click();
+                    // prevent the default shortcut
+                    e.preventDefault();
                 });
             }
             
@@ -254,10 +252,9 @@ chrome.storage.sync.get("shortcutHotkeys", (shortcutHotkeys) => {
                 const hotkeyKey = sc_sc.zoom_out_key;
                 const customHotkey = hotkeyMod + "+" + hotkeyKey;
 
-                if (activeModifier === hotkeyMod && e.key === hotkeyKey) {e.preventDefault();}
-
-                Mousetrap.bind(customHotkey, () => {
+                Mousetrap.bind(customHotkey, (e) => {
                     document.getElementsByClassName('viewer-zoom-out')[0].click();
+                    e.preventDefault();
                 });
             }
             
@@ -266,10 +263,9 @@ chrome.storage.sync.get("shortcutHotkeys", (shortcutHotkeys) => {
                 const hotkeyKey = sc_sc.one_to_one_key
                 const customHotkey = hotkeyMod + "+" + hotkeyKey;
 
-                if (activeModifier === hotkeyMod && e.key === hotkeyKey) {e.preventDefault();}
-
-                Mousetrap.bind(customHotkey, () => {
+                Mousetrap.bind(customHotkey, (e) => {
                     document.getElementsByClassName('viewer-one-to-one')[0].click();
+                    e.preventDefault();
                 });
             }
             
@@ -278,10 +274,9 @@ chrome.storage.sync.get("shortcutHotkeys", (shortcutHotkeys) => {
                 const hotkeyKey = sc_sc.reset_key;
                 const customHotkey = hotkeyMod + "+" + hotkeyKey;
 
-                if (activeModifier === hotkeyMod && e.key === hotkeyKey) {e.preventDefault();}
-
-                Mousetrap.bind(customHotkey, () => {
+                Mousetrap.bind(customHotkey, (e) => {
                     document.getElementsByClassName("viewer-reset")[0].click();
+                    e.preventDefault();
                 });
             }
             
@@ -290,10 +285,9 @@ chrome.storage.sync.get("shortcutHotkeys", (shortcutHotkeys) => {
                 const hotkeyKey = sc_sc.fullscreen_key;
                 const customHotkey = hotkeyMod + "+" + hotkeyKey;
 
-                if (activeModifier === hotkeyMod && e.key === hotkeyKey) {e.preventDefault();}
-
-                Mousetrap.bind(customHotkey, () => {
+                Mousetrap.bind(customHotkey, (e) => {
                     document.getElementsByClassName('viewer-play')[0].click();
+                    e.preventDefault();
                 });
             }
             
@@ -302,10 +296,9 @@ chrome.storage.sync.get("shortcutHotkeys", (shortcutHotkeys) => {
                 const hotkeyKey = sc_sc.rotate_left_key;
                 const customHotkey = hotkeyMod + "+" + hotkeyKey;
 
-                if (activeModifier === hotkeyMod && e.key === hotkeyKey) {e.preventDefault();}
-
-                Mousetrap.bind(customHotkey, () => {
+                Mousetrap.bind(customHotkey, (e) => {
                     document.getElementsByClassName('viewer-rotate-left')[0].click();
+                    e.preventDefault();
                 });
             }
             
@@ -314,10 +307,9 @@ chrome.storage.sync.get("shortcutHotkeys", (shortcutHotkeys) => {
                 const hotkeyKey = sc_sc.rotate_right_key;
                 const customHotkey = hotkeyMod + "+" + hotkeyKey;
 
-                if (activeModifier === hotkeyMod && e.key === hotkeyKey) {e.preventDefault();}
-
-                Mousetrap.bind(customHotkey, () => {
+                Mousetrap.bind(customHotkey, (e) => {
                     document.getElementsByClassName('viewer-rotate-right')[0].click();
+                    e.preventDefault();
                 });
             }
             
@@ -326,10 +318,9 @@ chrome.storage.sync.get("shortcutHotkeys", (shortcutHotkeys) => {
                 const hotkeyKey = sc_sc.flip_horizontal_key;
                 const customHotkey = hotkeyMod + "+" + hotkeyKey;
 
-                if (activeModifier === hotkeyMod && e.key === hotkeyKey) {e.preventDefault();}
-
-                Mousetrap.bind(customHotkey, () => {
+                Mousetrap.bind(customHotkey, (e) => {
                     document.getElementsByClassName('viewer-flip-horizontal')[0].click();
+                    e.preventDefault();
                 });
             }
             
@@ -338,10 +329,9 @@ chrome.storage.sync.get("shortcutHotkeys", (shortcutHotkeys) => {
                 const hotkeyKey = sc_sc.flip_vertical_key;
                 const customHotkey = hotkeyMod + "+" + hotkeyKey;
 
-                if (activeModifier === hotkeyMod && e.key === hotkeyKey) {e.preventDefault();}
-
-                Mousetrap.bind(customHotkey, () => {
+                Mousetrap.bind(customHotkey, (e) => {
                     document.getElementsByClassName('viewer-flip-vertical')[0].click();
+                    e.preventDefault();
                 });
             }
             
@@ -350,10 +340,9 @@ chrome.storage.sync.get("shortcutHotkeys", (shortcutHotkeys) => {
                 const hotkeyKey = sc_sc.crop_key;
                 const customHotkey = hotkeyMod + "+" + hotkeyKey;
 
-                if (activeModifier === hotkeyMod && e.key === hotkeyKey) {e.preventDefault();}
-
-                Mousetrap.bind(customHotkey, () => {
+                Mousetrap.bind(customHotkey, (e) => {
                     document.getElementsByClassName('viewer-crop')[0].click();
+                    e.preventDefault();
                 });
             }
             
@@ -362,10 +351,9 @@ chrome.storage.sync.get("shortcutHotkeys", (shortcutHotkeys) => {
                 const hotkeyKey = sc_sc.photo_editor_key;
                 const customHotkey = hotkeyMod + "+" + hotkeyKey;
 
-                if (activeModifier === hotkeyMod && e.key === hotkeyKey) {e.preventDefault();}
-
-                Mousetrap.bind(customHotkey, () => {
+                Mousetrap.bind(customHotkey, (e) => {
                     document.getElementsByClassName('viewer-paint')[0].click();
+                    e.preventDefault();
                 });
             }
             
@@ -374,10 +362,9 @@ chrome.storage.sync.get("shortcutHotkeys", (shortcutHotkeys) => {
                 const hotkeyKey = sc_sc.download_key;
                 const customHotkey = hotkeyMod + "+" + hotkeyKey;
 
-                if (activeModifier === hotkeyMod && e.key === hotkeyKey) {e.preventDefault();}
-
-                Mousetrap.bind(customHotkey, () => {
+                Mousetrap.bind(customHotkey, (e) => {
                     document.getElementsByClassName('viewer-download')[0].click();
+                    e.preventDefault();
                 });
             }
             
@@ -386,10 +373,9 @@ chrome.storage.sync.get("shortcutHotkeys", (shortcutHotkeys) => {
                 const hotkeyKey = sc_sc.upload_key;
                 const customHotkey = hotkeyMod + "+" + hotkeyKey;
 
-                if (activeModifier === hotkeyMod && e.key === hotkeyKey) {e.preventDefault();}
-
-                Mousetrap.bind(customHotkey, () => {
+                Mousetrap.bind(customHotkey, (e) => {
                     document.getElementsByClassName('viewer-upload')[0].click();
+                    e.preventDefault();
                 });
             }
             
@@ -398,10 +384,9 @@ chrome.storage.sync.get("shortcutHotkeys", (shortcutHotkeys) => {
                 const hotkeyKey = sc_sc.color_picker_key;
                 const customHotkey = hotkeyMod + "+" + hotkeyKey;
 
-                if (activeModifier === hotkeyMod && e.key === hotkeyKey) {e.preventDefault();}
-
-                Mousetrap.bind(customHotkey, () => {
+                Mousetrap.bind(customHotkey, (e) => {
                     document.getElementsByClassName('viewer-colorpicker')[0].click();
+                    e.preventDefault();
                 });
             }
             
@@ -410,10 +395,9 @@ chrome.storage.sync.get("shortcutHotkeys", (shortcutHotkeys) => {
                 const hotkeyKey = sc_sc.details_key;
                 const customHotkey = hotkeyMod + "+" + hotkeyKey;
 
-                if (activeModifier === hotkeyMod && e.key === hotkeyKey) {e.preventDefault();}
-
-                Mousetrap.bind(customHotkey, () => {
+                Mousetrap.bind(customHotkey, (e) => {
                     document.getElementsByClassName('viewer-details')[0].click();
+                    e.preventDefault();
                 });
             }
             
@@ -422,10 +406,9 @@ chrome.storage.sync.get("shortcutHotkeys", (shortcutHotkeys) => {
                 const hotkeyKey = sc_sc.theme_key;
                 const customHotkey = hotkeyMod + "+" + hotkeyKey;
 
-                if (activeModifier === hotkeyMod && e.key === hotkeyKey) {e.preventDefault();}
-
-                Mousetrap.bind(customHotkey, () => {
+                Mousetrap.bind(customHotkey, (e) => {
                     document.getElementsByClassName('viewer-theme')[0].click();
+                    e.preventDefault();
                 });
             }
             
@@ -434,10 +417,9 @@ chrome.storage.sync.get("shortcutHotkeys", (shortcutHotkeys) => {
                 const hotkeyKey = sc_sc.print_key;
                 const customHotkey = hotkeyMod + "+" + hotkeyKey;
 
-                if (activeModifier === hotkeyMod && e.key === hotkeyKey) {e.preventDefault();}
-
-                Mousetrap.bind(customHotkey, () => {
+                Mousetrap.bind(customHotkey, (e) => {
                     document.getElementsByClassName('viewer-print')[0].click();
+                    e.preventDefault();
                 });
             }
             
@@ -446,10 +428,9 @@ chrome.storage.sync.get("shortcutHotkeys", (shortcutHotkeys) => {
                 const hotkeyKey = sc_sc.extract_text_key;
                 const customHotkey = hotkeyMod + "+" + hotkeyKey;
 
-                if (activeModifier === hotkeyMod && e.key === hotkeyKey) {e.preventDefault();}
-
-                Mousetrap.bind(customHotkey, () => {
+                Mousetrap.bind(customHotkey, (e) => {
                     document.getElementsByClassName('viewer-ocr')[0].click();
+                    e.preventDefault();
                 });
             }
             
@@ -458,10 +439,9 @@ chrome.storage.sync.get("shortcutHotkeys", (shortcutHotkeys) => {
                 const hotkeyKey = sc_sc.photopea_key;
                 const customHotkey = hotkeyMod + "+" + hotkeyKey;
 
-                if (activeModifier === hotkeyMod && e.key === hotkeyKey) {e.preventDefault();}
-
-                Mousetrap.bind(customHotkey, () => {
+                Mousetrap.bind(customHotkey, (e) => {
                     document.getElementsByClassName('viewer-photopea')[0].click();
+                    e.preventDefault();
                 });
             }
             
@@ -470,10 +450,9 @@ chrome.storage.sync.get("shortcutHotkeys", (shortcutHotkeys) => {
                 const hotkeyKey = sc_sc.reverse_search_key;
                 const customHotkey = hotkeyMod + "+" + hotkeyKey;
 
-                if (activeModifier === hotkeyMod && e.key === hotkeyKey) {e.preventDefault();}
-
-                Mousetrap.bind(customHotkey, () => {
+                Mousetrap.bind(customHotkey, (e) => {
                     document.getElementsByClassName('viewer-tineye')[0].click();
+                    e.preventDefault();
                 });
             }
             
@@ -482,10 +461,9 @@ chrome.storage.sync.get("shortcutHotkeys", (shortcutHotkeys) => {
                 const hotkeyKey = sc_sc.help_key;
                 const customHotkey = hotkeyMod + "+" + hotkeyKey;
 
-                if (activeModifier === hotkeyMod && e.key === hotkeyKey) {e.preventDefault();}
-
-                Mousetrap.bind(customHotkey, () => {
+                Mousetrap.bind(customHotkey, (e) => {
                     document.getElementsByClassName('viewer-help')[0].click();
+                    e.preventDefault();
                 });
             }
             
@@ -494,10 +472,9 @@ chrome.storage.sync.get("shortcutHotkeys", (shortcutHotkeys) => {
                 const hotkeyKey = sc_sc.turn_off_key;
                 const customHotkey = hotkeyMod + "+" + hotkeyKey;
 
-                if (activeModifier === hotkeyMod && e.key === hotkeyKey) {e.preventDefault();}
-
-                Mousetrap.bind(customHotkey, () => {
+                Mousetrap.bind(customHotkey, (e) => {
                     document.getElementsByClassName('viewer-exit')[0].click();
+                    e.preventDefault();
                 });
             }
             
