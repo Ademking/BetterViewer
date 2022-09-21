@@ -77,13 +77,17 @@ span.kbc-button:after {
 .custom-hotkey-modifier.kbc-button {
     width: 100px;
     height: 25px;
+    cursor: pointer;
 }
 .custom-hotkey-key.kbc-button {
     width: 50px;
     height: 25px;
     text-align: center;
+    cursor: pointer;
 }
-
+.custom-hotkey-key.kbc-button:focus-visible {
+    cursor: text;
+}
 .shortcut-mod {
     width: 58.96px;
     height: 23.35px;

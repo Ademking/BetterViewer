@@ -248,11 +248,16 @@ select, #zoom-ratio {
   border-radius   : 4px;
   width           : 100px !important;
   font-size       : 12px;
+  cursor: pointer;
 }
 
 #zoom-ratio {
   box-sizing: border-box;
   padding-left: 7px;
+}
+
+#zoom-ratio:focus-visible {
+  cursor: text;
 }
 
 select option {
