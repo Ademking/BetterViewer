@@ -7,6 +7,7 @@ let currentSettings = () => {
     });
     let toolbar_position = document.querySelector('#toolbar-position').value;
     let default_theme = document.querySelector('#default-theme').value;
+    let upload_site = document.querySelector('#upload-site').value;
     let zoom_ratio = document.querySelector('#zoom-ratio').value;
     // split notification position
     let notification_position_array = document.querySelector('#toast-position').value.split('-'); // for example: top-right
@@ -14,6 +15,7 @@ let currentSettings = () => {
     settings['notification_position'] = notification_position_array[1];
     settings['toolbar_position'] = toolbar_position;
     settings['default_theme'] = default_theme;
+    settings['upload_site'] = upload_site;
     settings['zoom_ratio'] = zoom_ratio;
 
     return settings;
@@ -63,6 +65,8 @@ window.addEventListener('load', () => {
         let notification_position = settings.settings.notification_position;
         // get toolbar_position
         let toolbar_position = settings.settings.toolbar_position;
+        // get upload_site
+        let upload_site = settings.settings.upload_site;
         // get zoom_ratio
         let zoom_ratio = settings.settings.zoom_ratio;
 
@@ -73,6 +77,8 @@ window.addEventListener('load', () => {
         document.querySelector('#toolbar-position').value = toolbar_position;
         // update default theme
         document.querySelector('#default-theme').value = default_theme;
+        // update upload site
+        document.querySelector('#upload-site').value = upload_site;
         // update zoom ratio
         document.querySelector('#zoom-ratio').value = zoom_ratio;
 

@@ -210,6 +210,7 @@ function set_default_settings(){
             exit: true,
             about: true,
             zoom_ratio: 0.1, // 0.1 is +/- 10% Zoom, 0.5 is +/- 50% Zoom, etc...
+            upload_site: "imgbb", // imgbb, imgur
             notification_gravity: "top", // top, bottom
             notification_position: "right", // left, right
             toolbar_position: "bottom", // top, bottom
