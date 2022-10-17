@@ -53,7 +53,7 @@
 - Crop Image
 - Photo Editor (Adjust, Draw, Watermark, Filters, Finetune, Resize, Export As PNG, JPEG, JPG, WEBP)
 - Download Image
-- Upload Image to imgBB
+- Upload Image to imgBB or imgur
 - Color picker
 - Image Details
 - Change background color (Dark / Light / Blurred)

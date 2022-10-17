@@ -147,7 +147,14 @@
     overflow: hidden;
     position: absolute;
     right   : 0;
-    top     : 0
+    top     : 0;
+    cursor: grab;
+    cursor: -webkit-grab;
+}
+
+.viewer-canvas:active {
+    cursor: grabbing;
+    cursor: -webkit-grabbing;
 }
 
 .viewer-canvas>img {
@@ -392,12 +399,6 @@
 
 .viewer-invisible {
     visibility: hidden
-}
-
-.viewer-move {
-    cursor: move;
-    cursor: -webkit-grab;
-    cursor: grab
 }
 
 .viewer-fade {

@@ -4890,10 +4890,12 @@ let IS_CROP_OPEN = false
 
 let viewer
 let BACKGROUND_TYPE = 'blurred'
+let UPLOAD_SITE = 'imgbb'
 let ImgCanvas
 let isFlippedHorizontally = false
 let isFlippedVertically = false
 let IMGBB_TOKEN = '8be35a61597b285f9c95669fdc565b00'
+let IMGUR_TOKEN = '405d491c9e67e9f'
 let isKeypressEnabled = false
 let WINBOX_CLASSES = ['no-scrollbar', 'no-max', 'no-min', 'no-full', 'no-resize', 'no-animation']
 let ocrLangList = {
@@ -5066,7 +5068,7 @@ let tippyData = [
   },
   {
     type: 'upload',
-    text: 'Upload image to ImgBB'
+    text: 'Upload Image'
   },
   {
     type: 'ocr',
@@ -5358,6 +5360,7 @@ chrome.storage.sync.get("shortcutHotkeys", (shortcutHotkeys) => {
  // ~~~ Initializes the Extension ~~~ \\
 function init(settings) {
   BACKGROUND_TYPE = settings.settings.default_theme
+  UPLOAD_SITE = settings.settings.upload_site
 
   // checks the zoom setting - if it's nulled, then the default is set to 0.1 (10%)
   settings.settings.zoom_ratio == null ? (settings.settings.zoom_ratio = 0.1) : (zoomSetting = settings.settings.zoom_ratio)
@@ -5714,36 +5717,56 @@ function init(settings) {
               //onClick: function () { } // Callback after click
             }).showToast()
 
-            // upload image to imgur
-            // fetch('https://api.imgur.com/3/image', {
-            //     method: 'POST',
-            //     headers: { 'Authorization': `Client-ID ${IMGUR_TOKEN}` },
-            //     body: base64
-            // })
+            // upload image to either imgbb or imgur, depending on the current setting
+            switch (UPLOAD_SITE) {
+              // upload to imgbb
+              case 'imgbb':
+                let formdata = new FormData()
+                formdata.append('image', base64)
 
-            // upload base64 to ImgBB
-            let formdata = new FormData()
-            formdata.append('image', base64)
+                let requestOptionsIMGBB = {
+                  method: 'POST',
+                  body: formdata,
+                  redirect: 'follow'
+                }
 
-            let requestOptions = {
-              method: 'POST',
-              body: formdata,
-              redirect: 'follow'
+                fetch(`https://api.imgbb.com/1/upload?expiration=600&key=${IMGBB_TOKEN}`, requestOptionsIMGBB)
+                  .then(res => res.json())
+                  .then(res => {
+                    // remove toast
+                    let toastifyElems = document.querySelectorAll('.toastify')
+                    toastifyElems.forEach(element => {
+                      element.remove()
+                    })
+
+                    copyToClipboard(res.data.image.url)
+                    showNotification('✔️ Image uploaded successfully', '#ffffff', '#000000', settings)
+                    showNotification(`📋 URL copied to clipboard`, '#ffffff', '#000000', settings)
+                  })
+                break
+              // upload to imgur
+              case 'imgur':
+                let requestOptionsIMGUR = {
+                  method: 'POST',
+                  headers: { 'Authorization': `Client-ID ${IMGUR_TOKEN}` },
+                  body: base64
+                }
+
+                fetch('https://api.imgur.com/3/image', requestOptionsIMGUR)
+                  .then(res => res.json())
+                  .then((res) => {
+                    // remove toast
+                    let toastifyElems = document.querySelectorAll('.toastify');
+                    toastifyElems.forEach(element => {
+                        element.remove()
+                    });
+    
+                    copyToClipboard(res.data.link);
+                    showNotification('✔️ Image uploaded successfully', '#ffffff', '#000000', settings)
+                    showNotification(`📋 URL copied to clipboard`, '#ffffff', '#000000', settings)
+                  });
+                break
             }
-
-            fetch(`https://api.imgbb.com/1/upload?expiration=600&key=${IMGBB_TOKEN}`, requestOptions)
-              .then(res => res.json())
-              .then(res => {
-                // remove toast
-                let toastifyElems = document.querySelectorAll('.toastify')
-                toastifyElems.forEach(element => {
-                  element.remove()
-                })
-
-                copyToClipboard(res.data.image.url)
-                showNotification('✔️ Image uploaded successfully', '#ffffff', '#000000', settings)
-                showNotification(`📋 URL copied to clipboard`, '#ffffff', '#000000', settings)
-              })
           }
         },
         colorpicker: settings.settings.colorpicker && {

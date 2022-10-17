@@ -13,9 +13,6 @@ let welcomeUrl = "https://betterviewer.surge.sh/welcome.html";
 
 // when tab is created or reloaded
 chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
-
- 
-    
     if (changeInfo.status == 'loading') {
         // check if tab is marked as injected
         if (InjectedTabs.includes(tabId)) {
@@ -48,11 +45,7 @@ chrome.webRequest.onHeadersReceived.addListener(function (details) {
         let contentDispositionHeader = getHeaderFromHeaders(details.responseHeaders, 'content-disposition');
         let isContentDispositionAttachment = contentDispositionHeader && contentDispositionHeader.value.toLowerCase().includes('attachment');
 
-        
-
         let res = header && header.value.split(';', 1)[0];
-
-        
 
         if (res.indexOf('image') === -1) {
             // remove from injected list
@@ -68,21 +61,12 @@ chrome.webRequest.onHeadersReceived.addListener(function (details) {
             // add tab to injected list
             InjectedTabs.push(details.tabId);
 
-
-            // Remove "content-security-policy" header from the selected image to allow it to be loaded in the viewer
-            // Same idea from here : https://github.com/PhilGrayson/chrome-csp-disable/blob/master/background.js
-            // for (let i = 0; i < details.responseHeaders.length; i++) {
-            //     if (details.responseHeaders[i].name.toLowerCase() === 'content-security-policy') {
-            //         details.responseHeaders[i].value = '';
-            //     }
-            // }
-
+            // clear 'content-security-policy'
             for (let respHeader of details.responseHeaders) {
                 if (respHeader.name.toLowerCase() === 'content-security-policy') {
                     respHeader.value = '';
                 }
             }
-
 
             return {
                 responseHeaders: details.responseHeaders
@@ -90,9 +74,51 @@ chrome.webRequest.onHeadersReceived.addListener(function (details) {
         }
     }
 }, {
-    urls: ['*://*/*'],
+    urls: ['<all_urls>'],
     types: ['main_frame']
 }, ['responseHeaders', 'blocking']);
+
+// run .onCompleted for local files
+chrome.webRequest.onCompleted.addListener(function (details) {
+    if (details.tabId !== -1) {
+        let header = getHeaderFromHeaders(details.responseHeaders, 'content-type');
+
+        // check if content-disposition is attachment, if it is, do not inject
+        let contentDispositionHeader = getHeaderFromHeaders(details.responseHeaders, 'content-disposition');
+        let isContentDispositionAttachment = contentDispositionHeader && contentDispositionHeader.value.toLowerCase().includes('attachment');
+
+        let res = header && header.value.split(';', 1)[0];
+
+        if (res.indexOf('image') === -1) {
+            // remove from injected list
+            InjectedTabs = InjectedTabs.filter(function (item) {
+                return item !== details.tabId;
+            });
+        }
+
+        // check if image
+        if (res && res.indexOf('image') !== -1 && InjectedTabs.indexOf(details.tabId) === -1 && !isContentDispositionAttachment) {
+
+            console.log(details);
+            // add tab to injected list
+            InjectedTabs.push(details.tabId);
+
+            // clear 'content-security-policy'
+            for (let respHeader of details.responseHeaders) {
+                if (respHeader.name.toLowerCase() === 'content-security-policy') {
+                    respHeader.value = '';
+                }
+            }
+
+            return {
+                responseHeaders: details.responseHeaders
+            };
+        }
+    }
+}, {
+    urls: ['file://*'],
+    types: ['main_frame']
+}, ['responseHeaders']);
 
 
 // when the extension is installed or upgraded ...
@@ -184,6 +210,7 @@ function set_default_settings(){
             exit: true,
             about: true,
             zoom_ratio: 0.1, // 0.1 is +/- 10% Zoom, 0.5 is +/- 50% Zoom, etc...
+            upload_site: "imgbb", // imgbb, imgur
             notification_gravity: "top", // top, bottom
             notification_position: "right", // left, right
             toolbar_position: "bottom", // top, bottom
