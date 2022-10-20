@@ -4889,6 +4889,7 @@ let IS_HELP_OPEN = false
 let IS_CROP_OPEN = false
 
 let viewer
+let isLocalFile = window.location.href.match(/(file:\/\/)/) ? true : false;
 let BACKGROUND_TYPE = 'blurred'
 let UPLOAD_SITE = 'imgbb'
 let ImgCanvas
@@ -5465,7 +5466,7 @@ function init(settings) {
           }
         },
         paint: settings.settings.paint && {
-          show: 1,
+          show: isLocalFile ? 0 : 1,
           size: 'large',
           click: function () {
             isKeypressEnabled = true
@@ -5680,14 +5681,14 @@ function init(settings) {
           }
         },
         download: settings.settings.download && {
-          show: 1,
+          show: isLocalFile ? 0 : 1,
           size: 'large',
           click: function () {
             download(viewer.image)
           }
         },
         upload: settings.settings.upload && {
-          show: 1,
+          show: isLocalFile ? 0 : 1,
           size: 'large',
           click: function () {
             let uriString = getBase64Image(viewer.image)
@@ -5770,7 +5771,7 @@ function init(settings) {
           }
         },
         colorpicker: settings.settings.colorpicker && {
-          show: 1,
+          show: isLocalFile ? 0 : 1,
           size: 'large',
           click: async function () {
             if (!IS_PICKER_OPEN) {
@@ -5870,7 +5871,7 @@ function init(settings) {
           }
         },
         details: settings.settings.details && {
-          show: 1,
+          show: isLocalFile ? 0 : 1,
           size: 'large',
           click: async function () {
             if (!IS_DETAILS_OPEN) {
@@ -5943,7 +5944,7 @@ function init(settings) {
           }
         },
         print: settings.settings.print && {
-          show: 1,
+          show: isLocalFile ? 0 : 1,
           size: 'large',
           click: function () {
             printImage(viewer.image)
@@ -6145,7 +6146,7 @@ function init(settings) {
           }
         },
         photopea: settings.settings.photopea && {
-          show: 1,
+          show: isLocalFile ? 0 : 1,
           size: 'large',
           click: function () {
             let currentUrl = window.location.href
@@ -6191,7 +6192,7 @@ function init(settings) {
           }
         },
         tineye: settings.settings.tineye && {
-          show: 1,
+          show: isLocalFile ? 0 : 1,
           size: 'large',
           click: function () {
             // toastify
@@ -6223,7 +6224,7 @@ function init(settings) {
           }
         },
         qr: settings.settings.qr && {
-          show: 1,
+          show: isLocalFile ? 0 : 1,
           size: 'large',
           click: function () {
             // show loading toast
