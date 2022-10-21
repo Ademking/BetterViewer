@@ -659,6 +659,14 @@ body {
   background-position: center center;
 }
 
+.viewer-fit-to-screen {
+  background-image   : url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMiIgaGVpZ2h0PSIxMiIgZmlsbD0iI2ZmZmZmZiIgY2xhc3M9ImJpIGJpLWFycm93cy1mdWxsc2NyZWVuIiB2aWV3Qm94PSIwIDAgMTYgMTYiPgogIDxwYXRoIGZpbGwtcnVsZT0iZXZlbm9kZCIgZD0iTTUuODI4IDEwLjE3MmEuNS41IDAgMCAwLS43MDcgMGwtNC4wOTYgNC4wOTZWMTEuNWEuNS41IDAgMCAwLTEgMHYzLjk3NWEuNS41IDAgMCAwIC41LjVINC41YS41LjUgMCAwIDAgMC0xSDEuNzMybDQuMDk2LTQuMDk2YS41LjUgMCAwIDAgMC0uNzA3em00LjM0NCAwYS41LjUgMCAwIDEgLjcwNyAwbDQuMDk2IDQuMDk2VjExLjVhLjUuNSAwIDEgMSAxIDB2My45NzVhLjUuNSAwIDAgMS0uNS41SDExLjVhLjUuNSAwIDAgMSAwLTFoMi43NjhsLTQuMDk2LTQuMDk2YS41LjUgMCAwIDEgMC0uNzA3em0wLTQuMzQ0YS41LjUgMCAwIDAgLjcwNyAwbDQuMDk2LTQuMDk2VjQuNWEuNS41IDAgMSAwIDEgMFYuNTI1YS41LjUgMCAwIDAtLjUtLjVIMTEuNWEuNS41IDAgMCAwIDAgMWgyLjc2OGwtNC4wOTYgNC4wOTZhLjUuNSAwIDAgMCAwIC43MDd6bS00LjM0NCAwYS41LjUgMCAwIDEtLjcwNyAwTDEuMDI1IDEuNzMyVjQuNWEuNS41IDAgMCAxLTEgMFYuNTI1YS41LjUgMCAwIDEgLjUtLjVINC41YS41LjUgMCAwIDEgMCAxSDEuNzMybDQuMDk2IDQuMDk2YS41LjUgMCAwIDEgMCAuNzA3eiIvPgo8L3N2Zz4=");
+  width              : 16px;
+  height             : 16px;
+  background-repeat  : no-repeat;
+  background-position: center center;
+}
+
 .viewer-settings {
   background-image   : url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' class='feather feather-settings'%3E%3Ccircle cx='12' cy='12' r='3'%3E%3C/circle%3E%3Cpath d='M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z'%3E%3C/path%3E%3C/svg%3E");
   width              : 16px;

@@ -80,6 +80,34 @@
                         <div class="vc-toggle-container">
                             <kdb class="kbc-button shortcut-mod">Ctrl</kdb>
                             +
+                            <kdb class="kbc-button shortcut-key">0</kdb>
+                            :
+                            <span class="kbc-button">Reset</span>
+                            <select id="reset-mod" class="kbc-button custom-hotkey-modifier">
+                                <option value="none">None</option>
+                                <option value="mod">Control</option>
+                                <option value="shift">Shift</option>
+                                <option value="alt">Alt</option>
+                            </select>
+                            <input id="reset-key" type="text" class="kbc-button custom-hotkey-key" />
+                            <label class="vc-switch">
+                                <input id="resetToggle" type="checkbox" class="vc-switch-input" checked />
+                                <span class="vc-switch-label" data-on="On" data-off="Off"></span>
+                                <span class="vc-handle"></span>
+                            </label>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        </p>
+
+        <p>
+            <tr>
+                <td class="togglebtn">
+                    <div class="toggle">
+                        <div class="vc-toggle-container">
+                            <kdb class="kbc-button shortcut-mod">Ctrl</kdb>
+                            +
                             <kdb class="kbc-button shortcut-key">1</kdb>
                             :
                             <span class="kbc-button">1:1</span>
@@ -108,18 +136,18 @@
                         <div class="vc-toggle-container">
                             <kdb class="kbc-button shortcut-mod">Ctrl</kdb>
                             +
-                            <kdb class="kbc-button shortcut-key">0</kdb>
+                            <kdb class="kbc-button shortcut-key">2</kdb>
                             :
-                            <span class="kbc-button">Reset</span>
-                            <select id="reset-mod" class="kbc-button custom-hotkey-modifier">
+                            <span class="kbc-button">Fit to Screen</span>
+                            <select id="fit-to-screen-mod" class="kbc-button custom-hotkey-modifier">
                                 <option value="none">None</option>
                                 <option value="mod">Control</option>
                                 <option value="shift">Shift</option>
                                 <option value="alt">Alt</option>
                             </select>
-                            <input id="reset-key" type="text" class="kbc-button custom-hotkey-key" />
+                            <input id="fit-to-screen-key" type="text" class="kbc-button custom-hotkey-key" />
                             <label class="vc-switch">
-                                <input id="resetToggle" type="checkbox" class="vc-switch-input" checked />
+                                <input id="fitToScreenToggle" type="checkbox" class="vc-switch-input" checked />
                                 <span class="vc-switch-label" data-on="On" data-off="Off"></span>
                                 <span class="vc-handle"></span>
                             </label>
