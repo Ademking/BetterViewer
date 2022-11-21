@@ -4889,6 +4889,7 @@ let IS_HELP_OPEN = false
 let IS_CROP_OPEN = false
 
 let viewer
+let isLocalFile = window.location.href.match(/(file:\/\/)/) ? true : false;
 let BACKGROUND_TYPE = 'blurred'
 let UPLOAD_SITE = 'imgbb'
 let ImgCanvas
@@ -5009,6 +5010,10 @@ let tippyData = [
   {
     type: 'reset',
     text: 'Reset'
+  },
+  {
+    type: 'fit-to-screen',
+    text: 'Fit to Screen'
   },
   {
     type: 'rotate-left',
@@ -5152,6 +5157,17 @@ chrome.storage.sync.get("shortcutHotkeys", (shortcutHotkeys) => {
                 });
             }
             
+            if (sc_sc.fitToScreenToggle === true) {
+                const hotkeyMod = sc_sc.fit_to_screen_mod;
+                const hotkeyKey = sc_sc.fit_to_screen_key;
+                const customHotkey = hotkeyMod + "+" + hotkeyKey;
+
+                Mousetrap.bind(customHotkey, (e) => {
+                    document.getElementsByClassName('viewer-fit-to-screen')[0].click();
+                    e.preventDefault();
+                });
+            }
+
             if (sc_sc.fullscreenToggle === true) {
                 const hotkeyMod = sc_sc.fullscreen_mod;
                 const hotkeyKey = sc_sc.fullscreen_key;
@@ -5396,10 +5412,6 @@ function init(settings) {
           show: 1,
           size: 'large'
         },
-        oneToOne: settings.settings.oneToOne && {
-          show: 1,
-          size: 'large'
-        },
         reset: settings.settings.reset && {
           show: 1,
           size: 'large',
@@ -5412,6 +5424,28 @@ function init(settings) {
               }
             }, 100)
             window.dispatchEvent(new Event('resize'))
+          }
+        },
+        oneToOne: settings.settings.oneToOne && {
+          show: 1,
+          size: 'large'
+        },
+        fitToScreen: settings.settings.fitToScreen && {
+          show: 1,
+          size: 'large',
+          click: function () {
+            // Calculates a Zoom Ratio, based off of the Max & Default height/width
+            let heightRatio = window.innerHeight / imgElement.naturalHeight;
+            let widthRatio = window.innerWidth / imgElement.naturalWidth
+
+            // Zooms to the Max Height & Centers the Image : if Zoomed Width > Max Width, scale to the Max Width instead
+            if (imgElement.naturalWidth*heightRatio > window.innerWidth) {
+              viewer.zoomTo(widthRatio, true);
+              viewer.moveTo(0, (window.innerHeight - (imgElement.naturalHeight * widthRatio))/2);
+            } else {
+              viewer.zoomTo(heightRatio, true);
+              viewer.moveTo((window.innerWidth - (imgElement.naturalWidth * heightRatio))/2, 0);
+            }
           }
         },
         play: settings.settings.play && {
@@ -5465,7 +5499,7 @@ function init(settings) {
           }
         },
         paint: settings.settings.paint && {
-          show: 1,
+          show: isLocalFile ? 0 : 1,
           size: 'large',
           click: function () {
             isKeypressEnabled = true
@@ -5680,14 +5714,14 @@ function init(settings) {
           }
         },
         download: settings.settings.download && {
-          show: 1,
+          show: isLocalFile ? 0 : 1,
           size: 'large',
           click: function () {
             download(viewer.image)
           }
         },
         upload: settings.settings.upload && {
-          show: 1,
+          show: isLocalFile ? 0 : 1,
           size: 'large',
           click: function () {
             let uriString = getBase64Image(viewer.image)
@@ -5770,7 +5804,7 @@ function init(settings) {
           }
         },
         colorpicker: settings.settings.colorpicker && {
-          show: 1,
+          show: isLocalFile ? 0 : 1,
           size: 'large',
           click: async function () {
             if (!IS_PICKER_OPEN) {
@@ -5870,7 +5904,7 @@ function init(settings) {
           }
         },
         details: settings.settings.details && {
-          show: 1,
+          show: isLocalFile ? 0 : 1,
           size: 'large',
           click: async function () {
             if (!IS_DETAILS_OPEN) {
@@ -5943,7 +5977,7 @@ function init(settings) {
           }
         },
         print: settings.settings.print && {
-          show: 1,
+          show: isLocalFile ? 0 : 1,
           size: 'large',
           click: function () {
             printImage(viewer.image)
@@ -6145,7 +6179,7 @@ function init(settings) {
           }
         },
         photopea: settings.settings.photopea && {
-          show: 1,
+          show: isLocalFile ? 0 : 1,
           size: 'large',
           click: function () {
             let currentUrl = window.location.href
@@ -6191,7 +6225,7 @@ function init(settings) {
           }
         },
         tineye: settings.settings.tineye && {
-          show: 1,
+          show: isLocalFile ? 0 : 1,
           size: 'large',
           click: function () {
             // toastify
@@ -6223,7 +6257,7 @@ function init(settings) {
           }
         },
         qr: settings.settings.qr && {
-          show: 1,
+          show: isLocalFile ? 0 : 1,
           size: 'large',
           click: function () {
             // show loading toast
@@ -6560,16 +6594,6 @@ function init(settings) {
     viewer.show()
 
     setTippyText(tippyData)
-  } else {
-    // No img element, then... maybe it's a svg ?
-    // let svgElement = document.getElementsByTagName('svg')[0]; // get svg element
-    // if (svgElement) {
-    //     // let base64 = svgToBase64(svgElement);
-    //     // redirect to svg viewer
-    // }
-    // else {
-    //     // I don't know what it is, and I don't care about it
-    // }
   }
 }
 
