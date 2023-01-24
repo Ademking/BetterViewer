@@ -2881,6 +2881,8 @@ e=a[0],c=a[2]):(d=a[2],e=a[0],c=a[1]);if(0>function(a,b,c){var d=b.x;b=b.y;retur
             }
         },
         dragstart: function dragstart(event) {
+            if (event.altKey) return;
+            
             if (event.target.localName === 'img') {
                 event.preventDefault();
             }
@@ -2898,6 +2900,7 @@ e=a[0],c=a[2]):(d=a[2],e=a[0],c=a[1]);if(0>function(a,b,c){var d=b.x;b=b.y;retur
                 return;
             } // Prevent default behaviours as page zooming in touch devices.
 
+            if (event.altKey) return;
 
             event.preventDefault();
 
