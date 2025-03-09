@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to BetterViewer!</title>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-S8D8ET426X"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'G-S8D8ET426X');
+    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-900 text-gray-100">
+    <div class="relative h-full w-full bg-slate-950">
+        <div
+            class="absolute bottom-0 left-0 right-0 top-0 bg-[linear-gradient(to_right,#4f4f4f2e_1px,transparent_1px),linear-gradient(to_bottom,#4f4f4f2e_1px,transparent_1px)] bg-[size:14px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] z-0">
+        </div>
+        <section class="text-gray-400 body-font z-10 relative">
+            <div class="container mx-auto flex flex-col px-5 pt-16 justify-center items-center">
+                <img class="lg:w-32 md:w-3/6 w-4/6 mb-8 object-cover object-center rounded z-50" alt="hero"
+                    src="logo.svg">
+                <div class="w-full md:w-2/3 flex flex-col mb-16 items-center text-center">
+                    <h1 class="text-2xl mb-4 font-medium text-gray-100">Thank you for installing BetterViewer! 🎉</h1>
+                    <p class="leading-relaxed">BetterViewer makes image viewing faster, easier, and more fun.</p>
+                    <p class="leading-relaxed">BetterViewer was designed as a replacement for the image viewing mode
+                        built
+                        into
+                        web browsers.</p>
+                    <p class="text-md mt-2 text-white mb-8 w-full">Let's get started! <br>Try opening one of these
+                        pictures in a
+                        new tab
+                        <br>
+                        Right-click and select 
+                        <img src="logo.svg" alt="context-menu" class="inline-block w-6 h-6">
+
+                        <strong>Open Image in BetterViewer</strong>
+                    </p>
+                    <div class="flex space-x-4 justify-center">
+                        <img id="demo-img"
+                            class="shadow cursor-pointer lg:w-2/6 md:w-3/6 w-4/6 object-cover object-center rounded"
+                            alt="hero" src="cat.jpg">
+                        <img id="demo-img"
+                            class="shadow cursor-pointer lg:w-2/6 md:w-3/6 w-4/6 object-cover object-center rounded"
+                            alt="hero" src="dog.jpg">
+                    </div>
+                </div>
+                <div class="giscus"></div>
+            </div>
+        </section>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.4.0/dist/confetti.browser.min.js"></script>
+    <script src="https://giscus.app/client.js" data-repo="Ademking/BetterViewer" data-repo-id="R_kgDOGWgwPw"
+        data-category="General" data-category-id="DIC_kwDOGWgwP84CA5yI" data-mapping="pathname"
+        data-reactions-enabled="1" data-emit-metadata="0" data-input-position="top" data-theme="dark" data-lang="en"
+        crossorigin="anonymous" async>
+        </script>
+    <script>
+        window.onload = function () {
+            var count = 400;
+            var defaults = {
+                origin: { y: 0.7 }
+            };
+            function fire(particleRatio, opts) {
+                confetti(Object.assign({}, defaults, opts, {
+                    particleCount: Math.floor(count * particleRatio)
+                }));
+            }
+            fire(0.25, {
+                spread: 26,
+                startVelocity: 55,
+            });
+            fire(0.2, {
+                spread: 60,
+            });
+            fire(0.35, {
+                spread: 100,
+                decay: 0.91,
+                scalar: 0.8
+            });
+            fire(0.1, {
+                spread: 120,
+                startVelocity: 25,
+                decay: 0.92,
+                scalar: 1.2
+            });
+            fire(0.1, {
+                spread: 120,
+                startVelocity: 45,
+            });
+            fire(0.1, {
+                spread: 120,
+                startVelocity: 45,
+            });
+            fire(0.1, {
+                spread: 120,
+                startVelocity: 45,
+            });
+            fire(0.1, {
+                spread: 120,
+                startVelocity: 45,
+            });
+            let img = document.querySelector('#demo-img');
+        }
+    </script>
+</body>
+
+</html>

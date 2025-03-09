@@ -1,20 +1,70 @@
 {
-  "name": "BetterViewer",
-  "version": "1.0.5",
+  "name": "better-viewer",
+  "displayName": "BetterViewer",
+  "version": "2.0.0",
   "description": "A browser extension for better image viewing experience",
-  "main": "background.js",
-  "scripts": {
-    "start": "gulp",
-    "chrome-release": "zip -r betterviewer-chrome.zip . -i \"css/*\" \"dist/*\" \"help/*\" \"icons/*\" \"pages/*\" \"LICENSE\" \"background.js\" \"manifest.json\" \"CODE_OF_CONDUCT.md\" \"README.md\"",
-    "firefox-release": "mv manifest.json manifest.json.chrome && mv manifest-firefox.json manifest.json && zip -r betterviewer-firefox.zip . -i \"css/*\" \"dist/*\" \"help/*\" \"icons/*\" \"pages/*\" \"LICENSE\" \"background.js\" \"manifest.json\" \"CODE_OF_CONDUCT.md\" \"README.md\" && mv manifest.json manifest-firefox.json && mv manifest.json.chrome manifest.json",
-    "release": "npm run chrome-release && npm run firefox-release"
-  },
-  "keywords": ["betterviewer", "image", "viewer", "browser", "extension", "better"],
   "author": "Adem Kouki <ademkingnew@gmail.com> (https://github.com/Ademking/BetterViewer)",
-  "license": "ISC",
+  "license": "MIT",
+  "scripts": {
+    "dev": "plasmo dev",
+    "build": "plasmo build",
+    "build:source": "plasmo build --source-maps",
+    
+    "package": "plasmo package"
+  },
+  "keywords": [
+    "betterviewer",
+    "image",
+    "viewer",
+    "browser",
+    "extension",
+    "better"
+  ],
+  "dependencies": {
+    "@nuintun/qrcode": "^4.1.14",
+    "@plasmohq/messaging": "^0.7.1",
+    "@plasmohq/storage": "^1.15.0",
+    "@simonwep/pickr": "^1.9.1",
+    "@uidotdev/usehooks": "^2.4.1",
+    "exif-js": "^2.3.0",
+    "html2canvas": "^1.4.1",
+    "plasmo": "0.90.3",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "react-filerobot-image-editor": "^4.9.1",
+    "react-hotkeys-hook": "^4.6.1",
+    "react-json-view": "^1.21.3",
+    "react-konva": "18",
+    "react-mobile-cropper": "^0.8.0",
+    "react-winbox": "^1.5.0",
+    "sonner": "^2.0.1",
+    "tippy.js": "^6.3.7",
+    "use-eye-dropper": "^1.7.1",
+    "viewerjs": "^1.11.7",
+    "zustand": "^5.0.3"
+  },
   "devDependencies": {
-    "gulp": "^4.0.2",
-    "gulp-concat": "^2.6.1",
-    "gulp-uglify": "^3.0.2"
+    "@ianvs/prettier-plugin-sort-imports": "4.1.1",
+    "@types/chrome": "0.0.258",
+    "@types/node": "20.11.5",
+    "@types/react": "18.2.48",
+    "@types/react-dom": "18.2.18",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.5.3",
+    "prettier": "3.2.4",
+    "tailwindcss": "3",
+    "typescript": "5.3.3"
+  },
+  "manifest": {
+    "permissions": [
+      "storage",
+      "contextMenus",
+      "tabs"
+    ],
+    "host_permissions": [
+      "https://*/*",
+      "http://*/*",
+      "file:///*"
+    ]
   }
 }

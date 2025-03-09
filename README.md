@@ -1,5 +1,7 @@
 <h1 align="center">
-    <img src="https://user-images.githubusercontent.com/12462188/141027406-7d2fecc5-0a4c-4389-adac-5cf9f7f317f3.png" alt="Logo" width="200">
+    <img src="./docs/logo.svg" alt="Logo" width="200">
+    <br>
+    BetterViewer
 </h1>
 
 <div align="center">
@@ -19,9 +21,9 @@
 <p align="center">With BetterViewer you can use various keyboard shortcuts to quickly pan, zoom images, edit and a lot more!</p>
 
 <p align="center">    
-   <a href="https://chrome.google.com/webstore/detail/betterviewer/llcpfkbjgkpmapiidpnohffjmmnhpmpb"><img src="./images/download-chrome.svg"></a>
-   <a href="https://microsoftedge.microsoft.com/addons/detail/betterviewer/jfladbainajdjpmdjpgndbgmkgibeddg"><img src="./images/edge.svg"></a>
-   <a href="https://addons.mozilla.org/en-US/firefox/addon/betterviewer"><img src="./images/firefox.svg"></a>
+   <a href="https://chrome.google.com/webstore/detail/betterviewer/llcpfkbjgkpmapiidpnohffjmmnhpmpb"><img src="./docs/download-chrome.svg"></a>
+   <a href="https://microsoftedge.microsoft.com/addons/detail/betterviewer/jfladbainajdjpmdjpgndbgmkgibeddg"><img src="./docs/edge.svg"></a>
+   <a href="https://addons.mozilla.org/en-US/firefox/addon/betterviewer"><img src="./docs/firefox.svg"></a>
 </p>
 
 <p align="center">
@@ -33,18 +35,24 @@
 </h3>
 
 <h1 align="center">
-    <img src="https://user-images.githubusercontent.com/12462188/141027643-e478175a-6c4f-41ec-b9dd-c0c8b754f703.png" alt="Preview 1">
+    <img src="./docs/screenshot1.png" alt="Preview 1">
 </h1>
 
 <h1 align="center">
-    <img src="https://user-images.githubusercontent.com/12462188/141027869-8c955f5b-241b-4155-811c-4fde4f456fa6.png" alt="Preview 2">
+    <img src="./docs/screenshot2.png" alt="Preview 2">
 </h1>
 
 <h1 align="center">
-  <img src="https://user-images.githubusercontent.com/12462188/141028090-4edbe30e-284a-4ce4-b1fc-e2a41f6f7bdf.png" alt="Preview 3">
+  <img src="./docs/screenshot3.png" alt="Preview 3">
+</h1>
+
+<h1 align="center">
+  <img src="./docs/screenshot4.png" alt="Preview 3">
 </h1>
 
 ### Features
+
+ℹ️ _(Some features are not available in V2 yet due to Manifest V3 limitations, but I will add them back soon)_
 
 - Zoom in / Zoom Out / Reset
 - Fullscreen
@@ -66,7 +74,15 @@
 
 # Changelog
 
+## [2.0.0] - 2025-03-09
+
+- New version of BetterViewer is here!
+- Completely rewritten from scratch (React, TypeScript, [Plasmo](https://www.plasmo.com/))
+- Using Manifest V3 (I had to remove some features because of this change, but I will add them back soon)
+- Better UI/UX
+
 ## [1.0.5] - 2022-09-14
+
 - Add "Zoom Ratio" option to Settings. (Thanks to @Metacor)
 
 ## [1.0.4] - 2022-04-19
