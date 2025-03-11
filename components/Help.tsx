@@ -123,7 +123,7 @@ const Help = () => {
           {faqs.map((faq, index) => (
             <div key={index} className="bg-gray-800 p-4 rounded-lg shadow-md">
               <h2 className="text-xl font-semibold mb-2 text-gray-200">
-                ❓{faq.question}
+                {faq.question}
               </h2>
               <p className="text-gray-300">💡 {faq.answer}</p>
             </div>
