@@ -27,9 +27,8 @@ export const CopyColorToast = ({ hexColor }) => {
 
 const ColorPicker = ({ imageElem, zoomScale, isFlipped }) => {
   const { open, isSupported } = useEyeDropper();
-
   const pickrRef = useRef(null);
-  const colorPickerContainerRef = useRef(null);
+  const colorPickerRef = useRef(null);
 
   const chromiumColorPicker = async (pickr) => {
     const color = await open();
@@ -60,11 +59,6 @@ const ColorPicker = ({ imageElem, zoomScale, isFlipped }) => {
     );
   };
 
-  /**
-   * Firefox color picker implementation
-   * Eye dropper is not supported in Firefox
-   * TODO: Implement a better solution for Firefox
-   */
   const firefoxColorPicker = async (pickr, e) => {
     if (!imageElem) {
       console.error("imageElem is not defined or is null");
@@ -127,69 +121,72 @@ const ColorPicker = ({ imageElem, zoomScale, isFlipped }) => {
     );
   };
 
-  useEffect(() => {
-    if (!colorPickerContainerRef.current) {
-      console.error("colorPickerContainerRef is not defined or is null");
-      return;
-    }
-
-    console.log(colorPickerContainerRef);
-
-    const pickr = Pickr.create({
-      el: colorPickerContainerRef.current,
-      inline: true,
-      showAlways: true,
-      theme: "classic",
-      useAsButton: false,
-      autoReposition: true,
-      appClass: "color-picker-app",
-      components: {
-        preview: true,
-        opacity: false,
-        hue: true,
-        interaction: {
-          hex: true,
-          rgba: true,
-          hsla: true,
-          hsva: true,
-          cmyk: true,
-          input: true,
+useEffect(() => {
+  const initializePickr = () => {
+    if (colorPickerRef.current) {
+      const pickr = Pickr.create({
+        el: colorPickerRef.current,
+        inline: true,
+        showAlways: true,
+        theme: "classic",
+        useAsButton: false,
+        autoReposition: true,
+        appClass: "color-picker-app",
+        components: {
+          preview: true,
+          opacity: false,
+          hue: true,
+          interaction: {
+            hex: true,
+            rgba: true,
+            hsla: true,
+            hsva: true,
+            cmyk: true,
+            input: true,
+          },
         },
-      },
-    });
+      });
 
-    pickrRef.current = pickr;
+      pickrRef.current = pickr;
 
-    const handleImageClick = async (mouseClickEvent) => {
-      try {
-        if (!isSupported) {
-          firefoxColorPicker(pickr, mouseClickEvent);
-        } else {
-          chromiumColorPicker(pickr);
+      const handleImageClick = async (mouseClickEvent) => {
+        try {
+          if (!isSupported) {
+            firefoxColorPicker(pickr, mouseClickEvent);
+          } else {
+            chromiumColorPicker(pickr);
+          }
+        } catch (e) {
+          console.error(e);
         }
-      } catch (e) {
-        console.error(e);
-      }
-    };
+      };
 
-    if (imageElem && imageElem.addEventListener) {
-      imageElem.addEventListener("click", handleImageClick);
-    } else {
-      console.error("imageElem is not a valid DOM element");
+      if (imageElem && imageElem.addEventListener) {
+        imageElem.addEventListener("click", handleImageClick);
+      } else {
+        console.error("imageElem is not a valid DOM element");
+      }
+
+      return () => {
+        if (imageElem && imageElem.removeEventListener) {
+          imageElem.removeEventListener("click", handleImageClick);
+        }
+      };
     }
+  };
 
-    return () => {
-      if (imageElem && imageElem.removeEventListener) {
-        imageElem.removeEventListener("click", handleImageClick);
-      }
-    };
-  }, [imageElem, zoomScale, isFlipped]);
+  // Delay the initialization to ensure the DOM is fully rendered
+  const timeoutId = setTimeout(initializePickr, 0);
 
+  return () => clearTimeout(timeoutId);
+}, [imageElem, zoomScale, isFlipped]);
   return (
     <div>
-      <div ref={colorPickerContainerRef} className="color-picker"></div>
+      <div ref={colorPickerRef} className="color-picker"></div>
     </div>
   );
 };
+
+
 
 export default ColorPicker;

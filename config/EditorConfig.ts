@@ -217,6 +217,6 @@ export const createEditorConfig = (imageUrl: string): EditorConfig => ({
   },
   observePluginContainerSize: true,
   showCanvasOnly: false,
-  defaultTabId: TABS.ANNOTATE,
-  defaultToolId: TOOLS.PEN,
+  defaultTabId: TABS.FILTERS,
+  tabsIds: [TABS.ADJUST, TABS.WATERMARK, TABS.FILTERS, TABS.FINETUNE, TABS.RESIZE, TABS.ANNOTATE],
 });

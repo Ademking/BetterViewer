@@ -27,6 +27,8 @@ import EXIF from "exif-js";
 import JsonViewer from "~components/JsonViewer";
 import { useHotkeys } from "react-hotkeys-hook";
 import Help from "~components/Help";
+import TldrawWrapper from "~components/TldrawWrapper";
+import initHotKeys from "~config/HotKeys";
 
 // Create Zustand store
 interface ImageViewerState {
@@ -35,11 +37,13 @@ interface ImageViewerState {
   isCropperOpen: boolean;
   isColorPickerOpen: boolean;
   isAboutOpen: boolean;
+  isTldrawOpen: boolean;
   setPersistedImageUrl: (url: string | null) => void;
   setIsEditorOpen: (isOpen: boolean) => void;
   setIsCropperOpen: (isOpen: boolean) => void;
   setIsColorPickerOpen: (isOpen: boolean) => void;
   setIsAboutOpen: (isOpen: boolean) => void;
+  setIsTldrawOpen: (isOpen: boolean) => void;
 }
 
 const useImageViewerStore = create<ImageViewerState>((set) => ({
@@ -48,11 +52,13 @@ const useImageViewerStore = create<ImageViewerState>((set) => ({
   isCropperOpen: false,
   isColorPickerOpen: false,
   isAboutOpen: false,
+  isTldrawOpen: false,
   setPersistedImageUrl: (url) => set({ persistedImageUrl: url }),
   setIsEditorOpen: (isOpen) => set({ isEditorOpen: isOpen }),
   setIsCropperOpen: (isOpen) => set({ isCropperOpen: isOpen }),
   setIsColorPickerOpen: (isOpen) => set({ isColorPickerOpen: isOpen }),
   setIsAboutOpen: (isOpen) => set({ isAboutOpen: isOpen }),
+  setIsTldrawOpen: (isOpen) => set({ isTldrawOpen: isOpen }),
 }));
 
 function ImageViewer() {
@@ -68,11 +74,13 @@ function ImageViewer() {
     isCropperOpen,
     isColorPickerOpen,
     isAboutOpen,
+    isTldrawOpen,
     setPersistedImageUrl,
     setIsEditorOpen,
     setIsCropperOpen,
     setIsColorPickerOpen,
     setIsAboutOpen,
+    setIsTldrawOpen,
   } = useImageViewerStore();
   const size = useWindowSize();
   const imageRef = useRef(null);
@@ -81,6 +89,7 @@ function ImageViewer() {
   const winBoxEditorRef = useRef(null);
   const winBoxColorPickerRef = useRef(null);
   const winBoxAboutRef = useRef(null);
+  const winBoxAnnotationRef = useRef(null);
   const [winboxCropperWidth, setWinboxCropperWidth] = useState(0);
   const [winboxCropperHeight, setWinboxCropperHeight] = useState(0);
 
@@ -89,6 +98,9 @@ function ImageViewer() {
     imageRef: React.RefObject<HTMLImageElement>
   ) => {
     const viewerOptions = createViewerConfig({
+      onViewerReady: () => {
+        // TODO: add event listeners for the viewer
+      },
       paintClickHandler: () => {
         setIsEditorOpen(true);
       },
@@ -122,17 +134,16 @@ function ImageViewer() {
       aboutClickHandler: () => {
         setIsAboutOpen(true);
       },
-      // ocrClickHandler: async () => {
-      //   await recognize(imageRef.current, {
-      //     lang: "eng",
-      //     workerBlobURL: false,
-      //   });
-      //   console.log("result", result);
-      // },
+      annotateClickHandler: () => {
+        setIsTldrawOpen(true);
+      },
+      moreClickHandler: () => {
+        // TODO: create a dropdown menu for more options
+      },
+     
     });
     const viewerInstance = new Viewer(imageRef.current, viewerOptions);
     viewerRef.current = viewerInstance;
-    console.log("viewerRef", viewerRef.current);
   };
 
   useEffect(() => {
@@ -166,6 +177,7 @@ function ImageViewer() {
       tipppyOptions.forEach((tippyOption) => {
         tippy(tippyOption.selector, {
           content: tippyOption.text,
+          allowHTML: true,
         });
       });
     });
@@ -182,104 +194,15 @@ function ImageViewer() {
     }
   }, [isColorPickerOpen]);
 
-  // Zoom in
-  useHotkeys("mod+add, add", (e) => {
-    e.preventDefault();
-    // Zoom in
-    if (viewerRef.current) {
-      viewerRef.current.zoom(0.2);
-    }
-  });
-
-  // Zoom out
-  useHotkeys("mod+subtract, subtract", (e) => {
-    e.preventDefault();
-    // Zoom out
-    if (viewerRef.current) {
-      +viewerRef.current.zoom(-0.2);
-    }
-  });
-
-  // Reset zoom
-  useHotkeys("0, mod+0", (e) => {
-    e.preventDefault();
-    // Reset zoom
-    if (viewerRef.current) {
-      viewerRef.current.zoomTo(1);
-    }
-  });
-
-  // Rotate image to the left
-  useHotkeys("shift+left", (e) => {
-    e.preventDefault();
-    if (viewerRef.current) {
-      viewerRef.current.rotate(-90);
-    }
-  });
-
-  // Rotate image to the right
-  useHotkeys("shift+right", (e) => {
-    e.preventDefault();
-    if (viewerRef.current) {
-      viewerRef.current.rotate(90);
-    }
-  });
-
-  // Flip image vertically
-  useHotkeys("mod+down, mod+up", (e) => {
-    e.preventDefault();
-    if (viewerRef.current) {
-      viewerRef.current.scaleY(
-        viewerRef.current.imageData.scaleY === 1 ? -1 : 1
-      );
-    }
-  });
-
-  // Flip image horizontally
-  useHotkeys("mod+right, mod+left", (e) => {
-    e.preventDefault();
-    if (viewerRef.current) {
-      viewerRef.current.scaleX(
-        viewerRef.current.imageData.scaleX === 1 ? -1 : 1
-      );
-    }
-  });
-
-  // Open crop image
-  useHotkeys("mod+x", (e) => {
-    e.preventDefault();
-    setIsCropperOpen(true);
-  });
-
-  // Open image editor
-  useHotkeys("mod+e", (e) => {
-    e.preventDefault();
-    setIsEditorOpen(true);
-  });
-
-  // Open color picker
-  useHotkeys("shift+c", (e) => {
-    e.preventDefault();
-    setIsColorPickerOpen(true);
-  });
-
-  // Download image
-  useHotkeys("mod+d", (e) => {
-    e.preventDefault();
-    imageDownloader(persistedImageUrl);
-  });
-
-  // Scan QR
-  useHotkeys("mod+q", (e) => {
-    e.preventDefault();
-    scanQRfromImage();
-  });
-
-  // Image details
-  useHotkeys("mod+i", (e) => {
-    e.preventDefault();
-    handleImageExif(persistedImageUrl);
-  });
+  initHotKeys(
+    viewerRef,
+    setIsCropperOpen,
+    setIsEditorOpen,
+    setIsColorPickerOpen,
+    persistedImageUrl,
+    scanQRfromImage,
+    handleImageExif
+  );
 
   return (
     <div className="bg-[#0e0e0e] h-screen w-screen flex items-center justify-center">
@@ -320,6 +243,33 @@ function ImageViewer() {
             zoomScale={viewerRef.current.imageData.ratio}
             imageElem={viewerRef.current.image}
             isFlipped={viewerRef.current.imageData.rotate % 180 !== 0}
+          />
+        </WinBox>
+      )}
+
+      {isTldrawOpen && (
+        <WinBox
+          ref={winBoxAnnotationRef}
+          width={size.width - 100}
+          height={size.height - 100}
+          x="center"
+          y={30}
+          background="rgba(0,0,0,0.9)"
+          className="overflow-hidden bg-[#0e0e0e]"
+          title="Photo Editor"
+          onClose={() => {
+            setIsTldrawOpen(false);
+          }}
+          onHide={() => {
+            setIsTldrawOpen(false);
+          }}
+        >
+          <TldrawWrapper
+            imageRef={viewerRef.current.image}
+            onSave={(img) => {
+              setPersistedImageUrl(img);
+              setIsTldrawOpen(false);
+            }}
           />
         </WinBox>
       )}

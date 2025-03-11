@@ -1,3 +1,28 @@
+const ORDER: string[] = [
+  "zoomIn",
+  "zoomOut",
+  "oneToOne",
+  "reset",
+  "prev",
+  "play",
+  "next",
+  "rotateLeft",
+  "rotateRight",
+  "flipHorizontal",
+  "flipVertical",
+  "annotate",
+  "crop",
+  "paint",
+  "colorpicker",
+  "download",
+  "qr",
+  "photopea",
+  "tineye",
+  "details",
+  //"more",
+  "about",
+];
+
 export const createViewerConfig = ({
   paintClickHandler,
   cropperClickHandler,
@@ -9,7 +34,9 @@ export const createViewerConfig = ({
   tineyeClickHandler,
   aboutClickHandler,
   detailsClickHandler,
-  //ocrClickHandler,
+  onViewerReady,
+  annotateClickHandler,
+  moreClickHandler,
 }: {
   paintClickHandler: () => void;
   cropperClickHandler: () => void;
@@ -21,20 +48,11 @@ export const createViewerConfig = ({
   tineyeClickHandler: () => void;
   aboutClickHandler: () => void;
   detailsClickHandler: () => void;
-  //ocrClickHandler: () => void;
-}): any => ({
-  toolbarPosition: "bottom",
-  transition: true,
-  inline: true,
-  navbar: false,
-  fullscreen: false,
-  interval: 0,
-  tooltip: true,
-  zoomRatio: 0.5,
-  title: false,
-  keyboard: false,
-  backdrop: true,
-  toolbar: {
+  onViewerReady: () => void;
+  annotateClickHandler: () => void;
+  moreClickHandler: () => void;
+}): any => {
+  const toolbarConfig = {
     zoomIn: {
       show: 1,
       size: "large",
@@ -84,6 +102,11 @@ export const createViewerConfig = ({
       size: "large",
       click: paintClickHandler,
     },
+    annotate: {
+      show: 1,
+      size: "large",
+      click: annotateClickHandler,
+    },
     colorpicker: {
       show: 1,
       size: "large",
@@ -119,13 +142,41 @@ export const createViewerConfig = ({
       size: "large",
       click: aboutClickHandler,
     },
-    // ocr: {
-    //   show: 1,
-    //   size: "large",
-    //   click: ocrClickHandler,
-    // },
-  },
-});
+    more: {
+      show: 1,
+      size: "large",
+      click: moreClickHandler,
+    },
+  };
+
+  const orderedToolbarConfig = ORDER.reduce((acc, key) => {
+    if (toolbarConfig[key]) {
+      acc[key] = toolbarConfig[key];
+    }
+    return acc;
+  }, {});
+
+  return {
+    toolbarPosition: "bottom",
+    transition: true,
+    inline: true,
+    navbar: false,
+    fullscreen: false,
+    interval: 0,
+    tooltip: true,
+    zoomRatio: 0.5,
+    title: false,
+    keyboard: false,
+    backdrop: true,
+    initialCoverage: 0.9,
+    loading: true,
+    focus: true,
+    ready: () => {
+      onViewerReady();
+    },
+    toolbar: orderedToolbarConfig,
+  };
+};
 
 export const tipppyOptions = [
   {
@@ -232,4 +283,12 @@ export const tipppyOptions = [
     selector: ".viewer-settings",
     text: "Settings",
   },
+  {
+    selector: ".viewer-annotate",
+    text: "Annotate Image",
+  },
+  // {
+  //   selector: ".viewer-more",
+  //   text: "More Options",
+  // }
 ];

@@ -3,6 +3,7 @@ import { type CropperRef, Cropper } from "react-mobile-cropper";
 import "react-mobile-cropper/dist/style.css";
 import { toast } from "sonner";
 import { imageUrlToBlobUrl } from "~utils/imageConverter";
+import SaveIcon from "./SaveIcon";
 
 const ImageCropper = ({ imageSrc, width, height, updateCroppedImage }) => {
   const [image, setImage] = useState(imageSrc);
@@ -32,7 +33,10 @@ const ImageCropper = ({ imageSrc, width, height, updateCroppedImage }) => {
         onClick={onCrop}
         className="fixed left-1/2 transform -translate-x-1/2 px-4 py-2 bg-white text-black border-none cursor-pointer rounded w-full"
       >
-        Crop & Save
+        <span className="flex items-center justify-center">
+          <SaveIcon />
+          Crop & Save
+        </span>
       </button>
     </div>
   );

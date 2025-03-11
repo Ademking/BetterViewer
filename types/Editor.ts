@@ -5,6 +5,7 @@ export interface CropPreset {
 }
 
 export interface EditorConfig {
+  tabsIds: any[];
   annotationsCommon: any;
   savingPixelRatio: any;
   source: string;

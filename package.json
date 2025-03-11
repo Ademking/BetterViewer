@@ -9,7 +9,6 @@
     "dev": "plasmo dev",
     "build": "plasmo build",
     "build:source": "plasmo build --source-maps",
-    
     "package": "plasmo package"
   },
   "keywords": [
@@ -25,6 +24,7 @@
     "@plasmohq/messaging": "^0.7.1",
     "@plasmohq/storage": "^1.15.0",
     "@simonwep/pickr": "^1.9.1",
+    "@tldraw/tldraw": "2.0.2",
     "@uidotdev/usehooks": "^2.4.1",
     "exif-js": "^2.3.0",
     "html2canvas": "^1.4.1",
