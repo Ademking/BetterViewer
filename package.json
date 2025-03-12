@@ -1,5 +1,5 @@
 {
-  "name": "better-viewer",
+  "name": "betterviewer",
   "displayName": "BetterViewer",
   "version": "2.0.1",
   "description": "A browser extension for better image viewing experience",
@@ -9,7 +9,10 @@
     "dev": "plasmo dev",
     "build": "plasmo build",
     "build:source": "plasmo build --source-maps",
-    "package": "plasmo package"
+    "build:chrome": "plasmo build --target=chrome-mv3 --zip",
+    "build:firefox": "plasmo build --target=firefox-mv3 --zip",
+    "package": "plasmo package",
+    "build:all": "pnpm run build:chrome && pnpm run build:firefox"
   },
   "keywords": [
     "betterviewer",
@@ -58,8 +61,7 @@
   "manifest": {
     "permissions": [
       "storage",
-      "contextMenus",
-      "tabs"
+      "contextMenus"
     ],
     "host_permissions": [
       "https://*/*",
