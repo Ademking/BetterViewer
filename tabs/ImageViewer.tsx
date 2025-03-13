@@ -6,7 +6,6 @@ import { tipppyOptions, createViewerConfig } from "../config/ImageViewerConfig";
 import tippy from "tippy.js";
 import ImageEditor from "~components/ImageEditor";
 import { useWindowSize } from "@uidotdev/usehooks";
-import { create } from "zustand";
 import ImageCropper from "~components/ImageCropper";
 import { Storage } from "@plasmohq/storage";
 import { toast, Toaster } from "sonner";
@@ -25,41 +24,12 @@ import { imageToBase64 } from "~utils/imageConverter";
 import About from "~components/About";
 import EXIF from "exif-js";
 import JsonViewer from "~components/JsonViewer";
-import { useHotkeys } from "react-hotkeys-hook";
 import Help from "~components/Help";
 import TldrawWrapper from "~components/TldrawWrapper";
 import initHotKeys from "~config/HotKeys";
-
-// Create Zustand store
-interface ImageViewerState {
-  persistedImageUrl: string | null;
-  isEditorOpen: boolean;
-  isCropperOpen: boolean;
-  isColorPickerOpen: boolean;
-  isAboutOpen: boolean;
-  isTldrawOpen: boolean;
-  setPersistedImageUrl: (url: string | null) => void;
-  setIsEditorOpen: (isOpen: boolean) => void;
-  setIsCropperOpen: (isOpen: boolean) => void;
-  setIsColorPickerOpen: (isOpen: boolean) => void;
-  setIsAboutOpen: (isOpen: boolean) => void;
-  setIsTldrawOpen: (isOpen: boolean) => void;
-}
-
-const useImageViewerStore = create<ImageViewerState>((set) => ({
-  persistedImageUrl: null,
-  isEditorOpen: false,
-  isCropperOpen: false,
-  isColorPickerOpen: false,
-  isAboutOpen: false,
-  isTldrawOpen: false,
-  setPersistedImageUrl: (url) => set({ persistedImageUrl: url }),
-  setIsEditorOpen: (isOpen) => set({ isEditorOpen: isOpen }),
-  setIsCropperOpen: (isOpen) => set({ isCropperOpen: isOpen }),
-  setIsColorPickerOpen: (isOpen) => set({ isColorPickerOpen: isOpen }),
-  setIsAboutOpen: (isOpen) => set({ isAboutOpen: isOpen }),
-  setIsTldrawOpen: (isOpen) => set({ isTldrawOpen: isOpen }),
-}));
+import { waitForElement } from "~utils/waitForElement";
+import useImageViewerStore from "~stores/useImageViewerStore";
+import { useHotkeys } from "react-hotkeys-hook";
 
 function ImageViewer() {
   const [imageUrl] = useStorage({
@@ -75,12 +45,14 @@ function ImageViewer() {
     isColorPickerOpen,
     isAboutOpen,
     isTldrawOpen,
+    isHotKeysEnabled,
     setPersistedImageUrl,
     setIsEditorOpen,
     setIsCropperOpen,
     setIsColorPickerOpen,
     setIsAboutOpen,
     setIsTldrawOpen,
+    setIsHotKeysEnabled,
   } = useImageViewerStore();
   const size = useWindowSize();
   const imageRef = useRef(null);
@@ -136,16 +108,17 @@ function ImageViewer() {
       },
       annotateClickHandler: () => {
         setIsTldrawOpen(true);
+        setIsHotKeysEnabled(false); // Disable hotkeys when Tldraw is open to prevent conflicts with Tldraw hotkeys
       },
       moreClickHandler: () => {
         // TODO: create a dropdown menu for more options
       },
-     
     });
     const viewerInstance = new Viewer(imageRef.current, viewerOptions);
     viewerRef.current = viewerInstance;
   };
 
+  // Initialize the image viewer
   useEffect(() => {
     if (imageUrl && imageRef.current) {
       initImageViewer(imageUrl, imageRef);
@@ -161,17 +134,7 @@ function ImageViewer() {
     };
   }, [imageUrl, persistedImageUrl, setPersistedImageUrl]);
 
-  const waitForElement = (selector) => {
-    return new Promise<void>((resolve) => {
-      const interval = setInterval(() => {
-        if (document.querySelector(selector)) {
-          clearInterval(interval);
-          resolve();
-        }
-      }, 100);
-    });
-  };
-
+  // Initialize tippy tooltips
   useEffect(() => {
     waitForElement(".viewer-toolbar").then(() => {
       tipppyOptions.forEach((tippyOption) => {
@@ -194,15 +157,24 @@ function ImageViewer() {
     }
   }, [isColorPickerOpen]);
 
-  initHotKeys(
+  // Hotkeys configuration
+  const hotkeys = initHotKeys({
     viewerRef,
     setIsCropperOpen,
     setIsEditorOpen,
     setIsColorPickerOpen,
     persistedImageUrl,
     scanQRfromImage,
-    handleImageExif
-  );
+    handleImageExif,
+  });
+
+  // Add hotkeys to the viewer
+  hotkeys.forEach(({ keys, action }) => {
+    useHotkeys(keys, action, {
+      enabled: isHotKeysEnabled,
+      preventDefault: true,
+    });
+  });
 
   return (
     <div className="bg-[#0e0e0e] h-screen w-screen flex items-center justify-center">
@@ -259,9 +231,11 @@ function ImageViewer() {
           title="Photo Editor"
           onClose={() => {
             setIsTldrawOpen(false);
+            setIsHotKeysEnabled(true); // Enable hotkeys when Tldraw is closed
           }}
           onHide={() => {
             setIsTldrawOpen(false);
+            setIsHotKeysEnabled(true); // Enable hotkeys when Tldraw is closed
           }}
         >
           <TldrawWrapper
@@ -269,6 +243,7 @@ function ImageViewer() {
             onSave={(img) => {
               setPersistedImageUrl(img);
               setIsTldrawOpen(false);
+              setIsHotKeysEnabled(true); // Enable hotkeys when Tldraw is closed
             }}
           />
         </WinBox>
