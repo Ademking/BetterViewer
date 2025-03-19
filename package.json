@@ -1,12 +1,13 @@
 {
   "name": "betterviewer",
   "displayName": "BetterViewer",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "A browser extension for better image viewing experience",
   "author": "Adem Kouki <ademkingnew@gmail.com> (https://github.com/Ademking/BetterViewer)",
   "license": "MIT",
   "scripts": {
     "dev": "plasmo dev",
+    "dev:verbose": "plasmo dev --verbose",
     "build": "plasmo build",
     "build:source": "plasmo build --source-maps",
     "build:chrome": "plasmo build --target=chrome-mv3 --zip",
@@ -23,6 +24,8 @@
     "better"
   ],
   "dependencies": {
+    "@mantine/core": "7.4.2",
+    "@mantine/hooks": "7.4.2",
     "@nuintun/qrcode": "^4.1.14",
     "@plasmohq/messaging": "^0.7.1",
     "@plasmohq/storage": "^1.15.0",
@@ -31,6 +34,7 @@
     "@uidotdev/usehooks": "^2.4.1",
     "exif-js": "^2.3.0",
     "html2canvas": "^1.4.1",
+    "lucide-react": "^0.482.0",
     "plasmo": "0.90.3",
     "react": "18.2.0",
     "react-dom": "18.2.0",
@@ -54,6 +58,8 @@
     "@types/react-dom": "18.2.18",
     "autoprefixer": "^10.4.20",
     "postcss": "^8.5.3",
+    "postcss-preset-mantine": "^1.17.0",
+    "postcss-simple-vars": "^7.0.1",
     "prettier": "3.2.4",
     "tailwindcss": "3",
     "typescript": "5.3.3"

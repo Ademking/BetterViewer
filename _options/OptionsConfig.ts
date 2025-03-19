@@ -1,0 +1,137 @@
+export const config = {
+  features: [
+    {
+      key: "viewer-zoom-in",
+      name: "Zoom In",
+      description: "Zoom in the image",
+      isEnable: true,
+    },
+    {
+      key: "viewer-zoom-out",
+      name: "Zoom Out",
+      description: "Zoom out the image",
+      isEnable: true,
+    },
+    {
+      key: "viewer-one-to-one",
+      name: "1:1",
+      description: "Reset zoom level",
+      isEnable: true,
+    },
+    {
+      key: "viewer-reset",
+      name: "Reset",
+      description: "Reset image to initial state",
+      isEnable: true,
+    },
+    {
+      key: "viewer-fit-to-screen",
+      name: "Fit to Screen",
+      description: "Fit image to screen",
+      isEnable: true,
+    },
+    {
+      key: "viewer-rotate-left",
+      name: "Rotate Left",
+      description: "Rotate image left",
+      isEnable: true,
+    },
+    {
+      key: "viewer-rotate-right",
+      name: "Rotate Right",
+      description: "Rotate image right",
+      isEnable: true,
+    },
+    {
+      key: "viewer-flip-horizontal",
+      name: "Flip Horizontal",
+      description: "Flip image horizontally",
+      isEnable: true,
+    },
+    {
+      key: "viewer-flip-vertical",
+      name: "Flip Vertical",
+      description: "Flip image vertically",
+      isEnable: true,
+    },
+    {
+      key: "viewer-crop",
+      name: "Crop Image",
+      description: "Crop image",
+      isEnable: true,
+    },
+    {
+      key: "viewer-download",
+      name: "Download",
+      description: "Download image",
+      isEnable: true,
+    },
+    {
+      key: "viewer-play",
+      name: "Fullscreen",
+      description: "Toggle fullscreen",
+      isEnable: true,
+    },
+    {
+      key: "viewer-details",
+      name: "Image Details",
+      description: "View image details",
+      isEnable: true,
+    },
+    {
+      key: "viewer-colorpicker",
+      name: "Color Picker",
+      description: "Pick color from image",
+      isEnable: true,
+    },
+    {
+      key: "viewer-paint",
+      name: "Photo Editor",
+      description: "Edit image",
+      isEnable: true,
+    },
+    {
+      key: "viewer-print",
+      name: "Print image",
+      description: "Print image",
+      isEnable: true,
+    },
+    {
+      key: "viewer-upload",
+      name: "Upload Image",
+      description: "Upload image",
+      isEnable: true,
+    },
+    {
+      key: "viewer-photopea",
+      name: "Edit in Photopea",
+      description: "Edit image in Photo",
+      isEnable: true,
+    },
+    {
+      key: "viewer-tineye",
+      name: "Reverse Image Search",
+      description: "Reverse image search",
+      isEnable: true,
+    },
+    {
+      key: "viewer-about",
+      name: "About BetterViewer",
+      description: "About BetterViewer",
+      isEnable: true,
+    },
+    {
+      key: "viewer-qr",
+      name: "Scan QR Code from Image",
+      description: "Scan QR code from image",
+      isEnable: true,
+    },
+
+    {
+      key: "viewer-annotate",
+      name: "Annotate Image",
+      description: "Annotate image",
+      isEnable: true,
+    },
+  ],
+};

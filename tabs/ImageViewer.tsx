@@ -9,7 +9,7 @@ import { useWindowSize } from "@uidotdev/usehooks";
 import ImageCropper from "~components/ImageCropper";
 import { Storage } from "@plasmohq/storage";
 import { toast, Toaster } from "sonner";
-import "../style.css";
+import "../styles.css";
 import "tippy.js/dist/tippy.css";
 import "viewerjs/dist/viewer.min.css";
 import "winbox/dist/css/winbox.min.css";

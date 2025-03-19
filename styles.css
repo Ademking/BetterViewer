@@ -279,13 +279,16 @@ html,
   background-position: center center;
 }
 
+.viewer-zoom-in:before,
+.viewer-zoom-out:before,
+.viewer-reset:before,
 .viewer-play:before,
 .viewer-rotate-left:before,
 .viewer-rotate-right:before,
 .viewer-flip-vertical:before,
 .viewer-flip-horizontal:before,
-.viewer-crop:before,
-.viewer-reset:before {
+.viewer-crop:before
+ {
   display: none !important;
 }
 

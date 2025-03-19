@@ -6,7 +6,7 @@ const About = () => {
     <div className="flex flex-col items-center justify-center h-full p-8">
       <BetterViewerLogo width={150} height={150} />
       <h1 className="text-4xl font-bold text-white text-center">
-        BetterViewer <span className="text-blue-500 text-sm">v2.0.1</span>
+        BetterViewer <span className="text-blue-500 text-sm">v2.0.2</span>
       </h1>
       <h3 className="text-lg text-white text-center">
         Fast, Simple & Easy Image Viewer
