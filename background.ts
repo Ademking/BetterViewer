@@ -37,8 +37,7 @@ chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
       area: "local",
     });
     await storage.set("imageUrl", imageUrl);
-
-    chrome.tabs.update(tabId, {
+    await chrome.tabs.update(tabId, {
       url: chrome.runtime.getURL("tabs/ImageViewer.html"),
     });
   }

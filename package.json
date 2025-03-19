@@ -8,10 +8,11 @@
   "scripts": {
     "dev": "plasmo dev",
     "dev:verbose": "plasmo dev --verbose",
+    "dev:firefox": "plasmo dev --target=firefox-mv3",
     "build": "plasmo build",
     "build:source": "plasmo build --source-maps",
     "build:chrome": "plasmo build --target=chrome-mv3 --zip",
-    "build:firefox": "plasmo build --target=firefox-mv3 --zip",
+    "build:firefox": "plasmo build --target=firefox-mv3 --zip --source-maps",
     "package": "plasmo package",
     "build:all": "pnpm run build:chrome && pnpm run build:firefox"
   },
@@ -73,6 +74,11 @@
       "https://*/*",
       "http://*/*",
       "file:///*"
-    ]
+    ],
+    "browser_specific_settings": {
+      "gecko": {
+        "id": "ademking@betterviewer"
+      }
+    }
   }
 }
