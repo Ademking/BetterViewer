@@ -74,6 +74,22 @@
 
 # Changelog
 
+## [2.0.2] - 2025-03-19
+
+- Add "Open image in new tab".
+- Bug fixes.
+
+## [2.0.1] - 2025-03-11
+
+- New Annotation Tool – Draw and mark up images easily!
+- Bug fixes and code cleanup.
+
+
+- New version of BetterViewer is here!
+- Completely rewritten from scratch (React, TypeScript, [Plasmo](https://www.plasmo.com/))
+- Using Manifest V3 (I had to remove some features because of this change, but I will add them back soon)
+- Better UI/UX
+
 ## [2.0.0] - 2025-03-09
 
 - New version of BetterViewer is here!
