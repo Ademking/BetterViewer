@@ -22,10 +22,12 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
 });
 
 // When the extension is installed, open the welcome page
-chrome.runtime.onInstalled.addListener(() => {
-  chrome.tabs.create({
-    url: "https://betterviewer.surge.sh/welcome.html",
-  });
+chrome.runtime.onInstalled.addListener((details) => {
+  if (details.reason === chrome.runtime.OnInstalledReason.INSTALL) {
+    chrome.tabs.create({
+      url: "https://betterviewer.surge.sh/welcome.html",
+    });
+  }
 });
 
 // When the content script sends a message
