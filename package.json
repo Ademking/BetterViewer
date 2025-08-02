@@ -1,7 +1,7 @@
 {
   "name": "betterviewer",
   "displayName": "BetterViewer",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "description": "A browser extension for better image viewing experience",
   "author": "Adem Kouki <ademkingnew@gmail.com> (https://github.com/Ademking/BetterViewer)",
   "license": "MIT",
