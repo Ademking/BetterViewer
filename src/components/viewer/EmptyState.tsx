@@ -1,5 +1,7 @@
 import { ClipboardPasteIcon, ImageUpIcon, SparklesIcon } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { GitHubMark, REPO_URL } from "@/components/panels/AboutDialog";
+import { isExtension } from "@/lib/platform";
 import { Kbd, KbdGroup } from "@/components/ui/kbd";
 import { Spinner } from "@/components/ui/spinner";
 import { MOD } from "@/components/tools/ToolButton";
@@ -7,6 +9,63 @@ import { openFilePicker, openSample, pasteFromClipboard } from "@/lib/actions";
 import { useUi } from "@/state/ui";
 
 const FORMATS = ["PNG", "JPEG", "WebP", "GIF", "AVIF", "BMP", "ICO"];
+
+const STORES = [
+  {
+    label: "Chrome",
+    href: "https://chromewebstore.google.com/detail/betterviewer/llcpfkbjgkpmapiidpnohffjmmnhpmpb",
+    icon: "chrome.svg",
+  },
+  {
+    label: "Firefox",
+    href: "https://addons.mozilla.org/en-US/firefox/addon/betterviewer/",
+    icon: "firefox.svg",
+  },
+  {
+    label: "Edge",
+    href: "https://microsoftedge.microsoft.com/addons/detail/betterviewer/jfladbainajdjpmdjpgndbgmkgibeddg",
+    icon: "edge.svg",
+  },
+];
+
+/** Web version only: where to get the extension, and the source. */
+function GetTheExtension() {
+  return (
+    <div className="flex w-full flex-col items-center gap-3 pt-1">
+      <span className="text-balance text-muted-foreground text-xs">
+        Get the extension to open images from any website in BetterViewer
+      </span>
+      <div className="flex flex-wrap items-center justify-center gap-2">
+        {STORES.map((s) => (
+          <a
+            className={buttonVariants({ variant: "outline", size: "sm" })}
+            href={s.href}
+            key={s.label}
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            <img
+              alt=""
+              className="size-4"
+              draggable={false}
+              src={`${import.meta.env.BASE_URL}brands/${s.icon}`}
+            />
+            {s.label}
+          </a>
+        ))}
+        <a
+          className={buttonVariants({ variant: "ghost", size: "sm" })}
+          href={REPO_URL}
+          rel="noopener noreferrer"
+          target="_blank"
+        >
+          <GitHubMark className="size-4" />
+          GitHub
+        </a>
+      </div>
+    </div>
+  );
+}
 
 export function EmptyState() {
   const loading = useUi((s) => s.loading);
@@ -23,8 +82,17 @@ export function EmptyState() {
       <div className="relative flex min-h-full flex-col items-center px-6 pt-6 pb-3">
         <div className="bv-fade-in my-auto flex w-full max-w-lg flex-col items-center py-8 text-center">
           {/* Brand */}
-          <img alt="" className="size-16 drop-shadow-sm" draggable={false} height={64} src="/icon.png" width={64} />
-          <h1 className="mt-4 font-semibold text-3xl tracking-tight">BetterViewer</h1>
+          <img
+            alt=""
+            className="size-16 drop-shadow-sm"
+            draggable={false}
+            height={64}
+            src="/icon.png"
+            width={64}
+          />
+          <h1 className="mt-4 font-semibold text-3xl tracking-tight">
+            BetterViewer
+          </h1>
           <p className="mt-2 max-w-sm text-balance text-muted-foreground">
             Fast, Simple, Easy image viewer.
           </p>
@@ -39,7 +107,9 @@ export function EmptyState() {
             {loading ? (
               <>
                 <Spinner className="size-8 text-brand" />
-                <span className="font-medium text-muted-foreground">Opening image…</span>
+                <span className="font-medium text-muted-foreground">
+                  Opening image…
+                </span>
               </>
             ) : (
               <>
@@ -47,20 +117,15 @@ export function EmptyState() {
                   <ImageUpIcon className="size-7" />
                 </span>
                 <span className="flex flex-col gap-1">
-                  <span className="font-semibold text-base">Drop an image here</span>
-                  <span className="text-muted-foreground text-sm">
-                    or <span className="font-medium text-brand underline-offset-4 group-hover:underline">browse your files</span>
+                  <span className="font-semibold text-base">
+                    Drop an image here
                   </span>
-                </span>
-                <span className="flex flex-wrap justify-center gap-1.5">
-                  {FORMATS.map((f) => (
-                    <span
-                      className="rounded-md border bg-background/60 px-1.5 py-0.5 font-medium text-[10.5px] text-muted-foreground tracking-wide"
-                      key={f}
-                    >
-                      {f}
+                  <span className="text-muted-foreground text-sm">
+                    or{" "}
+                    <span className="font-medium text-brand underline-offset-4 group-hover:underline">
+                      browse your files
                     </span>
-                  ))}
+                  </span>
                 </span>
               </>
             )}
@@ -68,7 +133,12 @@ export function EmptyState() {
 
           {/* Other ways in */}
           <div className="mt-3 grid w-full grid-cols-1 gap-2 sm:grid-cols-2">
-            <Button className="justify-between" disabled={loading} onClick={pasteFromClipboard} variant="outline">
+            <Button
+              className="justify-between"
+              disabled={loading}
+              onClick={pasteFromClipboard}
+              variant="outline"
+            >
               <span className="flex items-center gap-2">
                 <ClipboardPasteIcon /> Paste image
               </span>
@@ -77,7 +147,12 @@ export function EmptyState() {
                 <Kbd>V</Kbd>
               </KbdGroup>
             </Button>
-            <Button className="justify-between" disabled={loading} onClick={openSample} variant="outline">
+            <Button
+              className="justify-between"
+              disabled={loading}
+              onClick={openSample}
+              variant="outline"
+            >
               <span className="flex items-center gap-2">
                 <SparklesIcon /> Try a sample
               </span>
@@ -98,6 +173,8 @@ export function EmptyState() {
             </KbdGroup>
             to open a file
           </div>
+
+          {!isExtension && <GetTheExtension />}
         </div>
 
         <button
