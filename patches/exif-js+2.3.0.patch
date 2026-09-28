@@ -1,0 +1,13 @@
+diff --git a/node_modules/exif-js/exif.js b/node_modules/exif-js/exif.js
+index 35395cf..1984373 100644
+--- a/node_modules/exif-js/exif.js
++++ b/node_modules/exif-js/exif.js
+@@ -738,7 +738,7 @@
+ 
+     function getStringFromDB(buffer, start, length) {
+         var outstr = "";
+-        for (n = start; n < start+length; n++) {
++        for (var n = start; n < start+length; n++) {
+             outstr += String.fromCharCode(buffer.getUint8(n));
+         }
+         return outstr;

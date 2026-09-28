@@ -1,0 +1,102 @@
+import { create } from "zustand";
+import { persist } from "zustand/middleware";
+
+export type BoardBackground = "blur" | "black" | "white" | "grid";
+export type ThemeMode = "dark" | "light" | "system";
+export type DefaultZoom = "fit" | "shrink" | "actual";
+export type WheelBehavior = "zoom" | "scroll";
+export type UploadProviderId = "imgbb" | "kappa";
+/** Dropping / pasting a picture while one is open: ask, add as a layer, or open it. */
+export type IncomingImageAction = "ask" | "layer" | "open";
+
+export interface Settings {
+  // Appearance
+  boardBackground: BoardBackground;
+  theme: ThemeMode;
+  showToolbar: boolean;
+  /** Rulers along the board edges (and the guides dragged from them). */
+  showRulers: boolean;
+  showHints: boolean;
+  autoHideUi: boolean;
+  showScrollbars: boolean;
+  // Viewer
+  defaultZoom: DefaultZoom;
+  wheelBehavior: WheelBehavior;
+  panOnEmptyDrag: boolean;
+  smoothAnimations: boolean;
+  pixelatedZoom: boolean;
+  autoDetectQr: boolean;
+  // Editing
+  defaultColor: string;
+  defaultStrokeWidth: number;
+  snapToGrid: boolean;
+  gridSize: number;
+  showSelectionHandles: boolean;
+  returnToSelect: boolean;
+  incomingImage: IncomingImageAction;
+  /** Emoji picker: last used (newest first) and skin tone (0 = default). */
+  recentEmojis: string[];
+  emojiSkinTone: number;
+  // Sharing
+  uploadProvider: UploadProviderId;
+  ocrLang: string;
+  imgbbApiKey: string;
+}
+
+export const DEFAULT_SETTINGS: Settings = {
+  boardBackground: "blur",
+  theme: "dark",
+  showToolbar: true,
+  showRulers: false,
+  showHints: true,
+  autoHideUi: false,
+  showScrollbars: true,
+  defaultZoom: "shrink",
+  wheelBehavior: "zoom",
+  panOnEmptyDrag: true,
+  smoothAnimations: true,
+  pixelatedZoom: true,
+  autoDetectQr: true,
+  defaultColor: "#ff453a",
+  defaultStrokeWidth: 4,
+  snapToGrid: false,
+  gridSize: 10,
+  showSelectionHandles: true,
+  returnToSelect: true,
+  incomingImage: "ask",
+  recentEmojis: [],
+  emojiSkinTone: 0,
+  uploadProvider: "kappa",
+  ocrLang: "eng",
+  imgbbApiKey: "",
+};
+
+interface SettingsStore extends Settings {
+  set: <K extends keyof Settings>(key: K, value: Settings[K]) => void;
+  reset: () => void;
+}
+
+export const useSettings = create<SettingsStore>()(
+  persist(
+    (set) => ({
+      ...DEFAULT_SETTINGS,
+      set: (key, value) => set({ [key]: value } as Partial<Settings>),
+      reset: () => set(DEFAULT_SETTINGS),
+    }),
+    {
+      name: "betterviewer:settings",
+      version: 3,
+      migrate: (persisted, version) => {
+        const s = (persisted ?? {}) as Partial<Settings>;
+        // v2: kappa.lol became the default uploader (v1 saved "imgbb" for
+        // everyone, whether or not they picked it).
+        if (version < 2) s.uploadProvider = "kappa";
+        // v3: dark is the default theme; start everyone on it once.
+        if (version < 3) s.theme = "dark";
+        return s as SettingsStore;
+      },
+    }
+  )
+);
+
+export const getSettings = () => useSettings.getState();
