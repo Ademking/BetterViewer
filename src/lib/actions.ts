@@ -322,6 +322,48 @@ export async function exportImage(format: ExportFormat = getSettings().saveForma
   }
 }
 
+/** The file exactly as it was opened (before any edit). */
+async function originalFile() {
+  const original = useDoc.getState().original;
+  if (!original) return null;
+  const blob = await (await fetch(original.src)).blob();
+  return { blob, name: original.name };
+}
+
+/** Download the original file, untouched (same bytes and name). */
+export async function saveOriginalImage() {
+  try {
+    const file = await originalFile();
+    if (!file) return;
+    downloadBlob(file.blob, file.name);
+    toast.success({ title: "Original image saved" });
+  } catch (err) {
+    toast.error({ title: "Couldn't save the original", description: (err as Error).message });
+  }
+}
+
+/** Copy the original image; clipboards only take PNG, so others are converted. */
+export async function copyOriginalImage() {
+  try {
+    const file = await originalFile();
+    if (!file) return;
+    let png = file.blob;
+    if (png.type !== "image/png") {
+      const bitmap = await createImageBitmap(file.blob);
+      const canvas = document.createElement("canvas");
+      canvas.width = bitmap.width;
+      canvas.height = bitmap.height;
+      canvas.getContext("2d")!.drawImage(bitmap, 0, 0);
+      bitmap.close();
+      png = await encodeCanvas(canvas, "png");
+    }
+    await navigator.clipboard.write([new ClipboardItem({ "image/png": png })]);
+    toast.success({ title: "Original image copied" });
+  } catch (err) {
+    toast.error({ title: "Couldn't copy image", description: (err as Error).message });
+  }
+}
+
 export async function copyImageToClipboard() {
   if (!getDoc()) return;
   try {

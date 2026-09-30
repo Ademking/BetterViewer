@@ -85,7 +85,9 @@ import {
   copyImageToClipboard,
   deleteSelected,
   duplicateSelected,
+  copyOriginalImage,
   exportImage,
+  saveOriginalImage,
   flipHorizontal,
   flipVertical,
   insertImagePicker,
@@ -154,11 +156,13 @@ function buildCommands(): PaletteCommand[] {
     if (f === settings.saveFormat) continue;
     add("File", { value: `save-${f}`, label: `Save as ${SAVE_LABEL[f]}`, icon: <DownloadIcon />, keywords: `export download${f === "jpeg" ? " jpg" : ""}`, run: () => void exportImage(f) }, hasDoc);
   }
+  add("File", { value: "save-original", label: "Save original image", icon: <DownloadIcon />, keywords: "download unedited source file export", run: () => void saveOriginalImage() }, hasDoc);
   add("File", { value: "upload-imgbb", label: "Upload & get link…", icon: <CloudUploadIcon />, keywords: "share link publish host imgbb kappa", run: () => ui.togglePanel("upload", true) }, hasDoc);
   add("File", { value: "photopea", label: "Open in Photopea", icon: <SquareArrowOutUpRightIcon />, keywords: "edit photoshop external editor", run: () => void openInPhotopea() }, hasDoc);
   add("File", { value: "tineye", label: "Search on TinEye", icon: <ImageUpscaleIcon />, keywords: "reverse image search source find similar", run: () => void openInTinEye() }, hasDoc);
   add("File", { value: "compress", label: "Compress & save…", icon: <FileDownIcon />, keywords: "reduce file size quality optimize jpeg webp smaller", run: () => ui.togglePanel("compress", true) }, hasDoc);
-  add("File", { value: "copy-image", label: "Copy image to clipboard", icon: <CopyIcon />, shortcut: `${MOD} Shift C`, run: () => void copyImageToClipboard() }, hasDoc);
+  add("File", { value: "copy-image", label: "Copy image to clipboard", icon: <CopyIcon />, shortcut: `${MOD} Shift C`, keywords: "modified edited", run: () => void copyImageToClipboard() }, hasDoc);
+  add("File", { value: "copy-original", label: "Copy original image", icon: <CopyIcon />, keywords: "clipboard unedited source", run: () => void copyOriginalImage() }, hasDoc);
   add("File", {
     value: "close",
     label: "Close image",

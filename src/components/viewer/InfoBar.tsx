@@ -118,13 +118,13 @@ function useCopied(text: string, label: string) {
   return { copied, copy };
 }
 
-/** A label/value line; click anywhere on it to copy "Label: value". */
+/** A label/value line; click anywhere on it to copy the value. */
 function InfoRow({ row, mono }: { row: Row; mono?: boolean }) {
   const [k, v] = row;
-  const { copied, copy } = useCopied(lineText(row), k.toLowerCase());
+  const { copied, copy } = useCopied(v, k.toLowerCase());
   return (
     <button
-      aria-label={`Copy ${k}: ${v}`}
+      aria-label={`Copy ${k} (${v})`}
       className="group/row -mx-1.5 flex min-w-0 items-center gap-1.5 rounded-md px-1.5 py-0.5 text-left text-xs outline-none transition-colors hover:bg-accent/70 focus-visible:bg-accent/70"
       onClick={copy}
       title={`${v}\n(click to copy)`}

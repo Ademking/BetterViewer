@@ -29,7 +29,7 @@ export function TransformTools() {
           )}
         </ToolButton>
       </MenuTrigger>
-      <MenuContent className="w-56">
+      <MenuContent className="w-max min-w-56">
         <MenuGroup heading={`Transform · ${rotation}°`}>
           <MenuItem closeOnSelect={false} onSelect={() => rotate(-1)} value="rotate-left">
             <RotateCcwIcon /> Rotate left

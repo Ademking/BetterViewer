@@ -7,6 +7,7 @@ import {
   EyeIcon,
   RulerIcon,
   SaveAllIcon,
+  FileImageIcon,
   Share2Icon,
   SquarePenIcon,
   WandSparklesIcon,
@@ -77,6 +78,7 @@ import {
   pasteFromClipboard,
   redo,
   rotate,
+  saveOriginalImage,
   undo,
 } from "@/lib/actions";
 import { isDefaultFilters } from "@/lib/filters";
@@ -84,7 +86,7 @@ import { openInPhotopea, openInTinEye } from "@/lib/external";
 import { removeBackground } from "@/lib/bgRemoval";
 import { openOcr } from "@/components/tools/OcrPanel";
 import { type BoardBackground, type SaveFormat, useSettings } from "@/state/settings";
-import { useDoc } from "@/state/document";
+import { hasEdits, useDoc } from "@/state/document";
 import { scanCurrentImage } from "@/state/qr";
 import { useUi } from "@/state/ui";
 
@@ -193,10 +195,7 @@ function MoreMenu({ canUndo, canRedo }: { canUndo: boolean; canRedo: boolean }) 
   const rulers = useSettings((s) => s.showRulers);
   const togglePanel = useUi((s) => s.togglePanel);
   const dirty = useDoc((s) => s.past.length > 0);
-  const hasEdits = useDoc((s) => {
-    const d = s.doc;
-    return !!d && (d.annotations.length > 0 || d.rotation % 360 !== 0 || d.flipX || d.flipY || !isDefaultFilters(d.filters) || d.image !== s.original);
-  });
+  const edited = useDoc(hasEdits);
 
   return (
     <Menu positioning={{ placement: "top-end", gutter: 14 }}>
@@ -205,7 +204,7 @@ function MoreMenu({ canUndo, canRedo }: { canUndo: boolean; canRedo: boolean }) 
           <EllipsisIcon />
         </ToolButton>
       </MenuTrigger>
-      <MenuContent className="w-60">
+      <MenuContent className="w-max min-w-60">
         <MenuItem onSelect={() => togglePanel("command", true)} value="command">
           <CommandIcon /> Quick launch…
           <MenuShortcut>{MOD} K</MenuShortcut>
@@ -239,12 +238,15 @@ function MoreMenu({ canUndo, canRedo }: { canUndo: boolean; canRedo: boolean }) 
           <MenuSubTrigger>
             <SaveAllIcon /> Save as
           </MenuSubTrigger>
-          <MenuSubContent className="w-52">
+          <MenuSubContent className="w-max min-w-52">
             {(Object.keys(SAVE_LABEL) as (keyof typeof SAVE_LABEL)[]).map((f) => (
               <MenuItem key={f} onSelect={() => exportImage(f)} value={`save-${f}`}>
                 <DownloadIcon /> {SAVE_LABEL[f]}
               </MenuItem>
             ))}
+            <MenuItem onSelect={saveOriginalImage} value="save-original">
+              <FileImageIcon /> Original file
+            </MenuItem>
             <MenuSeparator />
             <MenuItem onSelect={() => togglePanel("compress", true)} value="compress">
               <FileDownIcon /> Compress &amp; save…
@@ -259,7 +261,7 @@ function MoreMenu({ canUndo, canRedo }: { canUndo: boolean; canRedo: boolean }) 
           <MenuSubTrigger>
             <Share2Icon /> Share
           </MenuSubTrigger>
-          <MenuSubContent className="w-56">
+          <MenuSubContent className="w-max min-w-56">
             <MenuItem onSelect={() => togglePanel("upload", true)} value="upload">
               <CloudUploadIcon /> Upload &amp; get link…
             </MenuItem>
@@ -277,7 +279,7 @@ function MoreMenu({ canUndo, canRedo }: { canUndo: boolean; canRedo: boolean }) 
           <MenuSubTrigger>
             <WandSparklesIcon /> Image tools
           </MenuSubTrigger>
-          <MenuSubContent className="w-56">
+          <MenuSubContent className="w-max min-w-56">
             <MenuItem onSelect={() => void removeBackground()} value="remove-bg">
               <EraserIcon /> Remove background
             </MenuItem>
@@ -303,7 +305,7 @@ function MoreMenu({ canUndo, canRedo }: { canUndo: boolean; canRedo: boolean }) 
           <MenuSubTrigger>
             <EyeIcon /> View
           </MenuSubTrigger>
-          <MenuSubContent className="w-56">
+          <MenuSubContent className="w-max min-w-56">
             <MenuItem onSelect={() => togglePanel("layers", true)} value="layers">
               <LayersIcon /> Layers
               <MenuShortcut>Shift L</MenuShortcut>
@@ -339,7 +341,7 @@ function MoreMenu({ canUndo, canRedo }: { canUndo: boolean; canRedo: boolean }) 
             <MenuSubTrigger>
               <SquarePenIcon /> Edit
             </MenuSubTrigger>
-            <MenuSubContent className="w-52">
+            <MenuSubContent className="w-max min-w-52">
               <MenuItem closeOnSelect={false} disabled={!canUndo} onSelect={undo} value="undo">
                 <Undo2Icon /> Undo
               </MenuItem>
@@ -374,7 +376,7 @@ function MoreMenu({ canUndo, canRedo }: { canUndo: boolean; canRedo: boolean }) 
         </MenuItem>
         <MenuSeparator />
         <MenuItem
-          disabled={!hasEdits}
+          disabled={!edited}
           onSelect={() =>
             confirmAction({
               title: "Reset all edits?",

@@ -452,7 +452,7 @@ export function CurvesPanel() {
                     Presets
                   </Button>
                 </MenuTrigger>
-                <MenuContent className="w-44">
+                <MenuContent className="w-max min-w-44">
                   {CURVE_PRESETS.map((p) => (
                     <MenuItem
                       key={p.name}

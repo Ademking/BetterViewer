@@ -133,7 +133,7 @@ const menuItemVariants = tv({
     "w-full",
     "px-2.5 py-1.5",
     "flex items-center gap-2",
-    "select-none text-sm",
+    "select-none whitespace-nowrap text-sm",
     "rounded-lg",
     "outline-hidden",
     "group-data-[date=open]/trigger-item:bg-accent group-data-[date=open]/trigger-item:text-accent-foreground",
@@ -332,8 +332,8 @@ export const MenuShortcut = (props: React.ComponentProps<typeof ark.span>) => {
   return (
     <ark.span
       className={cn(
-        "ms-auto rtl:me-auto",
-        "text-muted-foreground text-xs tracking-widest",
+        "ms-auto shrink-0 ps-6 rtl:me-auto rtl:ps-0 rtl:pe-6",
+        "text-muted-foreground text-xs tracking-wide",
         "group-data-highlighted/menu-item:group-data-[variant=destructive]/menu-item:text-destructive dark:group-data-highlighted/menu-item:group-data-[variant=destructive]/menu-item:text-destructive-foreground",
         className
       )}

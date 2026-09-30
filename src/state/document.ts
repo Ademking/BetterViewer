@@ -2,7 +2,7 @@ import { create } from "zustand";
 import type { Annotation } from "@/lib/annotations";
 import type { Curves } from "@/lib/curves";
 import type { Levels } from "@/lib/develop-core";
-import { DEFAULT_FILTERS, type Filters } from "@/lib/filters";
+import { DEFAULT_FILTERS, type Filters, isDefaultFilters } from "@/lib/filters";
 
 export interface ImageInfo {
   src: string;
@@ -190,3 +190,19 @@ export const displaySize = (doc: Doc) => {
 };
 
 export const isDirty = (s: DocStore) => s.past.length > 0;
+
+/** True when the image differs from the file as it was opened. */
+export const hasEdits = (s: DocStore) => {
+  const d = s.doc;
+  return (
+    !!d &&
+    (d.annotations.length > 0 ||
+      d.rotation % 360 !== 0 ||
+      d.flipX ||
+      d.flipY ||
+      !isDefaultFilters(d.filters) ||
+      !!d.curves ||
+      !!d.levels ||
+      d.image !== s.original)
+  );
+};
