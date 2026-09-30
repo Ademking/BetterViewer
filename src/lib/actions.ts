@@ -19,6 +19,7 @@ import {
   SUPPORTED_FORMATS_TEXT,
 } from "@/lib/image";
 import { closeOverlay, isOverlay } from "@/lib/overlay";
+import { writeClipboardImage, writeClipboardText } from "@/lib/clipboard";
 import { stageRegistry } from "@/lib/stageRegistry";
 import { viewport, ZOOM_STEP } from "@/lib/viewport";
 import { displaySize, getDoc, updateAnnotations, updateDoc, useDoc, type ImageInfo } from "@/state/document";
@@ -363,7 +364,7 @@ export async function copyOriginalImage() {
       bitmap.close();
       png = await encodeCanvas(canvas, "png");
     }
-    await navigator.clipboard.write([new ClipboardItem({ "image/png": png })]);
+    await writeClipboardImage(png);
     toast.success({ title: "Original image copied" });
   } catch (err) {
     toast.error({ title: "Couldn't copy image", description: (err as Error).message });
@@ -374,7 +375,7 @@ export async function copyImageToClipboard() {
   if (!getDoc()) return;
   try {
     const blob = await renderDocument("png");
-    await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
+    await writeClipboardImage(blob);
     toast.success({ title: "Copied to clipboard" });
   } catch (err) {
     toast.error({ title: "Couldn't copy image", description: (err as Error).message });
@@ -548,7 +549,7 @@ export function applyFill(color: string, key = "fill") {
 
 export async function copyText(text: string, label = text) {
   try {
-    await navigator.clipboard.writeText(text);
+    await writeClipboardText(text);
     toast.success({ title: `Copied ${label}` });
   } catch {
     toast.error({ title: "Clipboard unavailable" });

@@ -8,6 +8,8 @@ import { AboutDialog } from "@/components/panels/AboutDialog";
 import { IncomingImageDialog } from "@/components/panels/IncomingImageDialog";
 import { openFromLocation } from "@/lib/openUrl";
 import { isOverlay, receiveOverlayImage } from "@/lib/overlay";
+import { isGallery, startGallery, useGallery } from "@/lib/gallery";
+import { GALLERY_RAIL_SPACE, GalleryRail } from "@/components/viewer/GalleryRail";
 import { OverlayControls } from "@/components/viewer/OverlayControls";
 import { UploadDialog } from "@/components/panels/UploadDialog";
 import { CompressDialog } from "@/components/panels/CompressDialog";
@@ -101,6 +103,7 @@ export function ImageViewer() {
   useEffect(() => {
     void openFromLocation();
     receiveOverlayImage();
+    startGallery();
   }, []);
 
   // Tab title: the image's name.
@@ -120,10 +123,11 @@ export function ImageViewer() {
   useAutoHideChrome();
   useAutoQrScan();
 
-  // Reserve room for the toolbar when fitting the image.
+  // Reserve room for the toolbar (and the gallery rail) when fitting the image.
+  const galleryRail = useGallery((s) => isGallery && s.railOpen && s.items.length > 0);
   useEffect(() => {
-    viewport.setInsets({ top: 64, bottom: showToolbar ? 88 : 24 });
-  }, [showToolbar]);
+    viewport.setInsets({ top: 64, bottom: showToolbar ? 88 : 24, left: galleryRail ? GALLERY_RAIL_SPACE : 24 });
+  }, [showToolbar, galleryRail]);
 
   const chrome = cn(
     "transition-[opacity,translate] duration-300",
@@ -187,6 +191,11 @@ export function ImageViewer() {
       <ResizeDialog />
       <ConfirmDialog />
       <IncomingImageDialog />
+      {isGallery && (
+        <div className={chrome}>
+          <GalleryRail />
+        </div>
+      )}
       {isOverlay && <OverlayControls />}
       <Toaster />
       <DropOverlay active={dragging} />

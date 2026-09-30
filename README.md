@@ -65,8 +65,10 @@
 ### Features
 
 Open any image in a new tab and BetterViewer takes over, or right-click an
-image on any page and choose **View image in BetterViewer** to zoom, drag and
-edit it in an overlay without leaving the page (**Esc** goes back). Everything
+image on any page and choose **Open this image in BetterViewer** to zoom, drag and
+edit it in an overlay without leaving the page (**Esc** goes back). Right-click
+the page itself and choose **Browse all page images as a gallery** to flip
+through every picture on it (**← / →** to move between them). Everything
 runs in your browser, including OCR, background removal and QR scanning.
 
 **Viewing**
@@ -200,11 +202,23 @@ bundle, so don't ship a build with a private key.
 
 # Changelog
 
-## [Unreleased]
+## [3.0.2] - 2026-09-30
 
-- Right-click an image on any web page → **View image in BetterViewer**: opens
+- Right-click an image on any web page → **Open this image in BetterViewer**: opens
   it in an overlay on the same page (zoom, drag, edit; **Esc** or ✕ to go
   back, or open it in a full tab).
+- Right-click a web page → **Browse all page images as a gallery**: a gallery of the
+  page's pictures in the same overlay, with a thumbnail list, previous / next
+  buttons and **← / →** keys. Picks the largest version of each image and
+  skips icons and tracking pixels.
+- The page's scrollbar is hidden while the overlay is open, and the page
+  returns to the same spot when it closes.
+- Copying works in the overlay on sites that block the clipboard for embedded
+  frames (Facebook, Instagram, ...).
+- Gallery thumbnails also show for sites that don't allow embedding their
+  images.
+- Floating panels (Image info, Layers, ...) now stay above the viewer's
+  floating controls.
 
 ## [3.0.1] - 2026-09-30
 

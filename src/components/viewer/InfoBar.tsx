@@ -6,7 +6,8 @@ import { Collapsible, CollapsibleContent, CollapsibleIndicator, CollapsibleTrigg
 import { Spinner } from "@/components/ui/spinner";
 import { Hint, HintContent, HintTrigger } from "@/components/ui/hint";
 import { ScreenFloatingPanel } from "@/components/panels/FloatingPanel";
-import { copyText } from "@/lib/actions";
+import { toast } from "@/components/ui/toast";
+import { writeClipboardText } from "@/lib/clipboard";
 import { type ExifData, readExif } from "@/lib/exif";
 import { formatBytes } from "@/lib/image";
 import { isDefaultFilters } from "@/lib/filters";
@@ -84,10 +85,10 @@ function CopyButton({
       onClick={async (e) => {
         e.stopPropagation();
         try {
-          await navigator.clipboard.writeText(text);
+          await writeClipboardText(text);
           setCopied(true);
         } catch {
-          copyText(text, label.replace(/^Copy /, ""));
+          toast.error({ title: "Couldn't copy", description: "This page doesn't allow copying." });
         }
       }}
       title={label}
@@ -109,10 +110,10 @@ function useCopied(text: string, label: string) {
   }, [copied]);
   const copy = async () => {
     try {
-      await navigator.clipboard.writeText(text);
+      await writeClipboardText(text);
       setCopied(true);
     } catch {
-      copyText(text, label);
+      toast.error({ title: `Couldn't copy ${label}`, description: "This page doesn't allow copying." });
     }
   };
   return { copied, copy };

@@ -27,7 +27,7 @@ const base = {
     default_title: "Open BetterViewer",
     default_icon: { 16: "icons/icon-16.png", 32: "icons/icon-32.png" },
   },
-  // contextMenus: the "View image in BetterViewer" item on images in web pages.
+  // contextMenus: the "Open this image in BetterViewer" item on images in web pages.
   permissions: ["storage", "contextMenus"],
   // Needed to detect images opened in tabs, and to download them (with the
   // site's cookies) for editing without cross-origin restrictions.

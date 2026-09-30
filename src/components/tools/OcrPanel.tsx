@@ -5,6 +5,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { ScreenFloatingPanel } from "@/components/panels/FloatingPanel";
 import { LanguagePicker } from "@/components/tools/LanguagePicker";
 import { copyText } from "@/lib/actions";
+import { writeClipboardText } from "@/lib/clipboard";
 import { OCR_LANGUAGES, type OcrLine, runOcr, useOcr } from "@/lib/ocr";
 import { cn } from "@/lib/utils";
 import { useDoc } from "@/state/document";
@@ -30,7 +31,7 @@ function useCopied(text: string, label: string) {
   }, [copied]);
   const copy = async () => {
     try {
-      await navigator.clipboard.writeText(text);
+      await writeClipboardText(text);
       setCopied(true);
     } catch {
       copyText(text, label);

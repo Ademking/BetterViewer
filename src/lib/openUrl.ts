@@ -57,7 +57,7 @@ function withImageType(blob: Blob, src: string): Blob {
  * Otherwise decode it with <img> and copy the pixels (only possible when the
  * browser lets this page read them).
  */
-async function fetchImage(src: string): Promise<Blob> {
+export async function fetchImage(src: string): Promise<Blob> {
   try {
     const res = await fetch(src, { credentials: "include" });
     if (!res.ok) throw new Error(`The server answered ${res.status}.`);

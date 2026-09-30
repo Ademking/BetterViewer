@@ -24,6 +24,7 @@ import {
 } from "@/lib/actions";
 import { isSupportedImageType } from "@/lib/image";
 import { closeOverlay, isOverlay } from "@/lib/overlay";
+import { stepGallery } from "@/lib/gallery";
 import { applyStraighten, cancelStraighten } from "@/lib/straighten";
 import { toggleRulers } from "@/components/tools/MeasureTool";
 import { getDoc } from "@/state/document";
@@ -192,6 +193,8 @@ export function useKeyboardShortcuts() {
           const dx = e.key === "ArrowLeft" ? -step : e.key === "ArrowRight" ? step : 0;
           const dy = e.key === "ArrowUp" ? -step : e.key === "ArrowDown" ? step : 0;
           if (nudgeSelected(dx, dy)) e.preventDefault();
+          // Nothing selected: ← / → move through the page gallery.
+          else if (dx && !e.shiftKey && stepGallery(dx > 0 ? 1 : -1)) e.preventDefault();
           return;
         }
         case "]":

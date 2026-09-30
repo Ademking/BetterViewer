@@ -1,5 +1,5 @@
 /**
- * Overlay mode (extension only): the right-click "View image in BetterViewer"
+ * Overlay mode (extension only): the right-click "Open this image in BetterViewer"
  * item opens this app in a full-page frame on top of the web page
  * (see extension/content.js). The page stays where it was; closing the
  * overlay just removes the frame.
@@ -13,6 +13,7 @@
 import { openBlob } from "@/lib/actions";
 import { nameFromUrl } from "@/lib/openUrl";
 import { isExtension } from "@/lib/platform";
+import { useDoc } from "@/state/document";
 
 const params = typeof location !== "undefined" ? new URLSearchParams(location.search) : null;
 
@@ -23,12 +24,14 @@ export function closeOverlay() {
   window.parent.postMessage({ type: "betterviewer:close" }, "*");
 }
 
-/** The same image in a full BetterViewer tab (only for images with a web address). */
+/** Web address the overlay was opened with (`?src=`), if any. */
 export const overlaySourceUrl = isOverlay ? params?.get("src") ?? null : null;
 
+/** The image on screen in a full BetterViewer tab (only for images with a web address). */
 export function openOverlayInTab() {
-  if (!overlaySourceUrl) return;
-  window.open(`${location.origin}/index.html?src=${encodeURIComponent(overlaySourceUrl)}`, "_blank");
+  const src = useDoc.getState().original?.sourceUrl ?? overlaySourceUrl;
+  if (!src) return;
+  window.open(`${location.origin}/index.html?src=${encodeURIComponent(src)}`, "_blank");
   closeOverlay();
 }
 
@@ -36,7 +39,8 @@ let started = false;
 
 /** blob: / data: images are sent by the page itself; ask for them once. */
 export function receiveOverlayImage() {
-  if (!isOverlay || overlaySourceUrl || started) return;
+  // Galleries have their own handshake (see gallery.ts).
+  if (!isOverlay || overlaySourceUrl || params?.has("gallery") || started) return;
   started = true;
   window.addEventListener("message", (e: MessageEvent<{ type?: string; blob?: Blob; src?: string }>) => {
     if (e.source !== window.parent || e.data?.type !== "betterviewer:image" || !(e.data.blob instanceof Blob)) return;

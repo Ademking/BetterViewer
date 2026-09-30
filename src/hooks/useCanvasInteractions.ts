@@ -1,7 +1,7 @@
 import type Konva from "konva";
 import { type RefObject, useEffect } from "react";
 import { toast } from "@/components/ui/toast";
-import { addAnnotation, applyColor } from "@/lib/actions";
+import { addAnnotation, applyColor, copyText } from "@/lib/actions";
 import {
   type Annotation,
   type CounterAnnotation,
@@ -593,7 +593,7 @@ export function useCanvasInteractions(containerRef: RefObject<HTMLDivElement | n
         description: "Set as the drawing color.",
         action: {
           label: "Copy",
-          onClick: () => navigator.clipboard?.writeText(hex.toUpperCase()),
+          onClick: () => void copyText(hex.toUpperCase()),
         },
       });
     };
