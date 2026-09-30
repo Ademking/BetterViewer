@@ -59,7 +59,7 @@ export const SHORTCUT_GROUPS: { title: string; items: [string, string[]][] }[] =
       ["Quick launch", [MOD, "K"]],
       ["Open image", [MOD, "O"]],
       ["Paste image", [MOD, "V"]],
-      ["Export PNG", [MOD, "S"]],
+      ["Save (format set in Settings)", [MOD, "S"]],
       ["Copy image", [MOD, "Shift", "C"]],
       ["Settings", [MOD, ","]],
       ["This list", ["?"]],

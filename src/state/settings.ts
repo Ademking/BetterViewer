@@ -8,6 +8,8 @@ export type WheelBehavior = "zoom" | "scroll";
 export type UploadProviderId = "imgbb" | "kappa";
 /** Dropping / pasting a picture while one is open: ask, add as a layer, or open it. */
 export type IncomingImageAction = "ask" | "layer" | "open";
+/** File type written by Save ({MOD} S). */
+export type SaveFormat = "png" | "jpeg" | "webp";
 
 export interface Settings {
   // Appearance
@@ -34,6 +36,7 @@ export interface Settings {
   showSelectionHandles: boolean;
   returnToSelect: boolean;
   incomingImage: IncomingImageAction;
+  saveFormat: SaveFormat;
   /** Emoji picker: last used (newest first) and skin tone (0 = default). */
   recentEmojis: string[];
   emojiSkinTone: number;
@@ -64,6 +67,7 @@ export const DEFAULT_SETTINGS: Settings = {
   showSelectionHandles: true,
   returnToSelect: true,
   incomingImage: "ask",
+  saveFormat: "png",
   recentEmojis: [],
   emojiSkinTone: 0,
   uploadProvider: "kappa",

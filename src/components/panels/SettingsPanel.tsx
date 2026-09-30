@@ -409,6 +409,19 @@ export function SettingsPanel() {
                 <Toggle k="returnToSelect" />
               </Row>
               <Row
+                description={`File type used by ${MOD} S. Other formats stay in Export.`}
+                title="Save format"
+              >
+                <Segments
+                  k="saveFormat"
+                  options={[
+                    { value: "png", label: "PNG" },
+                    { value: "jpeg", label: "JPEG" },
+                    { value: "webp", label: "WebP" },
+                  ]}
+                />
+              </Row>
+              <Row
                 description="Dropping or pasting a picture while an image is open."
                 title="Adding another image"
               >

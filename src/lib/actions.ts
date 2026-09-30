@@ -21,7 +21,7 @@ import {
 import { stageRegistry } from "@/lib/stageRegistry";
 import { viewport, ZOOM_STEP } from "@/lib/viewport";
 import { displaySize, getDoc, updateAnnotations, updateDoc, useDoc, type ImageInfo } from "@/state/document";
-import { getSettings } from "@/state/settings";
+import { getSettings, type SaveFormat } from "@/state/settings";
 import { getUi, useUi } from "@/state/ui";
 
 /* ------------------------------------------------------------------ Image IO */
@@ -204,7 +204,7 @@ export function closeImage() {
 
 /* ------------------------------------------------------------------ Export */
 
-export type ExportFormat = "png" | "jpeg" | "webp";
+export type ExportFormat = SaveFormat;
 
 /** Render the edited image (annotations included) at full resolution. */
 export function renderDocumentCanvas(
@@ -308,7 +308,8 @@ export async function renderDocument(format: ExportFormat = "png", quality = 0.9
   return encodeCanvas(renderDocumentCanvas(), format, quality);
 }
 
-export async function exportImage(format: ExportFormat = "png") {
+/** Download the edited image; without a format, uses the Save format setting. */
+export async function exportImage(format: ExportFormat = getSettings().saveFormat) {
   const doc = getDoc();
   if (!doc) return;
   try {

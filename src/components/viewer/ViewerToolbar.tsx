@@ -186,6 +186,8 @@ function MoreMenu({ canUndo, canRedo }: { canUndo: boolean; canRedo: boolean }) 
   const sourceUrl = useDoc((s) => s.original?.sourceUrl);
   const board = useSettings((s) => s.boardBackground);
   const set = useSettings((s) => s.set);
+  const saveFormat = useSettings((s) => s.saveFormat);
+  const saveShortcut = (f: typeof saveFormat) => saveFormat === f && <MenuShortcut>{MOD} S</MenuShortcut>;
   const togglePanel = useUi((s) => s.togglePanel);
   const dirty = useDoc((s) => s.past.length > 0);
   const hasEdits = useDoc((s) => {
@@ -242,13 +244,15 @@ function MoreMenu({ canUndo, canRedo }: { canUndo: boolean; canRedo: boolean }) 
             <MenuGroup heading="Export">
               <MenuItem onSelect={() => exportImage("png")} value="png">
                 <DownloadIcon /> Export as PNG
-                <MenuShortcut>{MOD} S</MenuShortcut>
+                {saveShortcut("png")}
               </MenuItem>
               <MenuItem onSelect={() => exportImage("jpeg")} value="jpeg">
                 <DownloadIcon /> Export as JPEG
+                {saveShortcut("jpeg")}
               </MenuItem>
               <MenuItem onSelect={() => exportImage("webp")} value="webp">
                 <DownloadIcon /> Export as WebP
+                {saveShortcut("webp")}
               </MenuItem>
               <MenuItem onSelect={copyImageToClipboard} value="copy">
                 <CopyIcon /> Copy image

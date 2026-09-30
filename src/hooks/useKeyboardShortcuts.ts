@@ -129,7 +129,7 @@ export function useKeyboardShortcuts() {
             return;
           case "s":
             e.preventDefault();
-            exportImage("png");
+            exportImage();
             return;
           case "c":
             if (e.shiftKey) {

@@ -120,7 +120,7 @@ your browser, including OCR, background removal and QR scanning.
 | Line / arrow        | L / A         | Resize image        | Ctrl Alt I        | Front / back      | ] / [                 |
 | Counter             | N             | Toggle interface    | Tab               | Quick launch      | Ctrl K                |
 | Blur / pixelate     | M             | Rulers & guides     | Shift U           | Open / paste      | Ctrl O / Ctrl V       |
-| Text                | T             |                     |                   | Export PNG / copy | Ctrl S / Ctrl Shift C |
+| Text                | T             |                     |                   | Save / copy       | Ctrl S / Ctrl Shift C |
 | Color picker        | I             |                     |                   | Settings          | Ctrl ,                |
 | Crop                | C             |                     |                   | Shortcuts list    | ?                     |
 | Adjustments         | F             |                     |                   | Cancel / deselect | Esc                   |

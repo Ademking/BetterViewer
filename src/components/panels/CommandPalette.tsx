@@ -147,9 +147,11 @@ function buildCommands(): PaletteCommand[] {
   add("File", { value: "insert-image", label: "Insert image on top…", icon: <ImagePlusIcon />, keywords: "add picture layer overlay logo watermark sticker", run: insertImagePicker }, !!useDoc.getState().doc);
   add("File", { value: "paste", label: "Paste image from clipboard", icon: <ClipboardPasteIcon />, shortcut: `${MOD} V`, run: () => void pasteFromClipboard() });
   add("File", { value: "sample", label: "Open sample image", icon: <SparklesIcon />, keywords: "demo example", run: () => void openSample() });
-  add("File", { value: "export-png", label: "Export as PNG", icon: <DownloadIcon />, shortcut: `${MOD} S`, keywords: "save download", run: () => void exportImage("png") }, hasDoc);
-  add("File", { value: "export-jpeg", label: "Export as JPEG", icon: <DownloadIcon />, keywords: "save download jpg", run: () => void exportImage("jpeg") }, hasDoc);
-  add("File", { value: "export-webp", label: "Export as WebP", icon: <DownloadIcon />, keywords: "save download", run: () => void exportImage("webp") }, hasDoc);
+  // {MOD} S saves in the format chosen in Settings.
+  const saveShortcut = (f: typeof settings.saveFormat) => (settings.saveFormat === f ? `${MOD} S` : undefined);
+  add("File", { value: "export-png", label: "Export as PNG", icon: <DownloadIcon />, shortcut: saveShortcut("png"), keywords: "save download", run: () => void exportImage("png") }, hasDoc);
+  add("File", { value: "export-jpeg", label: "Export as JPEG", icon: <DownloadIcon />, shortcut: saveShortcut("jpeg"), keywords: "save download jpg", run: () => void exportImage("jpeg") }, hasDoc);
+  add("File", { value: "export-webp", label: "Export as WebP", icon: <DownloadIcon />, shortcut: saveShortcut("webp"), keywords: "save download", run: () => void exportImage("webp") }, hasDoc);
   add("File", { value: "upload-imgbb", label: "Upload image…", icon: <CloudUploadIcon />, keywords: "share link publish host imgbb kappa", run: () => ui.togglePanel("upload", true) }, hasDoc);
   add("File", { value: "photopea", label: "Open in Photopea", icon: <SquareArrowOutUpRightIcon />, keywords: "edit photoshop external editor", run: () => void openInPhotopea() }, hasDoc);
   add("File", { value: "tineye", label: "Search on TinEye", icon: <ImageUpscaleIcon />, keywords: "reverse image search source find similar", run: () => void openInTinEye() }, hasDoc);

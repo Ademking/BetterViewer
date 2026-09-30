@@ -41,12 +41,26 @@ export function LanguagePicker({ value, options, onChange, disabled }: LanguageP
     setOpen(false);
   };
 
+  const moveTo = (i: number) => {
+    setHighlight(i);
+    listRef.current?.querySelector<HTMLElement>(`[data-index="${i}"]`)?.scrollIntoView({ block: "nearest" });
+  };
+
   const onKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "ArrowDown" || e.key === "ArrowUp") {
       e.preventDefault();
-      const next = (highlight + (e.key === "ArrowDown" ? 1 : -1) + options.length) % options.length;
-      setHighlight(next);
-      listRef.current?.querySelector<HTMLElement>(`[data-index="${next}"]`)?.scrollIntoView({ block: "nearest" });
+      moveTo((highlight + (e.key === "ArrowDown" ? 1 : -1) + options.length) % options.length);
+    } else if (e.key.length === 1 && /\p{L}/u.test(e.key) && !e.ctrlKey && !e.metaKey && !e.altKey) {
+      // Type a letter to jump to the next language starting with it.
+      const letter = e.key.toLowerCase();
+      for (let step = 1; step <= options.length; step++) {
+        const i = (highlight + step) % options.length;
+        if (options[i].label.toLowerCase().startsWith(letter)) {
+          e.preventDefault();
+          moveTo(i);
+          break;
+        }
+      }
     } else if (e.key === "Enter") {
       e.preventDefault();
       choose(options[highlight].value);
@@ -74,7 +88,8 @@ export function LanguagePicker({ value, options, onChange, disabled }: LanguageP
         <ChevronsUpDownIcon className="size-3.5 shrink-0 text-muted-foreground" />
       </PopoverTrigger>
       <PopoverContent className="overflow-hidden p-0">
-        <ScrollArea className="max-h-72" scrollFade>
+        {/* Tall enough to show every language; scrolls only on short windows. */}
+        <ScrollArea className="max-h-[min(28rem,calc(var(--available-height,28rem)-8px))]" scrollFade>
           <div
             aria-label="Languages"
             className="flex flex-col p-1 outline-none"
