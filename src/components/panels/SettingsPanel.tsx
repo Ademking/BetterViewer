@@ -301,6 +301,12 @@ export function SettingsPanel() {
               <Row title="Show scrollbars">
                 <Toggle k="showScrollbars" />
               </Row>
+              <Row
+                description="A small overview of the image while it doesn't fit in the window. Click or drag it to move around."
+                title="Show navigator"
+              >
+                <Toggle k="showNavigator" />
+              </Row>
             </TabsContent>
 
             <TabsContent className="divide-y" value="viewer">

@@ -38,6 +38,7 @@ export const SHORTCUT_GROUPS: { title: string; items: [string, string[]][] }[] =
       ["Rotate right / left", ["R", "/", "Shift", "R"]],
       ["Flip horizontal / vertical", ["Shift", "H", "/", "Shift", "V"]],
       ["Resize image", [MOD, ALT, "I"]],
+      ["Navigator", ["Shift", "N"]],
       ["Toggle interface", ["Tab"]],
     ],
   },

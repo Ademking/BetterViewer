@@ -54,12 +54,14 @@ import {
   Axis3dIcon,
   RulerDimensionLineIcon,
   RulerIcon,
+  MapIcon,
   SpotlightIcon,
   BadgeInfoIcon,
 } from "lucide-react";
 import { autoEnhance } from "@/lib/autoEnhance";
 import { startStraighten } from "@/lib/straighten";
 import { toggleRulers } from "@/components/tools/MeasureTool";
+import { toggleNavigator } from "@/components/viewer/Navigator";
 import type React from "react";
 import { useMemo } from "react";
 import {
@@ -226,6 +228,14 @@ function buildCommands(): PaletteCommand[] {
       shortcut: "Tab",
       keywords: "interface chrome",
       run: () => settings.set("showToolbar", !getSettings().showToolbar),
+    });
+    add("View", {
+      value: "toggle-navigator",
+      label: settings.showNavigator ? "Hide navigator" : "Show navigator",
+      icon: <MapIcon />,
+      shortcut: "Shift N",
+      keywords: "minimap overview thumbnail map pan position",
+      run: toggleNavigator,
     });
 
     // Transform

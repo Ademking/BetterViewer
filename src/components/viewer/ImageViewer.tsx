@@ -28,6 +28,7 @@ import { ImageInfoPanel, InfoBar } from "@/components/viewer/InfoBar";
 import { ViewerCanvas } from "@/components/viewer/ViewerCanvas";
 import { ViewerControls } from "@/components/viewer/ViewerControls";
 import { EyedropperLoupe, Marquee, Scrollbars, ZoomHud } from "@/components/viewer/ViewerOverlays";
+import { Navigator } from "@/components/viewer/Navigator";
 import { ViewerToolbar } from "@/components/viewer/ViewerToolbar";
 import { useAutoHideChrome, useKeyboardShortcuts, useTheme } from "@/hooks/useKeyboardShortcuts";
 import { openFiles } from "@/lib/actions";
@@ -151,6 +152,9 @@ export function ImageViewer() {
           <EyedropperLoupe />
           <Scrollbars />
           <ZoomHud />
+          <div className={chrome}>
+            <Navigator />
+          </div>
 
           <div
             className={cn("absolute z-20", showRulers ? "top-8 left-8" : "top-3 left-3", chrome, !chromeVisible && "-translate-y-2")}

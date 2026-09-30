@@ -1,3 +1,4 @@
+import Konva from "konva";
 import { toast } from "@/components/ui/toast";
 import { askIncomingImage } from "@/components/panels/IncomingImageDialog";
 import { MOD } from "@/components/tools/ToolButton";
@@ -220,12 +221,47 @@ export function renderDocumentCanvas(
     exclude?: Annotation["type"][];
   } = {}
 ): HTMLCanvasElement {
+  const doc = getDoc();
+  if (!doc) throw new Error("Nothing to export");
+  const { width, height } = displaySize(doc);
+  stageRegistry.exporting = true;
+  try {
+    return renderDocumentAt(width, height, options.exclude);
+  } finally {
+    stageRegistry.exporting = false;
+    stageRegistry.stage?.batchDraw();
+  }
+}
+
+/**
+ * Small, quick copy of the edited image (annotations included) whose longest
+ * side is `maxSide` px: draws the on-screen image, not the full-resolution one.
+ */
+export function renderDocumentThumbnail(maxSide: number): HTMLCanvasElement {
+  const doc = getDoc();
+  if (!doc) throw new Error("Nothing to render");
+  const { width, height } = displaySize(doc);
+  const k = Math.min(1, maxSide / Math.max(width, height));
+  // Handles hidden for the render come back as they were: no redraw needed.
+  const autoDraw = Konva.autoDrawEnabled;
+  Konva.autoDrawEnabled = false;
+  stageRegistry.thumbnail = true;
+  try {
+    return renderDocumentAt(Math.max(1, Math.round(width * k)), Math.max(1, Math.round(height * k)));
+  } finally {
+    stageRegistry.thumbnail = false;
+    Konva.autoDrawEnabled = autoDraw;
+  }
+}
+
+/** Render the document (as displayed: rotated, flipped) to a `width` × `height` canvas. */
+function renderDocumentAt(width: number, height: number, exclude?: Annotation["type"][]): HTMLCanvasElement {
   const { stage, imageGroup, annotationLayer } = stageRegistry;
   const doc = getDoc();
   if (!stage || !imageGroup || !doc) throw new Error("Nothing to export");
 
   const excludedIds = new Set(
-    doc.annotations.filter((a) => options.exclude?.includes(a.type)).map((a) => a.id)
+    doc.annotations.filter((a) => exclude?.includes(a.type)).map((a) => a.id)
   );
   const hidden = annotationLayer?.find(
     (n: { getClassName: () => string; name: () => string; id: () => string }) =>
@@ -237,7 +273,6 @@ export function renderDocumentCanvas(
   ) ?? [];
   const prevVisible = hidden.map((n) => n.visible());
   hidden.forEach((n) => n.visible(false));
-  stageRegistry.exporting = true;
 
   try {
     // Screen-space bounds of the image, from its exact transform (Konva's
@@ -258,14 +293,12 @@ export function renderDocumentCanvas(
       width: Math.max(...corners.map((p) => p.x)) - minX,
       height: Math.max(...corners.map((p) => p.y)) - minY,
     };
-    const scale = viewport.cur.scale;
-    const { width, height } = displaySize(doc);
     const canvas = stage.toCanvas({
       x: rect.x,
       y: rect.y,
       width: rect.width,
       height: rect.height,
-      pixelRatio: width / rect.width || 1 / scale,
+      pixelRatio: width / rect.width || 1 / viewport.cur.scale,
     });
     // Normalise to exact pixel dimensions.
     const out = document.createElement("canvas");
@@ -274,9 +307,7 @@ export function renderDocumentCanvas(
     out.getContext("2d")!.drawImage(canvas, 0, 0, width, height);
     return out;
   } finally {
-    stageRegistry.exporting = false;
     hidden.forEach((n, i) => n.visible(prevVisible[i]));
-    stage.batchDraw();
   }
 }
 

@@ -21,6 +21,8 @@ export interface Settings {
   showHints: boolean;
   autoHideUi: boolean;
   showScrollbars: boolean;
+  /** Overview of the whole image while it doesn't fit in the window. */
+  showNavigator: boolean;
   // Viewer
   defaultZoom: DefaultZoom;
   wheelBehavior: WheelBehavior;
@@ -54,6 +56,7 @@ export const DEFAULT_SETTINGS: Settings = {
   showHints: true,
   autoHideUi: false,
   showScrollbars: true,
+  showNavigator: true,
   defaultZoom: "shrink",
   wheelBehavior: "zoom",
   panOnEmptyDrag: true,

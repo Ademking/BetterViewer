@@ -8,6 +8,8 @@ export const stageRegistry: {
   imageGroup: Konva.Group | null;
   annotationGroup: Konva.Group | null;
   exporting: boolean;
+  /** True while a small preview (the navigator's) is rendered off screen. */
+  thumbnail: boolean;
 } = {
   stage: null,
   imageLayer: null,
@@ -15,6 +17,7 @@ export const stageRegistry: {
   imageGroup: null,
   annotationGroup: null,
   exporting: false,
+  thumbnail: false,
 };
 
 /** Pointer position in image-local coordinates. */

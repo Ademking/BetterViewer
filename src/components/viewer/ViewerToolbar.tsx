@@ -5,6 +5,7 @@ import {
   LayersIcon,
   CheckIcon,
   EyeIcon,
+  MapIcon,
   RulerIcon,
   SaveAllIcon,
   FolderOpenIcon,
@@ -67,6 +68,7 @@ import { RedactToolButton } from "@/components/tools/RedactTool";
 import { SpotlightToolButton } from "@/components/tools/SpotlightTool";
 import { viewOriginal } from "@/lib/openUrl";
 import { MeasureToolButton, toggleRulers } from "@/components/tools/MeasureTool";
+import { toggleNavigator } from "@/components/viewer/Navigator";
 import { TextToolButton } from "@/components/tools/TextTool";
 import { EmojiToolButton } from "@/components/tools/EmojiTool";
 import { MOD, ToolbarDivider, ToolButton } from "@/components/tools/ToolButton";
@@ -197,6 +199,7 @@ function MoreMenu({ canUndo, canRedo }: { canUndo: boolean; canRedo: boolean }) 
   const set = useSettings((s) => s.set);
   const saveFormat = useSettings((s) => s.saveFormat);
   const rulers = useSettings((s) => s.showRulers);
+  const navigatorShown = useSettings((s) => s.showNavigator);
   const togglePanel = useUi((s) => s.togglePanel);
   const dirty = useDoc((s) => s.past.length > 0);
   const edited = useDoc(hasEdits);
@@ -342,6 +345,10 @@ function MoreMenu({ canUndo, canRedo }: { canUndo: boolean; canRedo: boolean }) 
             <MenuItem closeOnSelect={false} onSelect={toggleRulers} value="rulers">
               <RulerIcon /> Rulers &amp; guides
               {rulers ? <CheckIcon className="ms-auto text-brand" /> : <MenuShortcut>Shift U</MenuShortcut>}
+            </MenuItem>
+            <MenuItem closeOnSelect={false} onSelect={toggleNavigator} value="navigator">
+              <MapIcon /> Navigator
+              {navigatorShown ? <CheckIcon className="ms-auto text-brand" /> : <MenuShortcut>Shift N</MenuShortcut>}
             </MenuItem>
             <MenuSeparator />
             <MenuRadioGroup

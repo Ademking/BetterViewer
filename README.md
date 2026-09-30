@@ -79,6 +79,8 @@ runs in your browser, including OCR, background removal and QR scanning.
 
 - Smooth zoom (wheel, pinch, **+ / −**), fit / 100% / zoom to selection, pan
   (drag, **Space**, scrollbars), crisp pixels when zoomed in close
+- **Navigator**: an overview of the whole image while zoomed in; click or
+  drag it to move around, scroll over it to zoom (**Shift N**)
 - Board background: blurred image, black, white or transparency grid
 - Rotate left / right, flip horizontal / vertical
 - Image info with full **EXIF** (camera, exposure, GPS with map link); copy a
@@ -134,7 +136,7 @@ runs in your browser, including OCR, background removal and QR scanning.
 | Line / arrow        | L / A         | Resize image        | Ctrl Alt I        | Front / back      | ] / [                 |
 | Counter             | N             | Toggle interface    | Tab               | Quick launch      | Ctrl K                |
 | Blur / pixelate     | M             | Rulers & guides     | Shift U           | Open / paste      | Ctrl O / Ctrl V       |
-| Text                | T             |                     |                   | Save / copy       | Ctrl S / Ctrl Shift C |
+| Text                | T             | Navigator           | Shift N           | Save / copy       | Ctrl S / Ctrl Shift C |
 | Color picker        | I             |                     |                   | Settings          | Ctrl ,                |
 | Crop                | C             |                     |                   | Shortcuts list    | ?                     |
 | Adjustments         | F             |                     |                   | Cancel / deselect | Esc                   |
