@@ -24,11 +24,25 @@ const base = {
   homepage_url: "https://github.com/Ademking/BetterViewer",
   icons: { 16: "icons/icon-16.png", 32: "icons/icon-32.png", 48: "icons/icon-48.png", 128: "icons/icon-128.png" },
   action: {
-    default_title: "Open BetterViewer",
+    default_title: "BetterViewer",
     default_icon: { 16: "icons/icon-16.png", 32: "icons/icon-32.png" },
+    // Open an empty viewer or screenshot the page (extension/popup.html).
+    default_popup: "popup.html",
   },
-  // contextMenus: the "Open this image in BetterViewer" item on images in web pages.
-  permissions: ["storage", "contextMenus"],
+  // contextMenus: the right-click items ("Open this image in BetterViewer",
+  // "Browse all page images as a gallery", "Screenshot this page").
+  // activeTab: screenshots of the current tab (captureVisibleTab).
+  permissions: ["storage", "contextMenus", "activeTab"],
+  commands: {
+    "open-gallery": {
+      suggested_key: { default: "Alt+Shift+G" },
+      description: "Browse all page images as a gallery",
+    },
+    "take-screenshot": {
+      suggested_key: { default: "Alt+Shift+S" },
+      description: "Screenshot this page",
+    },
+  },
   // Needed to detect images opened in tabs, and to download them (with the
   // site's cookies) for editing without cross-origin restrictions.
   host_permissions: ["<all_urls>"],
@@ -141,7 +155,9 @@ for (const [target, manifest] of Object.entries(targets)) {
   cpSync(app, out, { recursive: true });
   cpSync(join(root, "extension", "icons"), join(out, "icons"), { recursive: true });
   cpSync(join(root, "extension", "content.js"), join(out, "content.js"));
-  cpSync(join(root, "extension", "background.js"), join(out, "background.js"));
+  for (const file of ["background.js", "popup.html", "popup.js"]) {
+    cpSync(join(root, "extension", file), join(out, file));
+  }
   writeFileSync(join(out, "manifest.json"), `${JSON.stringify(manifest, null, 2)}\n`);
   const zip = join(root, "build", `betterviewer-${target}-${pkg.version}.zip`);
   zipDir(out, zip);

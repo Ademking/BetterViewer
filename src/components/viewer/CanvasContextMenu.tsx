@@ -7,14 +7,15 @@ import {
   MaximizeIcon,
   DownloadIcon,
   FileImageIcon,
+  ImageIcon,
+  WandSparklesIcon,
   FlipHorizontal2Icon,
   FlipVertical2Icon,
   RotateCcwIcon,
   PipetteIcon,
   ScanTextIcon,
-  SquareArrowOutUpRightIcon,
-  ImageUpscaleIcon,
   QrCodeIcon,
+  ScanSearchIcon,
   RotateCwIcon,
   TrashIcon,
 } from "lucide-react";
@@ -47,7 +48,7 @@ import {
   zoomActual,
   zoomFit,
 } from "@/lib/actions";
-import { openInPhotopea, openInTinEye } from "@/lib/external";
+import { SEARCH_ENGINES, searchImage } from "@/lib/external";
 import { openOcr } from "@/components/tools/OcrPanel";
 import { scanCurrentImage } from "@/state/qr";
 import { useUi } from "@/state/ui";
@@ -120,50 +121,68 @@ export function CanvasContextMenu({ children }: { children: React.ReactNode }) {
             <ContextMenuSeparator />
 
             {/* "Modified" includes edits and annotations; "original" is the file as opened. */}
-            <ContextMenuItem onSelect={copyImageToClipboard} value="copy">
-              <CopyIcon /> Copy image (modified)
-              <ContextMenuShortcut>{MOD} Shift C</ContextMenuShortcut>
-            </ContextMenuItem>
-            <ContextMenuItem onSelect={copyOriginalImage} value="copy-original">
-              <CopyIcon /> Copy image (original)
-            </ContextMenuItem>
+            <ContextMenuSub positioning={SUB}>
+              <ContextMenuSubTrigger>
+                <CopyIcon /> Copy
+              </ContextMenuSubTrigger>
+              <ContextMenuSubContent className="w-max min-w-52">
+                <ContextMenuItem onSelect={copyImageToClipboard} value="copy">
+                  <ImageIcon /> Modified image
+                  <ContextMenuShortcut>{MOD} Shift C</ContextMenuShortcut>
+                </ContextMenuItem>
+                <ContextMenuItem onSelect={copyOriginalImage} value="copy-original">
+                  <FileImageIcon /> Original image
+                </ContextMenuItem>
+              </ContextMenuSubContent>
+            </ContextMenuSub>
+            <ContextMenuSub positioning={SUB}>
+              <ContextMenuSubTrigger>
+                <DownloadIcon /> Save
+              </ContextMenuSubTrigger>
+              <ContextMenuSubContent className="w-max min-w-52">
+                <ContextMenuItem onSelect={() => void exportImage()} value="save">
+                  <ImageIcon /> Modified image
+                  <ContextMenuShortcut>{MOD} S</ContextMenuShortcut>
+                </ContextMenuItem>
+                <ContextMenuItem onSelect={saveOriginalImage} value="save-original">
+                  <FileImageIcon /> Original image
+                </ContextMenuItem>
+              </ContextMenuSubContent>
+            </ContextMenuSub>
             <ContextMenuItem onSelect={pasteFromClipboard} value="paste">
               <ClipboardPasteIcon /> Paste image
               <ContextMenuShortcut>{MOD} V</ContextMenuShortcut>
             </ContextMenuItem>
             <ContextMenuSeparator />
 
-            <ContextMenuItem onSelect={() => void exportImage()} value="save">
-              <DownloadIcon /> Save modified image
-              <ContextMenuShortcut>{MOD} S</ContextMenuShortcut>
-            </ContextMenuItem>
-            <ContextMenuItem onSelect={saveOriginalImage} value="save-original">
-              <FileImageIcon /> Save original image
-            </ContextMenuItem>
-            <ContextMenuSeparator />
-
-            <ContextMenuItem onSelect={openColorPicker} value="pick">
-              <PipetteIcon /> Pick color
-              <ContextMenuShortcut>I</ContextMenuShortcut>
-            </ContextMenuItem>
-            <ContextMenuItem onSelect={openOcr} value="ocr">
-              <ScanTextIcon /> Extract text
-            </ContextMenuItem>
-            <ContextMenuItem onSelect={() => scanCurrentImage({ reveal: true })} value="qr">
-              <QrCodeIcon /> Scan QR codes
-              <ContextMenuShortcut>Q</ContextMenuShortcut>
-            </ContextMenuItem>
             <ContextMenuSub positioning={SUB}>
               <ContextMenuSubTrigger>
-                <SquareArrowOutUpRightIcon /> Open in
+                <WandSparklesIcon /> Image tools
+              </ContextMenuSubTrigger>
+              <ContextMenuSubContent className="w-max min-w-52">
+                <ContextMenuItem onSelect={openColorPicker} value="pick">
+                  <PipetteIcon /> Pick color
+                  <ContextMenuShortcut>I</ContextMenuShortcut>
+                </ContextMenuItem>
+                <ContextMenuItem onSelect={openOcr} value="ocr">
+                  <ScanTextIcon /> Extract text
+                </ContextMenuItem>
+                <ContextMenuItem onSelect={() => scanCurrentImage({ reveal: true })} value="qr">
+                  <QrCodeIcon /> Scan QR codes
+                  <ContextMenuShortcut>Q</ContextMenuShortcut>
+                </ContextMenuItem>
+              </ContextMenuSubContent>
+            </ContextMenuSub>
+            <ContextMenuSub positioning={SUB}>
+              <ContextMenuSubTrigger>
+                <ScanSearchIcon /> Search image
               </ContextMenuSubTrigger>
               <ContextMenuSubContent className="w-max min-w-48">
-                <ContextMenuItem onSelect={openInPhotopea} value="photopea">
-                  <SquareArrowOutUpRightIcon /> Photopea
-                </ContextMenuItem>
-                <ContextMenuItem onSelect={openInTinEye} value="tineye">
-                  <ImageUpscaleIcon /> TinEye (search)
-                </ContextMenuItem>
+                {SEARCH_ENGINES.map((e) => (
+                  <ContextMenuItem key={e.id} onSelect={() => void searchImage(e.id)} value={`search-${e.id}`}>
+                    <ScanSearchIcon /> {e.name}
+                  </ContextMenuItem>
+                ))}
               </ContextMenuSubContent>
             </ContextMenuSub>
           </>

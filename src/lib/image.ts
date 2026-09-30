@@ -97,7 +97,22 @@ export async function cropImage(
 
 export const dataUrlToBlob = async (url: string) => (await fetch(url)).blob();
 
+/**
+ * In the extension's right-click overlay (a frame on someone else's page),
+ * Chrome cancels downloads started by the frame, so the page's content script
+ * saves the file instead (see extension/content.js).
+ */
+const inPageOverlay = () =>
+  typeof window !== "undefined" &&
+  window.top !== window &&
+  /^(chrome|moz|safari-web)-extension:$/.test(location.protocol) &&
+  new URLSearchParams(location.search).has("overlay");
+
 export const downloadBlob = (blob: Blob, filename: string) => {
+  if (inPageOverlay()) {
+    window.parent.postMessage({ type: "betterviewer:download", blob, name: filename }, "*");
+    return;
+  }
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;

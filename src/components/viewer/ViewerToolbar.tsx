@@ -7,6 +7,10 @@ import {
   EyeIcon,
   RulerIcon,
   SaveAllIcon,
+  FolderOpenIcon,
+  CircleHelpIcon,
+  HistoryIcon,
+  ScanSearchIcon,
   FileImageIcon,
   Share2Icon,
   SquarePenIcon,
@@ -16,7 +20,6 @@ import {
   FileDownIcon,
   ImagePlusIcon,
   SquareArrowOutUpRightIcon,
-  ImageUpscaleIcon,
   CloudUploadIcon,
   QrCodeIcon,
   CommandIcon,
@@ -43,6 +46,7 @@ import {
 import {
   Menu,
   MenuContent,
+  MenuGroup,
   MenuItem,
   MenuRadioGroup,
   MenuRadioItem,
@@ -82,7 +86,7 @@ import {
   undo,
 } from "@/lib/actions";
 import { isDefaultFilters } from "@/lib/filters";
-import { openInPhotopea, openInTinEye } from "@/lib/external";
+import { openInPhotopea, SEARCH_ENGINES, searchImage } from "@/lib/external";
 import { removeBackground } from "@/lib/bgRemoval";
 import { openOcr } from "@/components/tools/OcrPanel";
 import { type BoardBackground, type SaveFormat, useSettings } from "@/state/settings";
@@ -211,42 +215,55 @@ function MoreMenu({ canUndo, canRedo }: { canUndo: boolean; canRedo: boolean }) 
         </MenuItem>
         <MenuSeparator />
 
-        <MenuItem onSelect={openFilePicker} value="open">
-          <ImageUpIcon /> Open image…
-          <MenuShortcut>{MOD} O</MenuShortcut>
-        </MenuItem>
-        <MenuItem onSelect={insertImagePicker} value="insert">
-          <ImagePlusIcon /> Insert image on top…
-        </MenuItem>
-        <MenuItem onSelect={pasteFromClipboard} value="paste">
-          <ClipboardPasteIcon /> Paste image
-          <MenuShortcut>{MOD} V</MenuShortcut>
-        </MenuItem>
-        {sourceUrl && (
-          <MenuItem onSelect={() => viewOriginal(sourceUrl)} value="view-original">
-            <ExternalLinkIcon /> View original
-          </MenuItem>
-        )}
-        <MenuSeparator />
-
-        {/* Save follows the Save format setting, like {MOD} S. */}
-        <MenuItem onSelect={() => exportImage()} value="save">
-          <DownloadIcon /> Save as {SAVE_LABEL[saveFormat]}
-          <MenuShortcut>{MOD} S</MenuShortcut>
-        </MenuItem>
         <MenuSub positioning={SUB}>
           <MenuSubTrigger>
-            <SaveAllIcon /> Save as
+            <FolderOpenIcon /> Open
           </MenuSubTrigger>
-          <MenuSubContent className="w-max min-w-52">
-            {(Object.keys(SAVE_LABEL) as (keyof typeof SAVE_LABEL)[]).map((f) => (
-              <MenuItem key={f} onSelect={() => exportImage(f)} value={`save-${f}`}>
-                <DownloadIcon /> {SAVE_LABEL[f]}
-              </MenuItem>
-            ))}
-            <MenuItem onSelect={saveOriginalImage} value="save-original">
-              <FileImageIcon /> Original file
+          <MenuSubContent className="w-max min-w-56">
+            <MenuItem onSelect={openFilePicker} value="open">
+              <ImageUpIcon /> Open image…
+              <MenuShortcut>{MOD} O</MenuShortcut>
             </MenuItem>
+            <MenuItem onSelect={insertImagePicker} value="insert">
+              <ImagePlusIcon /> Insert image on top…
+            </MenuItem>
+            <MenuItem onSelect={pasteFromClipboard} value="paste">
+              <ClipboardPasteIcon /> Paste image
+              <MenuShortcut>{MOD} V</MenuShortcut>
+            </MenuItem>
+            {sourceUrl && (
+              <>
+                <MenuSeparator />
+                <MenuItem onSelect={() => viewOriginal(sourceUrl)} value="view-original">
+                  <ExternalLinkIcon /> View original
+                </MenuItem>
+              </>
+            )}
+          </MenuSubContent>
+        </MenuSub>
+        <MenuSub positioning={SUB}>
+          <MenuSubTrigger>
+            <DownloadIcon /> Save
+          </MenuSubTrigger>
+          <MenuSubContent className="w-max min-w-56">
+            {/* The Save format setting, like {MOD} S. */}
+            <MenuItem onSelect={() => exportImage()} value="save">
+              <DownloadIcon /> Save as {SAVE_LABEL[saveFormat]}
+              <MenuShortcut>{MOD} S</MenuShortcut>
+            </MenuItem>
+            <MenuSeparator />
+            <MenuGroup heading="Other formats">
+              {(Object.keys(SAVE_LABEL) as (keyof typeof SAVE_LABEL)[])
+                .filter((f) => f !== saveFormat)
+                .map((f) => (
+                  <MenuItem key={f} onSelect={() => exportImage(f)} value={`save-${f}`}>
+                    <SaveAllIcon /> Save as {SAVE_LABEL[f]}
+                  </MenuItem>
+                ))}
+              <MenuItem onSelect={saveOriginalImage} value="save-original">
+                <FileImageIcon /> Original file
+              </MenuItem>
+            </MenuGroup>
             <MenuSeparator />
             <MenuItem onSelect={() => togglePanel("compress", true)} value="compress">
               <FileDownIcon /> Compress &amp; save…
@@ -257,22 +274,6 @@ function MoreMenu({ canUndo, canRedo }: { canUndo: boolean; canRedo: boolean }) 
           <CopyIcon /> Copy image
           <MenuShortcut>{MOD} Shift C</MenuShortcut>
         </MenuItem>
-        <MenuSub positioning={SUB}>
-          <MenuSubTrigger>
-            <Share2Icon /> Share
-          </MenuSubTrigger>
-          <MenuSubContent className="w-max min-w-56">
-            <MenuItem onSelect={() => togglePanel("upload", true)} value="upload">
-              <CloudUploadIcon /> Upload &amp; get link…
-            </MenuItem>
-            <MenuItem onSelect={openInPhotopea} value="photopea">
-              <SquareArrowOutUpRightIcon /> Open in Photopea
-            </MenuItem>
-            <MenuItem onSelect={openInTinEye} value="tineye">
-              <ImageUpscaleIcon /> Search on TinEye
-            </MenuItem>
-          </MenuSubContent>
-        </MenuSub>
         <MenuSeparator />
 
         <MenuSub positioning={SUB}>
@@ -303,12 +304,40 @@ function MoreMenu({ canUndo, canRedo }: { canUndo: boolean; canRedo: boolean }) 
 
         <MenuSub positioning={SUB}>
           <MenuSubTrigger>
+            <ScanSearchIcon /> Search image
+          </MenuSubTrigger>
+          <MenuSubContent className="w-max min-w-52">
+            {SEARCH_ENGINES.map((e) => (
+              <MenuItem key={e.id} onSelect={() => void searchImage(e.id)} value={`search-${e.id}`}>
+                <ScanSearchIcon /> {e.name}
+              </MenuItem>
+            ))}
+          </MenuSubContent>
+        </MenuSub>
+        <MenuSub positioning={SUB}>
+          <MenuSubTrigger>
+            <Share2Icon /> Share
+          </MenuSubTrigger>
+          <MenuSubContent className="w-max min-w-56">
+            <MenuItem onSelect={() => togglePanel("upload", true)} value="upload">
+              <CloudUploadIcon /> Upload &amp; get link…
+            </MenuItem>
+            <MenuItem onSelect={openInPhotopea} value="photopea">
+              <SquareArrowOutUpRightIcon /> Open in Photopea
+            </MenuItem>
+          </MenuSubContent>
+        </MenuSub>
+        <MenuSub positioning={SUB}>
+          <MenuSubTrigger>
             <EyeIcon /> View
           </MenuSubTrigger>
           <MenuSubContent className="w-max min-w-56">
             <MenuItem onSelect={() => togglePanel("layers", true)} value="layers">
               <LayersIcon /> Layers
               <MenuShortcut>Shift L</MenuShortcut>
+            </MenuItem>
+            <MenuItem onSelect={() => togglePanel("history", true)} value="history">
+              <HistoryIcon /> History
             </MenuItem>
             <MenuItem closeOnSelect={false} onSelect={toggleRulers} value="rulers">
               <RulerIcon /> Rulers &amp; guides
@@ -367,13 +396,20 @@ function MoreMenu({ canUndo, canRedo }: { canUndo: boolean; canRedo: boolean }) 
           <Settings2Icon /> Settings
           <MenuShortcut>{MOD} ,</MenuShortcut>
         </MenuItem>
-        <MenuItem onSelect={() => togglePanel("shortcuts", true)} value="shortcuts">
-          <KeyboardIcon /> Keyboard shortcuts
-          <MenuShortcut>?</MenuShortcut>
-        </MenuItem>
-        <MenuItem onSelect={() => togglePanel("about", true)} value="about">
-          <BadgeInfoIcon /> About BetterViewer
-        </MenuItem>
+        <MenuSub positioning={SUB}>
+          <MenuSubTrigger>
+            <CircleHelpIcon /> Help
+          </MenuSubTrigger>
+          <MenuSubContent className="w-max min-w-56">
+            <MenuItem onSelect={() => togglePanel("shortcuts", true)} value="shortcuts">
+              <KeyboardIcon /> Keyboard shortcuts
+              <MenuShortcut>?</MenuShortcut>
+            </MenuItem>
+            <MenuItem onSelect={() => togglePanel("about", true)} value="about">
+              <BadgeInfoIcon /> About BetterViewer
+            </MenuItem>
+          </MenuSubContent>
+        </MenuSub>
         <MenuSeparator />
         <MenuItem
           disabled={!edited}

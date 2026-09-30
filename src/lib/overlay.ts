@@ -42,10 +42,10 @@ export function receiveOverlayImage() {
   // Galleries have their own handshake (see gallery.ts).
   if (!isOverlay || overlaySourceUrl || params?.has("gallery") || started) return;
   started = true;
-  window.addEventListener("message", (e: MessageEvent<{ type?: string; blob?: Blob; src?: string }>) => {
+  window.addEventListener("message", (e: MessageEvent<{ type?: string; blob?: Blob; src?: string; name?: string }>) => {
     if (e.source !== window.parent || e.data?.type !== "betterviewer:image" || !(e.data.blob instanceof Blob)) return;
-    const { blob, src = "" } = e.data;
-    void openBlob(blob, nameFromUrl(src, blob.type));
+    const { blob, src = "", name } = e.data;
+    void openBlob(blob, name || nameFromUrl(src, blob.type));
   });
   window.parent.postMessage({ type: "betterviewer:ready" }, "*");
 }

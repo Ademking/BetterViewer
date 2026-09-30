@@ -110,7 +110,13 @@ runs in your browser, including OCR, background removal and QR scanning.
 - **QR code scanner** (links, Wi-Fi, contacts, events…)
 - **Compress** with a quality slider and before / after size
 - **Export** PNG / JPEG / WebP, copy to clipboard
-- **Upload** to kappa.lol or ImgBB, **Open in Photopea**, **Search on TinEye**
+- **Upload** to kappa.lol or ImgBB, **Open in Photopea**
+- **Reverse image search** on Google Lens, Bing, Yandex and TinEye
+- **History** panel: every edit in a list, click one to go back to it
+- **Screenshot this page** (click the toolbar button, or Alt+Shift+S), then
+  annotate it in BetterViewer
+- **Gallery**: browse all images on a page (Alt+Shift+G) and **download them
+  all as a ZIP**
 
 ### Keyboard shortcuts
 
@@ -162,7 +168,7 @@ npm run build:ext  # extension → build/chrome, build/firefox (+ store .zip fil
   **Load Temporary Add-on…** and pick `build/firefox/manifest.json`.
 
 Turn the automatic takeover off in **Settings → Viewer → Open images
-automatically**; **More → View original** shows the browser's
+automatically**; **More → Open → View original** shows the browser's
 own viewer for an image.
 
 **Stack:** React 19 · TypeScript · Vite · Tailwind CSS v4 ·
@@ -201,6 +207,26 @@ none). For local development you can also set `VITE_IMGBB_API_KEY` in
 bundle, so don't ship a build with a private key.
 
 # Changelog
+
+## [3.0.3] - 2026-09-30
+
+- **Toolbar button popup**: open an empty BetterViewer, **Screenshot this
+  page** (also Alt+Shift+S, captures the visible part of the page and opens it
+  in BetterViewer to annotate), browse the page's images, or jump straight to
+  Settings, Keyboard shortcuts or About.
+- **Download all as ZIP** in the page gallery.
+- **Alt+Shift+G** opens (and closes) the page gallery.
+- **History** panel (More → View → History): every edit in a list; click a
+  step to go back or forward to it.
+- **Reverse image search** on Google Lens, Bing and Yandex, next to TinEye.
+  Unedited web images are searched by their address, without uploading.
+- Simpler **More** menu: Open, Save, Image tools, Search image, Share, View
+  and Help submenus; search engines have their own submenu instead of sitting
+  in Share.
+- Shorter right-click menu: Copy and Save submenus (modified image or
+  original), Image tools and Search image.
+- Long menus scroll with the same thin scrollbar as the panels.
+- The page gallery shows its image list by default.
 
 ## [3.0.2] - 2026-09-30
 

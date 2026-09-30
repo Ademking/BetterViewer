@@ -2,7 +2,7 @@ import { toast } from "@/components/ui/toast";
 import { openBlob } from "@/lib/actions";
 import { loadHtmlImage } from "@/lib/image";
 import { isOverlay } from "@/lib/overlay";
-import { isExtension, originalUrl } from "@/lib/platform";
+import { extensionApi, isExtension, originalUrl } from "@/lib/platform";
 import { getUi } from "@/state/ui";
 
 const EXT_BY_TYPE: Record<string, string> = {
@@ -102,6 +102,20 @@ export async function openFromLocation() {
   } finally {
     ui.set({ loading: false });
   }
+}
+
+/**
+ * `?screenshot=1`: a screenshot taken on a page that couldn't show the
+ * overlay; the extension's background script hands it over.
+ */
+export async function openPendingScreenshot() {
+  if (!extensionApi || !new URLSearchParams(location.search).has("screenshot")) return;
+  const shot = (await extensionApi.runtime.sendMessage({ type: "betterviewer:get-screenshot" }).catch(() => null)) as
+    | { dataUrl: string; name: string }
+    | null;
+  if (!shot?.dataUrl) return;
+  const blob = await (await fetch(shot.dataUrl)).blob();
+  await openBlob(blob, shot.name);
 }
 
 /** Leave BetterViewer and show the image the way the browser would. */

@@ -1,5 +1,6 @@
 import { useListCollection } from "@ark-ui/react";
 import {
+  HistoryIcon,
   ArrowDownToLineIcon,
   ArrowUpToLineIcon,
   ClipboardPasteIcon,
@@ -107,7 +108,7 @@ import {
 } from "@/lib/actions";
 import { SHAPE_GROUPS, SHAPE_LABELS } from "@/lib/annotations";
 import { DEFAULT_FILTERS, FILTER_PRESETS } from "@/lib/filters";
-import { openInPhotopea, openInTinEye } from "@/lib/external";
+import { openInPhotopea, SEARCH_ENGINES, searchImage } from "@/lib/external";
 import { removeBackground } from "@/lib/bgRemoval";
 import { openOcr } from "@/components/tools/OcrPanel";
 import { updateDoc, useDoc } from "@/state/document";
@@ -159,7 +160,9 @@ function buildCommands(): PaletteCommand[] {
   add("File", { value: "save-original", label: "Save original image", icon: <DownloadIcon />, keywords: "download unedited source file export", run: () => void saveOriginalImage() }, hasDoc);
   add("File", { value: "upload-imgbb", label: "Upload & get link…", icon: <CloudUploadIcon />, keywords: "share link publish host imgbb kappa", run: () => ui.togglePanel("upload", true) }, hasDoc);
   add("File", { value: "photopea", label: "Open in Photopea", icon: <SquareArrowOutUpRightIcon />, keywords: "edit photoshop external editor", run: () => void openInPhotopea() }, hasDoc);
-  add("File", { value: "tineye", label: "Search on TinEye", icon: <ImageUpscaleIcon />, keywords: "reverse image search source find similar", run: () => void openInTinEye() }, hasDoc);
+  for (const e of SEARCH_ENGINES) {
+    add("File", { value: `search-${e.id}`, label: `Search on ${e.name}`, icon: <ImageUpscaleIcon />, keywords: "reverse image search source find similar", run: () => void searchImage(e.id) }, hasDoc);
+  }
   add("File", { value: "compress", label: "Compress & save…", icon: <FileDownIcon />, keywords: "reduce file size quality optimize jpeg webp smaller", run: () => ui.togglePanel("compress", true) }, hasDoc);
   add("File", { value: "copy-image", label: "Copy image to clipboard", icon: <CopyIcon />, shortcut: `${MOD} Shift C`, keywords: "modified edited", run: () => void copyImageToClipboard() }, hasDoc);
   add("File", { value: "copy-original", label: "Copy original image", icon: <CopyIcon />, keywords: "clipboard unedited source", run: () => void copyOriginalImage() }, hasDoc);
@@ -274,6 +277,7 @@ function buildCommands(): PaletteCommand[] {
     add("Panels", { value: "panel-qr", label: "Scan for QR codes", icon: <QrCodeIcon />, shortcut: "Q", keywords: "qrcode barcode scan read decode link", run: () => void scanCurrentImage({ reveal: true }) });
     add("Panels", { value: "auto-enhance", label: "Auto enhance", icon: <WandSparklesIcon />, keywords: "auto fix improve levels white balance magic", run: () => void autoEnhance() });
     add("Panels", { value: "panel-curves", label: "Histogram", icon: <ChartSplineIcon />, shortcut: "Shift C", keywords: "curves tone levels contrast exposure histogram rgb channels", run: () => ui.togglePanel("curves", true) });
+    add("Panels", { value: "panel-history", label: "History", icon: <HistoryIcon />, keywords: "undo redo steps changes edits back", run: () => ui.togglePanel("history", true) });
     add("Panels", { value: "panel-layers", label: "Layers", icon: <LayersIcon />, shortcut: "Shift L", keywords: "objects order arrange stack hide show delete", run: () => ui.togglePanel("layers", true) });
     add("Panels", { value: "panel-info", label: "Image info", icon: <InfoIcon />, keywords: "details size dimensions metadata", run: () => ui.togglePanel("info", true) });
   }

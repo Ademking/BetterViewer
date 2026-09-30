@@ -16,6 +16,9 @@ interface ExtensionApi {
       set(items: Record<string, unknown>): Promise<void>;
     };
   };
+  runtime: {
+    sendMessage(message: unknown): Promise<unknown>;
+  };
 }
 
 export const extensionApi: ExtensionApi | null = isExtension

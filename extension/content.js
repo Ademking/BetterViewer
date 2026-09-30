@@ -3,8 +3,8 @@
 //    viewer), open it in BetterViewer instead.
 // 2. "Open this image in BetterViewer" (right-click menu, see background.js):
 //    show BetterViewer in an overlay on top of the page, without leaving it.
-// 3. "Browse all page images as a gallery": the same overlay as a gallery of every
-//    picture on the page.
+// 3. "Browse all page images as a gallery" (also Alt+Shift+G): the same
+//    overlay as a gallery of every picture on the page.
 (() => {
   const api = globalThis.browser ?? globalThis.chrome;
   const viewerUrl = api.runtime.getURL("index.html");
@@ -69,7 +69,7 @@
    * blob: and data: images can only be read here (they belong to the page),
    * so they're sent to the viewer once it asks for them.
    */
-  const openOverlay = ({ src = "", gallery = null }) => {
+  const openOverlay = ({ src = "", name = "", gallery = null }) => {
     closeOverlay();
     const fromPage = !gallery && /^(blob|data):/i.test(src);
     const url = new URL(viewerUrl);
@@ -106,7 +106,7 @@
         closeOverlay();
       }
     };
-    overlay = { frame, fromPage, src, gallery, unlockScroll: lockScroll(), onKey };
+    overlay = { frame, fromPage, src, name, gallery, unlockScroll: lockScroll(), onKey };
     window.addEventListener("keydown", onKey, true);
     frame.addEventListener(
       "load",
@@ -122,7 +122,7 @@
 
   window.addEventListener("message", (e) => {
     if (!overlay || e.origin !== viewerOrigin || e.source !== overlay.frame.contentWindow) return;
-    const { frame, src, gallery, fromPage } = overlay;
+    const { frame, src, name, gallery, fromPage } = overlay;
     const post = (message) => frame.contentWindow?.postMessage(message, viewerOrigin);
     const type = e.data?.type;
     if (type === "betterviewer:close") closeOverlay();
@@ -130,7 +130,7 @@
     else if (type === "betterviewer:ready" && fromPage) {
       fetch(src)
         .then((r) => r.blob())
-        .then((blob) => post({ type: "betterviewer:image", blob, src }))
+        .then((blob) => post({ type: "betterviewer:image", blob, src, name }))
         .catch(() => closeOverlay());
     } else if (type === "betterviewer:clipboard") {
       // Sites like Facebook forbid the clipboard to frames inside them (the
@@ -146,6 +146,17 @@
         () => done(),
         (err) => done(String(err?.message || err))
       );
+    } else if (type === "betterviewer:download" && e.data.blob && typeof e.data.name === "string") {
+      // Chrome cancels downloads started inside the overlay frame; the page may start them.
+      const url = URL.createObjectURL(e.data.blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = e.data.name;
+      a.style.display = "none";
+      document.documentElement.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 30000);
     } else if (type === "betterviewer:fetch" && gallery && typeof e.data.src === "string") {
       // A blob: picture of the gallery (only this page can read it).
       const { id, src: wanted } = e.data;
@@ -226,13 +237,25 @@
       if (r.width && r.height && tooSmall(r.width, r.height)) continue;
       add(m[2], el, 0, 0, el.getAttribute("aria-label") || el.title);
     }
-    return { items, index: Math.max(0, start) };
+    return { items, index: Math.max(0, start), page: { host: location.hostname, title: document.title } };
   };
 
+  /* ---------------------------------------------------------------- messages */
+
   api.runtime.onMessage.addListener((message, _sender, sendResponse) => {
-    if (message?.type === "betterviewer:overlay" && typeof message.src === "string") openOverlay({ src: message.src });
-    else if (message?.type === "betterviewer:gallery") openOverlay({ gallery: collectImages() });
-    else return;
+    const type = message?.type;
+    if (type === "betterviewer:overlay" && typeof message.src === "string") {
+      openOverlay({ src: message.src, name: message.name });
+    } else if (type === "betterviewer:gallery") {
+      // The shortcut (Alt+Shift+G) toggles the gallery.
+      if (overlay?.gallery) closeOverlay();
+      else openOverlay({ gallery: collectImages() });
+    } else if (type === "betterviewer:hide-ui") {
+      // Before a screenshot: take BetterViewer's own overlay off the page.
+      closeOverlay();
+      setTimeout(() => sendResponse(true), 200);
+      return true;
+    } else return;
     // Answering tells background.js the overlay is shown (no new-tab fallback).
     sendResponse(true);
   });

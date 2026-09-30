@@ -65,7 +65,7 @@ export interface ShapeStyle {
   spotlightFeather: number;
 }
 
-export type PanelId = "adjust" | "settings" | "shortcuts" | "info" | "color" | "command" | "qr" | "upload" | "compress" | "ocr" | "resize" | "layers" | "curves" | "about";
+export type PanelId = "adjust" | "settings" | "shortcuts" | "info" | "color" | "command" | "qr" | "upload" | "compress" | "ocr" | "resize" | "layers" | "curves" | "about" | "history";
 
 interface UiStore {
   tool: Tool;
@@ -144,7 +144,7 @@ export const useUi = create<UiStore>()((set, get) => ({
   crop: null,
   straighten: null,
   levelLine: null,
-  panels: { adjust: false, settings: false, shortcuts: false, info: false, color: false, command: false, qr: false, upload: false, compress: false, ocr: false, resize: false, layers: false, curves: false, about: false },
+  panels: { adjust: false, settings: false, shortcuts: false, info: false, color: false, command: false, qr: false, upload: false, compress: false, ocr: false, resize: false, layers: false, curves: false, about: false, history: false },
   recentColors: [],
   pickedColor: null,
   chromeVisible: true,

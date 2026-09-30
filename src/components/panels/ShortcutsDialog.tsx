@@ -1,6 +1,7 @@
 import { Dialog, DialogBody, DialogContent, DialogHeader } from "@/components/ui/dialog";
 import { Kbd, KbdGroup } from "@/components/ui/kbd";
 import { ALT, MOD } from "@/components/tools/ToolButton";
+import { isExtension } from "@/lib/platform";
 import { useUi } from "@/state/ui";
 
 export const SHORTCUT_GROUPS: { title: string; items: [string, string[]][] }[] = [
@@ -65,6 +66,19 @@ export const SHORTCUT_GROUPS: { title: string; items: [string, string[]][] }[] =
       ["This list", ["?"]],
     ],
   },
+  // Browser-wide shortcuts of the extension (change them in the browser's
+  // extension shortcut settings).
+  ...(isExtension
+    ? [
+        {
+          title: "On web pages",
+          items: [
+            ["Browse all page images", [ALT, "Shift", "G"]],
+            ["Screenshot this page", [ALT, "Shift", "S"]],
+          ] as [string, string[]][],
+        },
+      ]
+    : []),
 ];
 
 export function ShortcutsDialog() {

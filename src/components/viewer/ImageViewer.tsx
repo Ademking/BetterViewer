@@ -6,7 +6,7 @@ import { SettingsPanel } from "@/components/panels/SettingsPanel";
 import { ShortcutsDialog } from "@/components/panels/ShortcutsDialog";
 import { AboutDialog } from "@/components/panels/AboutDialog";
 import { IncomingImageDialog } from "@/components/panels/IncomingImageDialog";
-import { openFromLocation } from "@/lib/openUrl";
+import { openFromLocation, openPendingScreenshot } from "@/lib/openUrl";
 import { isOverlay, receiveOverlayImage } from "@/lib/overlay";
 import { isGallery, startGallery, useGallery } from "@/lib/gallery";
 import { GALLERY_RAIL_SPACE, GalleryRail } from "@/components/viewer/GalleryRail";
@@ -19,6 +19,7 @@ import { FilterPanel } from "@/components/tools/FilterPanel";
 import { QrPanel } from "@/components/tools/QrScanner";
 import { OcrPanel } from "@/components/tools/OcrPanel";
 import { LayersPanel } from "@/components/panels/LayersPanel";
+import { HistoryPanel } from "@/components/panels/HistoryPanel";
 import { CurvesPanel } from "@/components/panels/CurvesPanel";
 import { BoardBackground } from "@/components/viewer/BoardBackground";
 import { CanvasContextMenu } from "@/components/viewer/CanvasContextMenu";
@@ -102,6 +103,10 @@ export function ImageViewer() {
   // Images handed over by the extension (or any `?src=` link).
   useEffect(() => {
     void openFromLocation();
+    void openPendingScreenshot();
+    // `?panel=settings` / `?panel=about`: opened from the extension's toolbar popup.
+    const panel = new URLSearchParams(location.search).get("panel");
+    if (panel === "settings" || panel === "about" || panel === "shortcuts") useUi.getState().togglePanel(panel, true);
     receiveOverlayImage();
     startGallery();
   }, []);
@@ -181,6 +186,7 @@ export function ImageViewer() {
       <QrPanel />
       <OcrPanel />
       <LayersPanel />
+      <HistoryPanel />
       <CurvesPanel />
       <SettingsPanel />
       <ShortcutsDialog />

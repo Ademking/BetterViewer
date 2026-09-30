@@ -437,7 +437,7 @@ export function SettingsPanel() {
             </TabsContent>
             <TabsContent className="divide-y" value="sharing">
               <Row
-                description="Where “Upload image”, Photopea and TinEye send the image."
+                description="Where “Upload image”, Photopea and the image search engines send the image."
                 title="Upload service"
               >
                 <Segments

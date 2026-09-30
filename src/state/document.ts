@@ -54,6 +54,8 @@ interface DocStore {
   update: (fn: (doc: Doc) => Doc, opts?: UpdateOptions) => void;
   undo: () => boolean;
   redo: () => boolean;
+  /** Go to step `index` of the history (0 = oldest kept state). */
+  jumpTo: (index: number) => void;
   resetAll: () => void;
 }
 
@@ -141,6 +143,14 @@ export const useDoc = create<DocStore>()((set, get) => ({
     const [next, ...rest] = future;
     set({ doc: next, past: [...past, doc], future: rest, lastKey: null });
     return true;
+  },
+
+  jumpTo: (index) => {
+    const { doc, past, future } = get();
+    if (!doc) return;
+    const all = [...past, doc, ...future];
+    if (index < 0 || index >= all.length || index === past.length) return;
+    set({ doc: all[index], past: all.slice(0, index), future: all.slice(index + 1), lastKey: null });
   },
 
   resetAll: () => {

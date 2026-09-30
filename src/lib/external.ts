@@ -2,7 +2,7 @@ import { toast } from "@/components/ui/toast";
 import { renderDocument } from "@/lib/actions";
 import { baseName } from "@/lib/image";
 import { getUsableProvider } from "@/lib/upload";
-import { getDoc } from "@/state/document";
+import { getDoc, hasEdits, useDoc } from "@/state/document";
 import { getUi } from "@/state/ui";
 
 /**
@@ -12,6 +12,8 @@ import { getUi } from "@/state/ui";
 interface ExternalTarget {
   name: string;
   buildUrl: (imageUrl: string) => string;
+  /** Reverse image search: an unedited web image is sent by its own address. */
+  search?: boolean;
 }
 
 const TARGETS = {
@@ -19,13 +21,34 @@ const TARGETS = {
     name: "Photopea",
     buildUrl: (u) => `https://www.photopea.com#${encodeURI(JSON.stringify({ files: [u] }))}`,
   },
+  googleLens: {
+    name: "Google Lens",
+    buildUrl: (u) => `https://lens.google.com/uploadbyurl?url=${encodeURIComponent(u)}`,
+    search: true,
+  },
+  bing: {
+    name: "Bing",
+    buildUrl: (u) => `https://www.bing.com/images/searchbyimage?cbir=sbi&imgurl=${encodeURIComponent(u)}`,
+    search: true,
+  },
+  yandex: {
+    name: "Yandex",
+    buildUrl: (u) => `https://yandex.com/images/search?rpt=imageview&url=${encodeURIComponent(u)}`,
+    search: true,
+  },
   tineye: {
     name: "TinEye",
     buildUrl: (u) => `https://www.tineye.com/search/?url=${encodeURIComponent(u)}`,
+    search: true,
   },
 } satisfies Record<string, ExternalTarget>;
 
 export type ExternalTargetId = keyof typeof TARGETS;
+
+/** Reverse image search engines, in menu order. */
+export const SEARCH_ENGINES = (Object.keys(TARGETS) as ExternalTargetId[])
+  .filter((id) => (TARGETS[id] as ExternalTarget).search)
+  .map((id) => ({ id, name: TARGETS[id].name }));
 
 /** The site only needs to fetch the file once; the copy is removed after this. */
 const TEMP_EXPIRATION = 10 * 60;
@@ -45,6 +68,14 @@ export async function openExternally(id: ExternalTargetId) {
   const target: ExternalTarget = TARGETS[id];
   const doc = getDoc();
   if (!doc || busy) return;
+
+  // Unedited image from the web: search engines can fetch it themselves, so
+  // nothing needs uploading.
+  const sourceUrl = useDoc.getState().original?.sourceUrl;
+  if (target.search && sourceUrl && /^https?:/i.test(sourceUrl) && !hasEdits(useDoc.getState())) {
+    window.open(target.buildUrl(sourceUrl), "_blank", "noopener,noreferrer");
+    return;
+  }
 
   const provider = getUsableProvider();
   const unavailable = provider.unavailableReason();
@@ -122,4 +153,4 @@ export async function openExternally(id: ExternalTargetId) {
 }
 
 export const openInPhotopea = () => openExternally("photopea");
-export const openInTinEye = () => openExternally("tineye");
+export const searchImage = (id: ExternalTargetId) => openExternally(id);

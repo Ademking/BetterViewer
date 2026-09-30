@@ -9,7 +9,9 @@ import {
 } from "@ark-ui/react/menu";
 import { CheckIcon, ChevronRight } from "lucide-react";
 import type React from "react";
+import { useEffect, useRef } from "react";
 import { tv, type VariantProps } from "tailwind-variants";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 
 export const useMenu = useMenuContext;
@@ -55,13 +57,13 @@ export const menuContentVariants = tv({
   base: [
     "z-[calc(50+var(--nested-layer-count,0))]",
     "max-h-(--available-height) not-[class*='w-']:min-w-32",
-    "p-1",
+    // Scrolling happens in MenuScroll (the panels' thin scrollbar), not here.
+    "flex flex-col overflow-hidden",
     "bg-popover",
     "text-popover-foreground",
     "rounded-xl border shadow-lg/5",
     "origin-(--transform-origin)",
     "outline-none",
-    "overflow-y-auto",
     "duration-100",
     "data-[state=open]:animate-in",
     "data-[state=open]:fade-in-0",
@@ -74,6 +76,41 @@ export const menuContentVariants = tv({
   ],
 });
 
+/**
+ * Menu body: scrolls with the same thin overlay scrollbar (and edge fade) as
+ * the floating panels when the menu is taller than the space available.
+ */
+function MenuScroll({ children }: { children: React.ReactNode }) {
+  const bodyRef = useRef<HTMLDivElement>(null);
+
+  // Keyboard navigation (arrows, Home / End, typeahead): keep the highlighted
+  // item in view. Ark would scroll the menu itself, which no longer scrolls.
+  useEffect(() => {
+    const body = bodyRef.current;
+    if (!body) return;
+    const observer = new MutationObserver((records) => {
+      for (const { target } of records) {
+        if (target instanceof HTMLElement && target.hasAttribute("data-highlighted")) {
+          target.scrollIntoView({ block: "nearest" });
+        }
+      }
+    });
+    observer.observe(body, { attributes: true, attributeFilter: ["data-highlighted"], subtree: true });
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <ScrollArea
+      className="h-auto [&>[data-slot=scroll-area-viewport]]:max-h-[calc(var(--available-height)-2px)]"
+      scrollFade
+    >
+      <div className="p-1" ref={bodyRef}>
+        {children}
+      </div>
+    </ScrollArea>
+  );
+}
+
 export const MenuContent = (props: MenuContentProps) => {
   const { className, children, ...rest } = props;
 
@@ -85,7 +122,7 @@ export const MenuContent = (props: MenuContentProps) => {
           data-slot="menu-content"
           {...rest}
         >
-          {children}
+          <MenuScroll>{children}</MenuScroll>
         </ArkMenu.Content>
       </MenuPositioner>
     </Portal>
@@ -291,7 +328,7 @@ export const MenuSub = (props: React.ComponentProps<typeof Menu>) => (
 export const MenuSubContent = (
   props: React.ComponentProps<typeof ArkMenu.Content>
 ) => {
-  const { className, ...rest } = props;
+  const { className, children, ...rest } = props;
 
   return (
     <Portal>
@@ -300,7 +337,9 @@ export const MenuSubContent = (
           className={cn(menuContentVariants(), className)}
           data-slot="menu-sub-content"
           {...rest}
-        />
+        >
+          <MenuScroll>{children}</MenuScroll>
+        </ArkMenu.Content>
       </MenuPositioner>
     </Portal>
   );

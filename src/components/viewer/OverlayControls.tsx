@@ -1,6 +1,7 @@
-import { ExternalLinkIcon, GalleryVerticalEndIcon, XIcon } from "lucide-react";
+import { ExternalLinkIcon, FolderDownIcon, GalleryVerticalEndIcon, XIcon } from "lucide-react";
 import { ToolButton } from "@/components/tools/ToolButton";
-import { isGallery, toggleGalleryRail, useGallery } from "@/lib/gallery";
+import { Spinner } from "@/components/ui/spinner";
+import { downloadGalleryZip, isGallery, toggleGalleryRail, useGallery } from "@/lib/gallery";
 import { closeOverlay, openOverlayInTab, overlaySourceUrl } from "@/lib/overlay";
 import { cn } from "@/lib/utils";
 import { useDoc } from "@/state/document";
@@ -9,6 +10,7 @@ import { useDoc } from "@/state/document";
 export function OverlayControls() {
   const count = useGallery((s) => s.items.length);
   const railOpen = useGallery((s) => s.railOpen);
+  const zipping = useGallery((s) => s.zipping);
   const webImage = useDoc((s) => !!(s.original?.sourceUrl ?? overlaySourceUrl));
   return (
     <div
@@ -24,6 +26,17 @@ export function OverlayControls() {
           side="bottom"
         >
           <GalleryVerticalEndIcon /> {count}
+        </ToolButton>
+      )}
+      {isGallery && count > 0 && (
+        <ToolButton
+          className="rounded-full"
+          disabled={zipping}
+          label={`Download all ${count} images as ZIP`}
+          onClick={() => void downloadGalleryZip()}
+          side="bottom"
+        >
+          {zipping ? <Spinner className="size-4" /> : <FolderDownIcon />}
         </ToolButton>
       )}
       {webImage && (

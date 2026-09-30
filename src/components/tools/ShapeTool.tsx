@@ -108,7 +108,7 @@ function ShapeGridContent() {
   const setShapeKind = useUi((s) => s.setShapeKind);
 
   return (
-    <MenuContent className="w-auto p-1.5">
+    <MenuContent className="w-auto">
       <div className="grid grid-cols-8 gap-0.5">
         {ALL_KINDS.map((k) => {
           const active = tool === "shape" && kind === k;
