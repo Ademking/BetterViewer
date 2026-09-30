@@ -1,7 +1,7 @@
 {
   "name": "BetterViewer",
   "short_name": "BetterViewer",
-  "description": "A modern image viewer and annotation workspace.",
+  "description": "Fast, Simple, Easy image viewer.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0a0a0a",

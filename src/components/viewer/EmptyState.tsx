@@ -8,8 +8,6 @@ import { MOD } from "@/components/tools/ToolButton";
 import { openFilePicker, openSample, pasteFromClipboard } from "@/lib/actions";
 import { useUi } from "@/state/ui";
 
-const FORMATS = ["PNG", "JPEG", "WebP", "GIF", "AVIF", "BMP", "ICO"];
-
 const STORES = [
   {
     label: "Chrome",

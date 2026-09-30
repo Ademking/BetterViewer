@@ -1,4 +1,4 @@
-import { readdirSync, readFileSync } from "fs"
+import { readdirSync, readFileSync, rmSync } from "fs"
 import path from "path"
 import tailwindcss from "@tailwindcss/vite"
 import react from "@vitejs/plugin-react"
@@ -29,10 +29,59 @@ function vendorAssets(): Plugin {
   }
 }
 
+const SITE_URL = "https://betterviewer.surge.sh/"
+const SITE_TITLE = "BetterViewer: Fast, Simple, Easy image viewer"
+const SITE_DESCRIPTION =
+  "View, zoom, annotate and edit images right in your browser. Adjustments, crop, background removal and text extraction, all private and on your device."
+
+/**
+ * Web build: adds the search and social sharing tags (Open Graph, Twitter).
+ * Extension build: leaves them out and drops the share image, which the
+ * extension never needs.
+ */
+function socialMeta(extension: boolean): Plugin {
+  let outDir = ""
+  return {
+    name: "betterviewer-social-meta",
+    configResolved(config) {
+      outDir = config.build.outDir
+    },
+    transformIndexHtml() {
+      if (extension) return []
+      const image = `${SITE_URL}og.png`
+      const meta = (attr: "name" | "property", key: string, content: string) => ({
+        tag: "meta",
+        attrs: { [attr]: key, content },
+        injectTo: "head" as const,
+      })
+      return [
+        { tag: "link", attrs: { rel: "canonical", href: SITE_URL }, injectTo: "head" },
+        meta("property", "og:type", "website"),
+        meta("property", "og:site_name", "BetterViewer"),
+        meta("property", "og:url", SITE_URL),
+        meta("property", "og:title", SITE_TITLE),
+        meta("property", "og:description", SITE_DESCRIPTION),
+        meta("property", "og:image", image),
+        meta("property", "og:image:type", "image/png"),
+        meta("property", "og:image:width", "1200"),
+        meta("property", "og:image:height", "630"),
+        meta("property", "og:image:alt", "BetterViewer, a fast, simple, easy image viewer"),
+        meta("name", "twitter:card", "summary_large_image"),
+        meta("name", "twitter:title", SITE_TITLE),
+        meta("name", "twitter:description", SITE_DESCRIPTION),
+        meta("name", "twitter:image", image),
+      ]
+    },
+    closeBundle() {
+      if (extension) rmSync(path.resolve(outDir, "og.png"), { force: true })
+    },
+  }
+}
+
 export default defineConfig(({ mode }) => {
   const extension = mode === "extension"
   return {
-    plugins: [react(), tailwindcss(), ...(extension ? [vendorAssets()] : [])],
+    plugins: [react(), tailwindcss(), socialMeta(extension), ...(extension ? [vendorAssets()] : [])],
     define: {
       __APP_VERSION__: JSON.stringify(pkg.version),
     },
