@@ -158,7 +158,7 @@ npm run build:ext  # extension → build/chrome, build/firefox (+ store .zip fil
   **Load Temporary Add-on…** and pick `build/firefox/manifest.json`.
 
 Turn the automatic takeover off in **Settings → Viewer → Open images
-automatically**; **More → Open / Import → View original** shows the browser's
+automatically**; **More → View original** shows the browser's
 own viewer for an image.
 
 **Stack:** React 19 · TypeScript · Vite · Tailwind CSS v4 ·

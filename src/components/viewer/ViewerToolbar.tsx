@@ -3,8 +3,10 @@ import {
   ClipboardPasteIcon,
   ChartSplineIcon,
   LayersIcon,
-  FolderOpenIcon,
-  FrameIcon,
+  CheckIcon,
+  EyeIcon,
+  RulerIcon,
+  SaveAllIcon,
   Share2Icon,
   SquarePenIcon,
   WandSparklesIcon,
@@ -40,7 +42,6 @@ import {
 import {
   Menu,
   MenuContent,
-  MenuGroup,
   MenuItem,
   MenuRadioGroup,
   MenuRadioItem,
@@ -60,7 +61,7 @@ import { ShapeToolButton } from "@/components/tools/ShapeTool";
 import { RedactToolButton } from "@/components/tools/RedactTool";
 import { SpotlightToolButton } from "@/components/tools/SpotlightTool";
 import { viewOriginal } from "@/lib/openUrl";
-import { MeasureToolButton } from "@/components/tools/MeasureTool";
+import { MeasureToolButton, toggleRulers } from "@/components/tools/MeasureTool";
 import { TextToolButton } from "@/components/tools/TextTool";
 import { EmojiToolButton } from "@/components/tools/EmojiTool";
 import { MOD, ToolbarDivider, ToolButton } from "@/components/tools/ToolButton";
@@ -82,7 +83,7 @@ import { isDefaultFilters } from "@/lib/filters";
 import { openInPhotopea, openInTinEye } from "@/lib/external";
 import { removeBackground } from "@/lib/bgRemoval";
 import { openOcr } from "@/components/tools/OcrPanel";
-import { type BoardBackground, useSettings } from "@/state/settings";
+import { type BoardBackground, type SaveFormat, useSettings } from "@/state/settings";
 import { useDoc } from "@/state/document";
 import { scanCurrentImage } from "@/state/qr";
 import { useUi } from "@/state/ui";
@@ -179,6 +180,8 @@ export function ViewerToolbar() {
   );
 }
 
+const SAVE_LABEL: Record<SaveFormat, string> = { png: "PNG", jpeg: "JPEG", webp: "WebP" };
+
 /** Submenu placement; it flips automatically when there is no room. */
 const SUB = { placement: "left-start", gutter: 4 } as const;
 
@@ -187,7 +190,7 @@ function MoreMenu({ canUndo, canRedo }: { canUndo: boolean; canRedo: boolean }) 
   const board = useSettings((s) => s.boardBackground);
   const set = useSettings((s) => s.set);
   const saveFormat = useSettings((s) => s.saveFormat);
-  const saveShortcut = (f: typeof saveFormat) => saveFormat === f && <MenuShortcut>{MOD} S</MenuShortcut>;
+  const rulers = useSettings((s) => s.showRulers);
   const togglePanel = useUi((s) => s.togglePanel);
   const dirty = useDoc((s) => s.past.length > 0);
   const hasEdits = useDoc((s) => {
@@ -209,107 +212,105 @@ function MoreMenu({ canUndo, canRedo }: { canUndo: boolean; canRedo: boolean }) 
         </MenuItem>
         <MenuSeparator />
 
+        <MenuItem onSelect={openFilePicker} value="open">
+          <ImageUpIcon /> Open image…
+          <MenuShortcut>{MOD} O</MenuShortcut>
+        </MenuItem>
+        <MenuItem onSelect={insertImagePicker} value="insert">
+          <ImagePlusIcon /> Insert image on top…
+        </MenuItem>
+        <MenuItem onSelect={pasteFromClipboard} value="paste">
+          <ClipboardPasteIcon /> Paste image
+          <MenuShortcut>{MOD} V</MenuShortcut>
+        </MenuItem>
+        {sourceUrl && (
+          <MenuItem onSelect={() => viewOriginal(sourceUrl)} value="view-original">
+            <ExternalLinkIcon /> View original
+          </MenuItem>
+        )}
+        <MenuSeparator />
+
+        {/* Save follows the Save format setting, like {MOD} S. */}
+        <MenuItem onSelect={() => exportImage()} value="save">
+          <DownloadIcon /> Save as {SAVE_LABEL[saveFormat]}
+          <MenuShortcut>{MOD} S</MenuShortcut>
+        </MenuItem>
         <MenuSub positioning={SUB}>
           <MenuSubTrigger>
-            <FolderOpenIcon /> Open / Import
+            <SaveAllIcon /> Save as
+          </MenuSubTrigger>
+          <MenuSubContent className="w-52">
+            {(Object.keys(SAVE_LABEL) as (keyof typeof SAVE_LABEL)[]).map((f) => (
+              <MenuItem key={f} onSelect={() => exportImage(f)} value={`save-${f}`}>
+                <DownloadIcon /> {SAVE_LABEL[f]}
+              </MenuItem>
+            ))}
+            <MenuSeparator />
+            <MenuItem onSelect={() => togglePanel("compress", true)} value="compress">
+              <FileDownIcon /> Compress &amp; save…
+            </MenuItem>
+          </MenuSubContent>
+        </MenuSub>
+        <MenuItem onSelect={copyImageToClipboard} value="copy">
+          <CopyIcon /> Copy image
+          <MenuShortcut>{MOD} Shift C</MenuShortcut>
+        </MenuItem>
+        <MenuSub positioning={SUB}>
+          <MenuSubTrigger>
+            <Share2Icon /> Share
           </MenuSubTrigger>
           <MenuSubContent className="w-56">
-            <MenuItem onSelect={openFilePicker} value="open">
-              <ImageUpIcon /> Open image…
-              <MenuShortcut>{MOD} O</MenuShortcut>
+            <MenuItem onSelect={() => togglePanel("upload", true)} value="upload">
+              <CloudUploadIcon /> Upload &amp; get link…
             </MenuItem>
-            <MenuItem onSelect={insertImagePicker} value="insert">
-              <ImagePlusIcon /> Insert image…
+            <MenuItem onSelect={openInPhotopea} value="photopea">
+              <SquareArrowOutUpRightIcon /> Open in Photopea
             </MenuItem>
-            <MenuItem onSelect={pasteFromClipboard} value="paste">
-              <ClipboardPasteIcon /> Paste image
-              <MenuShortcut>{MOD} V</MenuShortcut>
+            <MenuItem onSelect={openInTinEye} value="tineye">
+              <ImageUpscaleIcon /> Search on TinEye
             </MenuItem>
-            {sourceUrl && (
-              <>
-                <MenuSeparator />
-                <MenuItem onSelect={() => viewOriginal(sourceUrl)} value="view-original">
-                  <ExternalLinkIcon /> View original
-                </MenuItem>
-              </>
-            )}
           </MenuSubContent>
         </MenuSub>
-
-        <MenuSub positioning={SUB}>
-          <MenuSubTrigger>
-            <Share2Icon /> Export / Share
-          </MenuSubTrigger>
-          <MenuSubContent className="w-60">
-            <MenuGroup heading="Export">
-              <MenuItem onSelect={() => exportImage("png")} value="png">
-                <DownloadIcon /> Export as PNG
-                {saveShortcut("png")}
-              </MenuItem>
-              <MenuItem onSelect={() => exportImage("jpeg")} value="jpeg">
-                <DownloadIcon /> Export as JPEG
-                {saveShortcut("jpeg")}
-              </MenuItem>
-              <MenuItem onSelect={() => exportImage("webp")} value="webp">
-                <DownloadIcon /> Export as WebP
-                {saveShortcut("webp")}
-              </MenuItem>
-              <MenuItem onSelect={copyImageToClipboard} value="copy">
-                <CopyIcon /> Copy image
-                <MenuShortcut>{MOD} Shift C</MenuShortcut>
-              </MenuItem>
-            </MenuGroup>
-            <MenuSeparator />
-            <MenuGroup heading="Share">
-              <MenuItem onSelect={() => togglePanel("upload", true)} value="upload">
-                <CloudUploadIcon /> Upload image…
-              </MenuItem>
-              <MenuItem onSelect={openInPhotopea} value="photopea">
-                <SquareArrowOutUpRightIcon /> Open in Photopea
-              </MenuItem>
-              <MenuItem onSelect={openInTinEye} value="tineye">
-                <ImageUpscaleIcon /> Search on TinEye
-              </MenuItem>
-            </MenuGroup>
-          </MenuSubContent>
-        </MenuSub>
+        <MenuSeparator />
 
         <MenuSub positioning={SUB}>
           <MenuSubTrigger>
             <WandSparklesIcon /> Image tools
           </MenuSubTrigger>
           <MenuSubContent className="w-56">
-            <MenuItem onSelect={() => togglePanel("curves", true)} value="curves">
-              <ChartSplineIcon /> Histogram
-              <MenuShortcut>Shift C</MenuShortcut>
+            <MenuItem onSelect={() => void removeBackground()} value="remove-bg">
+              <EraserIcon /> Remove background
             </MenuItem>
             <MenuItem onSelect={openOcr} value="ocr">
               <ScanTextIcon /> Extract text (OCR)
-            </MenuItem>
-            <MenuItem onSelect={() => void removeBackground()} value="remove-bg">
-              <EraserIcon /> Remove background
             </MenuItem>
             <MenuItem onSelect={() => scanCurrentImage({ reveal: true })} value="qr">
               <QrCodeIcon /> Scan QR codes
               <MenuShortcut>Q</MenuShortcut>
             </MenuItem>
-            <MenuItem onSelect={() => togglePanel("compress", true)} value="compress">
-              <FileDownIcon /> Compress image…
+            <MenuSeparator />
+            <MenuItem onSelect={() => togglePanel("curves", true)} value="curves">
+              <ChartSplineIcon /> Histogram
+              <MenuShortcut>Shift C</MenuShortcut>
+            </MenuItem>
+            <MenuItem onSelect={() => togglePanel("info", true)} value="info">
+              <InfoIcon /> Image info
             </MenuItem>
           </MenuSubContent>
         </MenuSub>
 
         <MenuSub positioning={SUB}>
           <MenuSubTrigger>
-            <FrameIcon /> Canvas / Image
+            <EyeIcon /> View
           </MenuSubTrigger>
           <MenuSubContent className="w-56">
-            <MenuItem onSelect={() => togglePanel("info", true)} value="info">
-              <InfoIcon /> Image info
-            </MenuItem>
             <MenuItem onSelect={() => togglePanel("layers", true)} value="layers">
               <LayersIcon /> Layers
               <MenuShortcut>Shift L</MenuShortcut>
+            </MenuItem>
+            <MenuItem closeOnSelect={false} onSelect={toggleRulers} value="rulers">
+              <RulerIcon /> Rulers &amp; guides
+              {rulers ? <CheckIcon className="ms-auto text-brand" /> : <MenuShortcut>Shift U</MenuShortcut>}
             </MenuItem>
             <MenuSeparator />
             <MenuRadioGroup
@@ -336,7 +337,7 @@ function MoreMenu({ canUndo, canRedo }: { canUndo: boolean; canRedo: boolean }) 
         <div className="md:hidden">
           <MenuSub positioning={SUB}>
             <MenuSubTrigger>
-              <SquarePenIcon /> Edit & transform
+              <SquarePenIcon /> Edit
             </MenuSubTrigger>
             <MenuSubContent className="w-52">
               <MenuItem closeOnSelect={false} disabled={!canUndo} onSelect={undo} value="undo">
