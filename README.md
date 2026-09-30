@@ -198,6 +198,20 @@ bundle, so don't ship a build with a private key.
 
 # Changelog
 
+## [3.0.1] - 2026-09-30
+
+- New **Save format** setting (Settings → Editing): choose PNG, JPEG or WebP
+  for Ctrl/⌘ S.
+- Simpler **More** menu: Open, Paste, Save and Copy are one click away;
+  Save as, Share, Image tools and View submenus.
+- Right-click menu regrouped, with Copy image (modified / original), Save
+  modified image and Save original image (the untouched file).
+- Image info: clicking a row copies just the value.
+- OCR language list shows every language and jumps to one when you type its
+  first letter.
+- Toasts with a button no longer squeeze their text; menus no longer wrap.
+- Smaller extension package (about 8.5 MB instead of 19 MB).
+
 ## [3.0.0] - 2026-09-28
 
 - BetterViewer 3: rebuilt from scratch (React 19, Vite, Tailwind CSS v4, Konva)
