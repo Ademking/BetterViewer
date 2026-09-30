@@ -14,11 +14,15 @@ function vendorAssets(): Plugin {
   const nm = (...p: string[]) => path.resolve(__dirname, "node_modules", ...p)
   const files: [string, string][] = [
     ["vendor/tesseract/worker.min.js", nm("tesseract.js/dist/worker.min.js")],
+    // SIMD and relaxed-SIMD engines only: every browser the extension
+    // supports has SIMD, so the plain fallback would never load.
     ...readdirSync(nm("tesseract.js-core"))
-      .filter((f) => f.endsWith("-lstm.wasm.js"))
+      .filter((f) => f.endsWith("simd-lstm.wasm.js"))
       .map((f): [string, string] => [`vendor/tesseract-core/${f}`, nm("tesseract.js-core", f)]),
-    ["vendor/ort/ort-wasm-simd-threaded.asyncify.mjs", nm("onnxruntime-web/dist/ort-wasm-simd-threaded.asyncify.mjs")],
-    ["vendor/ort/ort-wasm-simd-threaded.asyncify.wasm", nm("onnxruntime-web/dist/ort-wasm-simd-threaded.asyncify.wasm")],
+    // CPU-only runtime (14 MB instead of 27 MB for the WebGPU one), so
+    // background removal in the extension always runs on the CPU.
+    ["vendor/ort/ort-wasm-simd-threaded.mjs", nm("onnxruntime-web/dist/ort-wasm-simd-threaded.mjs")],
+    ["vendor/ort/ort-wasm-simd-threaded.wasm", nm("onnxruntime-web/dist/ort-wasm-simd-threaded.wasm")],
   ]
   return {
     name: "betterviewer-vendor-assets",
@@ -78,10 +82,39 @@ function socialMeta(extension: boolean): Plugin {
   }
 }
 
+/**
+ * ONNX Runtime's code references its .wasm, so Vite copies it (about 27 MB)
+ * into assets/. Nothing loads that copy: the web version fetches the runtime
+ * from jsDelivr the first time background removal runs, and the extension
+ * uses its own copy under /vendor. Drop it so it isn't shipped for nothing.
+ */
+function dropUnusedWasm(): Plugin {
+  let outDir = ""
+  return {
+    name: "betterviewer-drop-unused-wasm",
+    apply: "build",
+    configResolved(config) {
+      outDir = config.build.outDir
+    },
+    closeBundle() {
+      const assets = path.resolve(outDir, "assets")
+      for (const f of readdirSync(assets)) {
+        if (/^ort-wasm.*\.wasm$/.test(f)) rmSync(path.join(assets, f))
+      }
+    },
+  }
+}
+
 export default defineConfig(({ mode }) => {
   const extension = mode === "extension"
   return {
-    plugins: [react(), tailwindcss(), socialMeta(extension), ...(extension ? [vendorAssets()] : [])],
+    plugins: [
+      react(),
+      tailwindcss(),
+      socialMeta(extension),
+      dropUnusedWasm(),
+      ...(extension ? [vendorAssets()] : []),
+    ],
     define: {
       __APP_VERSION__: JSON.stringify(pkg.version),
     },

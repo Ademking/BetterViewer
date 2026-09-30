@@ -43,6 +43,8 @@ interface GpuAdapterLike {
 
 /** WebGPU when the adapter can run the model, otherwise WASM on the CPU. */
 async function pickBackend(): Promise<Backend> {
+  // The extension ships the smaller CPU-only runtime (see vite.config.ts).
+  if (isExtension) return { device: "wasm", dtype: "q8" };
   const gpu = (navigator as Navigator & { gpu?: { requestAdapter(): Promise<GpuAdapterLike | null> } }).gpu;
   if (gpu && !gpuBroken) {
     try {
@@ -81,8 +83,8 @@ function runInWorker(image: Blob, backend: Backend, onProgress: (e: ProgressEven
   const id = nextId++;
   const ortPaths = isExtension
     ? {
-        mjs: vendorUrl("ort/ort-wasm-simd-threaded.asyncify.mjs"),
-        wasm: vendorUrl("ort/ort-wasm-simd-threaded.asyncify.wasm"),
+        mjs: vendorUrl("ort/ort-wasm-simd-threaded.mjs"),
+        wasm: vendorUrl("ort/ort-wasm-simd-threaded.wasm"),
       }
     : null;
   return new Promise((resolve, reject) => {
