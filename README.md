@@ -62,6 +62,10 @@
     <img src="./docs/screenshot7.png" alt="Settings">
 </h1>
 
+<h1 align="center">
+    <img src="./docs/screenshot8.png" alt="Gallery of all images on a page">
+</h1>
+
 ### Features
 
 Open any image in a new tab and BetterViewer takes over, or right-click an
