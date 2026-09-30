@@ -18,6 +18,7 @@ import {
   isSupportedImageType,
   SUPPORTED_FORMATS_TEXT,
 } from "@/lib/image";
+import { closeOverlay, isOverlay } from "@/lib/overlay";
 import { stageRegistry } from "@/lib/stageRegistry";
 import { viewport, ZOOM_STEP } from "@/lib/viewport";
 import { displaySize, getDoc, updateAnnotations, updateDoc, useDoc, type ImageInfo } from "@/state/document";
@@ -198,6 +199,11 @@ export async function pasteFromClipboard() {
 }
 
 export function closeImage() {
+  // In the right-click overlay, closing the image returns to the web page.
+  if (isOverlay) {
+    closeOverlay();
+    return;
+  }
   useDoc.getState().close();
   getUi().set({ selectedIds: [], crop: null, tool: "select", editingTextId: null });
 }

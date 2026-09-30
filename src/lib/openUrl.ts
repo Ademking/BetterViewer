@@ -1,6 +1,7 @@
 import { toast } from "@/components/ui/toast";
 import { openBlob } from "@/lib/actions";
 import { loadHtmlImage } from "@/lib/image";
+import { isOverlay } from "@/lib/overlay";
 import { isExtension, originalUrl } from "@/lib/platform";
 import { getUi } from "@/state/ui";
 
@@ -94,7 +95,7 @@ export async function openFromLocation() {
       title: "Couldn't open this image",
       description: (err as Error).message || "The image couldn't be downloaded.",
       action: isExtension
-        ? { label: "Open original", onClick: () => location.replace(originalUrl(src)) }
+        ? { label: "Open original", onClick: () => (isOverlay ? viewOriginal(src) : location.replace(originalUrl(src))) }
         : undefined,
       duration: Number.POSITIVE_INFINITY,
     });
@@ -105,6 +106,8 @@ export async function openFromLocation() {
 
 /** Leave BetterViewer and show the image the way the browser would. */
 export function viewOriginal(src: string) {
-  if (isExtension) location.assign(originalUrl(src));
+  // The overlay sits on someone else's page: show the original in a new tab.
+  if (isOverlay) window.open(originalUrl(src), "_blank", "noopener");
+  else if (isExtension) location.assign(originalUrl(src));
   else window.open(src, "_blank", "noopener");
 }

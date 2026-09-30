@@ -64,8 +64,10 @@
 
 ### Features
 
-Open any image in a new tab and BetterViewer takes over. Everything runs in
-your browser, including OCR, background removal and QR scanning.
+Open any image in a new tab and BetterViewer takes over, or right-click an
+image on any page and choose **View image in BetterViewer** to zoom, drag and
+edit it in an overlay without leaving the page (**Esc** goes back). Everything
+runs in your browser, including OCR, background removal and QR scanning.
 
 **Viewing**
 
@@ -197,6 +199,12 @@ none). For local development you can also set `VITE_IMGBB_API_KEY` in
 bundle, so don't ship a build with a private key.
 
 # Changelog
+
+## [Unreleased]
+
+- Right-click an image on any web page → **View image in BetterViewer**: opens
+  it in an overlay on the same page (zoom, drag, edit; **Esc** or ✕ to go
+  back, or open it in a full tab).
 
 ## [3.0.1] - 2026-09-30
 

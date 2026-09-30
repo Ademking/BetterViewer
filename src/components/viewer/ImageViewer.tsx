@@ -7,6 +7,8 @@ import { ShortcutsDialog } from "@/components/panels/ShortcutsDialog";
 import { AboutDialog } from "@/components/panels/AboutDialog";
 import { IncomingImageDialog } from "@/components/panels/IncomingImageDialog";
 import { openFromLocation } from "@/lib/openUrl";
+import { isOverlay, receiveOverlayImage } from "@/lib/overlay";
+import { OverlayControls } from "@/components/viewer/OverlayControls";
 import { UploadDialog } from "@/components/panels/UploadDialog";
 import { CompressDialog } from "@/components/panels/CompressDialog";
 import { ResizeDialog } from "@/components/panels/ResizeDialog";
@@ -98,6 +100,7 @@ export function ImageViewer() {
   // Images handed over by the extension (or any `?src=` link).
   useEffect(() => {
     void openFromLocation();
+    receiveOverlayImage();
   }, []);
 
   // Tab title: the image's name.
@@ -184,6 +187,7 @@ export function ImageViewer() {
       <ResizeDialog />
       <ConfirmDialog />
       <IncomingImageDialog />
+      {isOverlay && <OverlayControls />}
       <Toaster />
       <DropOverlay active={dragging} />
     </main>

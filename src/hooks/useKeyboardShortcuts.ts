@@ -23,6 +23,7 @@ import {
   zoomToSelection,
 } from "@/lib/actions";
 import { isSupportedImageType } from "@/lib/image";
+import { closeOverlay, isOverlay } from "@/lib/overlay";
 import { applyStraighten, cancelStraighten } from "@/lib/straighten";
 import { toggleRulers } from "@/components/tools/MeasureTool";
 import { getDoc } from "@/state/document";
@@ -74,6 +75,11 @@ export function useKeyboardShortcuts() {
       }
       if (e.key === "?" && !overlayOpen()) {
         ui.togglePanel("shortcuts");
+        return;
+      }
+      // Right-click overlay: Esc goes back to the page once nothing else uses it.
+      if (e.key === "Escape" && isOverlay && !overlayOpen() && !ui.selectedIds.length && ui.tool === "select") {
+        closeOverlay();
         return;
       }
       if (!hasDoc || overlayOpen()) return;
