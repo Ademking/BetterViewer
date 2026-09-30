@@ -33,7 +33,7 @@ function vendorAssets(): Plugin {
   }
 }
 
-const SITE_URL = "https://betterviewer.surge.sh/"
+const SITE_URL = "https://betterviewer.web.app/"
 const SITE_TITLE = "BetterViewer: Fast, Simple, Easy image viewer"
 const SITE_DESCRIPTION =
   "View, zoom, annotate and edit images right in your browser. Adjustments, crop, background removal and text extraction, all private and on your device."

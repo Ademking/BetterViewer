@@ -26,3 +26,4 @@ dist-ssr
 # Browser extension builds
 build
 .claude
+.firebase

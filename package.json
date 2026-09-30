@@ -20,6 +20,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
+    "deploy": "npm run build && firebase deploy --only hosting",
     "preview": "vite preview",
     "postinstall": "patch-package",
     "emoji-data": "node scripts/build-emoji-data.mjs",

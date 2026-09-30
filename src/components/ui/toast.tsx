@@ -90,8 +90,8 @@ export const ToastItem = (props: ToastItemProps) => {
         "z-(--z-index) translate-x-(--x) translate-y-(--y)",
         "relative",
         "w-[calc(100%-var(--viewport-offset-left))] sm:w-(--width)",
-        "px-3.5 py-3",
-        "flex items-start justify-between gap-1.5",
+        "py-3 ps-3.5 pe-2.5",
+        "flex items-start gap-2.5",
         "bg-popover",
         "select-none text-card-foreground text-sm",
         "rounded-lg border shadow-lg/5",
@@ -107,62 +107,59 @@ export const ToastItem = (props: ToastItemProps) => {
       data-slot="toast"
       {...rest}
     >
-      <div className="flex items-start gap-1.5">
-        <div
-          className={cn(
-            "in-data-[type=warning]:text-warning",
-            "in-data-[type=success]:text-success",
-            "in-data-[type=error]:text-destructive",
-            "in-data-[type=info]:text-info",
-            "[&_svg]:pointer-events-none [&_svg]:h-lh [&_svg]:w-4 [&_svg]:shrink-0"
-          )}
-          data-slot="toast-icon"
-        >
-          {ToastIcon}
-        </div>
-
-        <div className="flex flex-col gap-0.5">
-          <ArkToast.Title
-            className="font-medium text-sm"
-            data-slot="toast-title"
-          >
-            {toastData.title}
-          </ArkToast.Title>
-
-          {toastData.description && (
-            <ArkToast.Description
-              className="text-muted-foreground text-sm"
-              data-slot="toast-description"
-            >
-              {toastData.description}
-            </ArkToast.Description>
-          )}
-        </div>
+      <div
+        className={cn(
+          "in-data-[type=warning]:text-warning",
+          "in-data-[type=success]:text-success",
+          "in-data-[type=error]:text-destructive",
+          "in-data-[type=info]:text-info",
+          "[&_svg]:pointer-events-none [&_svg]:h-lh [&_svg]:w-4 [&_svg]:shrink-0"
+        )}
+        data-slot="toast-icon"
+      >
+        {ToastIcon}
       </div>
 
-      <div className="flex items-center gap-2">
+      {/* Text gets the full width; the action sits under it, not beside it. */}
+      <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+        <ArkToast.Title
+          className="font-medium text-sm"
+          data-slot="toast-title"
+        >
+          {toastData.title}
+        </ArkToast.Title>
+
+        {toastData.description && (
+          <ArkToast.Description
+            className="text-pretty text-muted-foreground text-sm"
+            data-slot="toast-description"
+          >
+            {toastData.description}
+          </ArkToast.Description>
+        )}
+
         {/* Ark already calls action.onClick; passing it here ran it twice. */}
         {toastData.action && (
           <ArkToast.ActionTrigger asChild data-slot="toast-action-trigger">
-            <Button size="sm" variant="secondary">
+            <Button className="mt-2 self-start" size="sm" variant="secondary">
               {toastData.action.label}
             </Button>
           </ArkToast.ActionTrigger>
         )}
-
-        {!isExplicitClosable && (
-          <ArkToast.CloseTrigger asChild data-slot="toast-close-trigger">
-            <Button
-              aria-label="Close"
-              className="opacity-64 hover:opacity-100"
-              size="icon-xs"
-              variant="ghost"
-            >
-              <XIcon />
-            </Button>
-          </ArkToast.CloseTrigger>
-        )}
       </div>
+
+      {!isExplicitClosable && (
+        <ArkToast.CloseTrigger asChild data-slot="toast-close-trigger">
+          <Button
+            aria-label="Close"
+            className="-mt-0.5 shrink-0 opacity-64 hover:opacity-100"
+            size="icon-xs"
+            variant="ghost"
+          >
+            <XIcon />
+          </Button>
+        </ArkToast.CloseTrigger>
+      )}
     </ArkToast.Root>
   );
 };
