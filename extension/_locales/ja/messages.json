@@ -1,0 +1,29 @@
+{
+  "extDescription": {
+    "message": "ブラウザーでの画像表示をより快適にする拡張機能"
+  },
+  "menuOpenImage": {
+    "message": "この画像を BetterViewer で開く"
+  },
+  "menuGallery": {
+    "message": "ページ内のすべての画像をギャラリーで表示"
+  },
+  "menuScreenshot": {
+    "message": "このページのスクリーンショット"
+  },
+  "popupOpen": {
+    "message": "BetterViewer を開く"
+  },
+  "popupGallery": {
+    "message": "ページの画像を表示"
+  },
+  "popupSettings": {
+    "message": "設定"
+  },
+  "popupShortcuts": {
+    "message": "キーボードショートカット"
+  },
+  "popupAbout": {
+    "message": "BetterViewer について"
+  }
+}

@@ -7,6 +7,8 @@ import { Spinner } from "@/components/ui/spinner";
 import { MOD } from "@/components/tools/ToolButton";
 import { openFilePicker, openSample, pasteFromClipboard } from "@/lib/actions";
 import { useUi } from "@/state/ui";
+import { useT } from "@/lib/i18n";
+import { withSlots } from "@/lib/i18n-react";
 
 const STORES = [
   {
@@ -28,10 +30,11 @@ const STORES = [
 
 /** Web version only: where to get the extension, and the source. */
 function GetTheExtension() {
+  const t = useT();
   return (
     <div className="flex w-full flex-col items-center gap-3 pt-1">
       <span className="text-balance text-muted-foreground text-xs">
-        Get the extension to open images from any website in BetterViewer
+        {t("Get the extension to open images from any website in BetterViewer")}
       </span>
       <div className="flex flex-wrap items-center justify-center gap-2">
         {STORES.map((s) => (
@@ -66,6 +69,7 @@ function GetTheExtension() {
 }
 
 export function EmptyState() {
+  const t = useT();
   const loading = useUi((s) => s.loading);
 
   return (
@@ -92,7 +96,7 @@ export function EmptyState() {
             BetterViewer
           </h1>
           <p className="mt-2 max-w-sm text-balance text-muted-foreground">
-            Fast, Simple, Easy image viewer.
+            {t("Fast, Simple, Easy image viewer.")}
           </p>
 
           {/* Drop zone */}
@@ -106,7 +110,7 @@ export function EmptyState() {
               <>
                 <Spinner className="size-8 text-brand" />
                 <span className="font-medium text-muted-foreground">
-                  Opening image…
+                  {t("Opening image…")}
                 </span>
               </>
             ) : (
@@ -116,13 +120,16 @@ export function EmptyState() {
                 </span>
                 <span className="flex flex-col gap-1">
                   <span className="font-semibold text-base">
-                    Drop an image here
+                    {t("Drop an image here")}
                   </span>
                   <span className="text-muted-foreground text-sm">
-                    or{" "}
-                    <span className="font-medium text-brand underline-offset-4 group-hover:underline">
-                      browse your files
-                    </span>
+                    {withSlots(t("or {browse}"), {
+                      browse: (
+                        <span className="font-medium text-brand underline-offset-4 group-hover:underline">
+                          {t("browse your files")}
+                        </span>
+                      ),
+                    })}
                   </span>
                 </span>
               </>
@@ -138,7 +145,7 @@ export function EmptyState() {
               variant="outline"
             >
               <span className="flex items-center gap-2">
-                <ClipboardPasteIcon /> Paste image
+                <ClipboardPasteIcon /> {t("Paste image")}
               </span>
               <KbdGroup>
                 <Kbd>{MOD}</Kbd>
@@ -152,24 +159,27 @@ export function EmptyState() {
               variant="outline"
             >
               <span className="flex items-center gap-2">
-                <SparklesIcon /> Try a sample
+                <SparklesIcon /> {t("Try a sample")}
               </span>
-              <span className="text-muted-foreground text-xs">Demo image</span>
+              <span className="text-muted-foreground text-xs">{t("Demo image")}</span>
             </Button>
           </div>
 
           <div className="mt-6 flex flex-wrap items-center justify-center gap-1.5 text-muted-foreground text-xs">
-            Press
-            <KbdGroup>
-              <Kbd>{MOD}</Kbd>
-              <Kbd>K</Kbd>
-            </KbdGroup>
-            for every command, or
-            <KbdGroup>
-              <Kbd>{MOD}</Kbd>
-              <Kbd>O</Kbd>
-            </KbdGroup>
-            to open a file
+            {withSlots(t("Press {palette} for every command, or {open} to open a file"), {
+              palette: (
+                <KbdGroup>
+                  <Kbd>{MOD}</Kbd>
+                  <Kbd>K</Kbd>
+                </KbdGroup>
+              ),
+              open: (
+                <KbdGroup>
+                  <Kbd>{MOD}</Kbd>
+                  <Kbd>O</Kbd>
+                </KbdGroup>
+              ),
+            })}
           </div>
 
           {!isExtension && <GetTheExtension />}
@@ -180,7 +190,7 @@ export function EmptyState() {
           onClick={() => useUi.getState().togglePanel("about", true)}
           type="button"
         >
-          About BetterViewer · v{__APP_VERSION__}
+          {t("About BetterViewer")} · v{__APP_VERSION__}
         </button>
       </div>
     </div>
@@ -188,6 +198,7 @@ export function EmptyState() {
 }
 
 export function DropOverlay({ active }: { active: boolean }) {
+  const t = useT();
   return (
     <div
       aria-hidden={!active}
@@ -204,7 +215,7 @@ export function DropOverlay({ active }: { active: boolean }) {
         <span className="flex size-16 items-center justify-center rounded-2xl bg-brand text-white">
           <ImageUpIcon className="size-8" />
         </span>
-        <span className="font-medium text-lg text-white">Drop to open</span>
+        <span className="font-medium text-lg text-white">{t("Drop to open")}</span>
       </div>
     </div>
   );

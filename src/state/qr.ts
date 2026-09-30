@@ -3,6 +3,7 @@ import { toast } from "@/components/ui/toast";
 import { type QrCode, describeQr, scanImageForQr } from "@/lib/qr";
 import { getDoc } from "@/state/document";
 import { getUi } from "@/state/ui";
+import { t } from "@/lib/i18n";
 
 type Status = "idle" | "scanning" | "done" | "error";
 
@@ -46,12 +47,12 @@ export async function scanCurrentImage({ reveal = false, force = false } = {}) {
     if (!reveal && codes.length && !getUi().panels.qr) {
       const first = describeQr(codes[0].content);
       toast.info({
-        title: codes.length > 1 ? `${codes.length} QR codes found` : "QR code found",
+        title: t("{count} QR codes found", { count: codes.length }),
         description:
           codes.length > 1
-            ? "Open the QR panel to see them all."
+            ? t("Open the QR panel to see them all.")
             : `${first.label}: ${truncate(codes[0].content, 60)}`,
-        action: { label: "Show", onClick: () => getUi().togglePanel("qr", true) },
+        action: { label: t("Show"), onClick: () => getUi().togglePanel("qr", true) },
       });
     }
   } catch (err) {

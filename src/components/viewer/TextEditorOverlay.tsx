@@ -7,6 +7,7 @@ import { useView } from "@/lib/viewport";
 import { getDoc, updateDoc, useDoc } from "@/state/document";
 import { getSettings } from "@/state/settings";
 import { getUi, useUi } from "@/state/ui";
+import { useT } from "@/lib/i18n";
 
 /** Finish editing: record the change, or drop an empty text box. */
 function commitText(id: string, text: string) {
@@ -59,6 +60,7 @@ export function TextEditorOverlay() {
 }
 
 function Editor({ a }: { a: TextAnnotation }) {
+  const t = useT();
   const ref = useRef<HTMLTextAreaElement>(null);
   const [value, setValue] = useState(a.text);
   const vx = useView((s) => s.x);
@@ -120,7 +122,7 @@ function Editor({ a }: { a: TextAnnotation }) {
 
   return (
     <textarea
-      aria-label="Edit text"
+      aria-label={t("Edit text")}
       className="text-editor-overlay"
       data-board-overlay
       onBlur={commit}
@@ -132,7 +134,7 @@ function Editor({ a }: { a: TextAnnotation }) {
           ref.current?.blur();
         }
       }}
-      placeholder="Type…"
+      placeholder={t("Type…")}
       ref={ref}
       spellCheck={false}
       style={{

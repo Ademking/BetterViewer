@@ -24,6 +24,7 @@ import { getSettings } from "@/state/settings";
 import { levelTo } from "@/lib/straighten";
 import { removeMeasurement, setPendingFollow, updateMeasurement, useMeasure } from "@/state/measure";
 import { getUi } from "@/state/ui";
+import { t } from "@/lib/i18n";
 
 type Pt = { x: number; y: number };
 
@@ -288,7 +289,7 @@ export function useCanvasInteractions(containerRef: RefObject<HTMLDivElement | n
       const up = () => {
         cleanup();
         if (count === 0 && !getDoc()?.annotations.some((a) => a.type === "path")) {
-          toast.info({ title: "Nothing to erase", description: "The eraser removes freehand strokes." });
+          toast.info({ title: t("Nothing to erase"), description: t("The eraser removes freehand strokes.") });
         }
       };
       const cleanup = () => {
@@ -581,7 +582,7 @@ export function useCanvasInteractions(containerRef: RefObject<HTMLDivElement | n
     const pickColor = (e: PointerEvent) => {
       const hex = sampleImageColor(local(e));
       if (!hex) {
-        toast.info({ title: "Pick inside the image" });
+        toast.info({ title: t("Pick inside the image") });
         return;
       }
       const ui = getUi();
@@ -589,10 +590,10 @@ export function useCanvasInteractions(containerRef: RefObject<HTMLDivElement | n
       ui.pushRecentColor(hex);
       applyColor(hex);
       toast.success({
-        title: `Picked ${hex.toUpperCase()}`,
-        description: "Set as the drawing color.",
+        title: t("Picked {color}", { color: hex.toUpperCase() }),
+        description: t("Set as the drawing color."),
         action: {
-          label: "Copy",
+          label: t("Copy"),
           onClick: () => void copyText(hex.toUpperCase()),
         },
       });

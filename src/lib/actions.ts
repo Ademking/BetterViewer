@@ -17,7 +17,7 @@ import {
   imageInfoFromBlob,
   isImageFile,
   isSupportedImageType,
-  SUPPORTED_FORMATS_TEXT,
+  supportedFormatsText,
 } from "@/lib/image";
 import { closeOverlay, isOverlay } from "@/lib/overlay";
 import { writeClipboardImage, writeClipboardText } from "@/lib/clipboard";
@@ -26,10 +26,11 @@ import { viewport, ZOOM_STEP } from "@/lib/viewport";
 import { displaySize, getDoc, updateAnnotations, updateDoc, useDoc, type ImageInfo } from "@/state/document";
 import { getSettings, type SaveFormat } from "@/state/settings";
 import { getUi, useUi } from "@/state/ui";
+import { t } from "@/lib/i18n";
 
 /* ------------------------------------------------------------------ Image IO */
 
-export async function openBlob(blob: Blob, name = "Pasted image", extra?: Partial<ImageInfo>) {
+export async function openBlob(blob: Blob, name = t("Pasted image"), extra?: Partial<ImageInfo>) {
   const ui = getUi();
   ui.set({ loading: true });
   try {
@@ -37,7 +38,7 @@ export async function openBlob(blob: Blob, name = "Pasted image", extra?: Partia
     openInfo({ ...info, ...extra });
   } catch (err) {
     toast.error({
-      title: "Couldn't open image",
+      title: t("Couldn't open image"),
       description: (err as Error).message,
     });
   } finally {
@@ -76,7 +77,7 @@ function openInfo(info: Parameters<ReturnType<typeof useDoc.getState>["load"]>[0
  * Place a picture on top of the current image, centred in the view and
  * scaled to fit comfortably (≤ 50% of the image).
  */
-export async function insertImageLayer(blob: Blob, name = "Image") {
+export async function insertImageLayer(blob: Blob, name = t("Image")) {
   const doc = getDoc();
   if (!doc) return openBlob(blob, name);
   try {
@@ -105,7 +106,7 @@ export async function insertImageLayer(blob: Blob, name = "Image") {
     addAnnotation(layer, true);
     getUi().set({ tool: "select", selectedIds: [layer.id] });
   } catch (err) {
-    toast.error({ title: "Couldn't add image", description: (err as Error).message });
+    toast.error({ title: t("Couldn't add image"), description: (err as Error).message });
   }
 }
 
@@ -144,8 +145,8 @@ export function insertImagePicker() {
 function unsupportedFile(f: File) {
   const svg = /svg/i.test(f.type) || /\.svgz?$/i.test(f.name);
   toast.error({
-    title: svg ? "SVG files aren't supported" : "Unsupported file",
-    description: `Use a ${SUPPORTED_FORMATS_TEXT} image.`,
+    title: svg ? t("SVG files aren't supported") : t("Unsupported file"),
+    description: t("Use a {formats} image.", { formats: supportedFormatsText() }),
   });
 }
 
@@ -173,7 +174,7 @@ export async function openSample() {
   try {
     openInfo(await createSampleImage());
   } catch (err) {
-    toast.error({ title: "Couldn't open the sample", description: (err as Error).message });
+    toast.error({ title: t("Couldn't open the sample"), description: (err as Error).message });
   } finally {
     ui.set({ loading: false });
   }
@@ -186,15 +187,15 @@ export async function pasteFromClipboard() {
       const type = item.types.find(isSupportedImageType);
       if (type) {
         const blob = await item.getType(type);
-        await receiveImage(blob, "Pasted image");
+        await receiveImage(blob, t("Pasted image"));
         return true;
       }
     }
-    toast.info({ title: "No image on the clipboard" });
+    toast.info({ title: t("No image on the clipboard") });
   } catch {
     toast.info({
-      title: `Press ${MOD} V to paste`,
-      description: "Your browser needs a paste gesture to read images.",
+      title: t("Press {keys} to paste", { keys: `${MOD} V` }),
+      description: t("Your browser needs a paste gesture to read images."),
     });
   }
   return false;
@@ -335,7 +336,7 @@ export function encodeCanvas(
   ctx.drawImage(source, 0, 0, width, height);
   return new Promise<Blob>((resolve, reject) =>
     out.toBlob(
-      (b) => (b ? resolve(b) : reject(new Error("Encoding failed"))),
+      (b) => (b ? resolve(b) : reject(new Error(t("Encoding failed")))),
       `image/${format}`,
       quality
     )
@@ -354,9 +355,9 @@ export async function exportImage(format: ExportFormat = getSettings().saveForma
     const blob = await renderDocument(format);
     const ext = format === "jpeg" ? "jpg" : format;
     downloadBlob(blob, `${baseName(doc.image.name)}-edited.${ext}`);
-    toast.success({ title: "Image exported", description: `Saved as ${ext.toUpperCase()}` });
+    toast.success({ title: t("Image exported"), description: t("Saved as {format}", { format: ext.toUpperCase() }) });
   } catch (err) {
-    toast.error({ title: "Export failed", description: (err as Error).message });
+    toast.error({ title: t("Export failed"), description: (err as Error).message });
   }
 }
 
@@ -374,9 +375,9 @@ export async function saveOriginalImage() {
     const file = await originalFile();
     if (!file) return;
     downloadBlob(file.blob, file.name);
-    toast.success({ title: "Original image saved" });
+    toast.success({ title: t("Original image saved") });
   } catch (err) {
-    toast.error({ title: "Couldn't save the original", description: (err as Error).message });
+    toast.error({ title: t("Couldn't save the original"), description: (err as Error).message });
   }
 }
 
@@ -396,9 +397,9 @@ export async function copyOriginalImage() {
       png = await encodeCanvas(canvas, "png");
     }
     await writeClipboardImage(png);
-    toast.success({ title: "Original image copied" });
+    toast.success({ title: t("Original image copied") });
   } catch (err) {
-    toast.error({ title: "Couldn't copy image", description: (err as Error).message });
+    toast.error({ title: t("Couldn't copy image"), description: (err as Error).message });
   }
 }
 
@@ -407,9 +408,9 @@ export async function copyImageToClipboard() {
   try {
     const blob = await renderDocument("png");
     await writeClipboardImage(blob);
-    toast.success({ title: "Copied to clipboard" });
+    toast.success({ title: t("Copied to clipboard") });
   } catch (err) {
-    toast.error({ title: "Couldn't copy image", description: (err as Error).message });
+    toast.error({ title: t("Couldn't copy image"), description: (err as Error).message });
   }
 }
 
@@ -578,11 +579,12 @@ export function applyFill(color: string, key = "fill") {
   }
 }
 
+/** Copy text; `label` (already translated) names it in the confirmation. */
 export async function copyText(text: string, label = text) {
   try {
     await writeClipboardText(text);
-    toast.success({ title: `Copied ${label}` });
+    toast.success({ title: t("Copied {item}", { item: label }) });
   } catch {
-    toast.error({ title: "Clipboard unavailable" });
+    toast.error({ title: t("Clipboard unavailable") });
   }
 }

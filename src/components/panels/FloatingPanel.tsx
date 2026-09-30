@@ -15,6 +15,7 @@ import {
   FloatingPanelTitle,
 } from "@/components/ui/floating-panel";
 import { cn } from "@/lib/utils";
+import { useT } from "@/lib/i18n";
 
 type Point = { x: number; y: number };
 type Size = { width: number; height: number };
@@ -100,6 +101,7 @@ export function ScreenFloatingPanel({
   bodyClassName,
   children,
 }: ScreenFloatingPanelProps) {
+  const t = useT();
   const minW = minSizeProp?.width ?? 260;
   const minH = minSizeProp?.height ?? 200;
   const minSize = useMemo(() => ({ width: minW, height: minH }), [minW, minH]);
@@ -193,7 +195,7 @@ export function ScreenFloatingPanel({
             <FloatingPanelMinimize />
             <FloatingPanelRestore size="icon-xs" variant="ghost" />
             <FloatingPanelCloseTrigger asChild>
-              <Button aria-label="Close" size="icon-xs" variant="ghost">
+              <Button aria-label={t("Close")} size="icon-xs" variant="ghost">
                 <XIcon />
               </Button>
             </FloatingPanelCloseTrigger>

@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import { displaySize, useDoc } from "@/state/document";
 import { useSettings } from "@/state/settings";
 import { getUi } from "@/state/ui";
+import { useT } from "@/lib/i18n";
 
 /** Largest size of the navigator's picture (CSS px). */
 const MAX_W = 208;
@@ -65,6 +66,7 @@ interface BoxProps {
 }
 
 function NavigatorBox({ width, height, k, view, zoom }: BoxProps) {
+  const t = useT();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const areaRef = useRef<HTMLDivElement>(null);
   const toolbar = useSettings((s) => s.showToolbar);
@@ -168,7 +170,7 @@ function NavigatorBox({ width, height, k, view, zoom }: BoxProps) {
       data-chrome
     >
       <div
-        aria-label="Navigator: drag to move around the image"
+        aria-label={t("Navigator: drag to move around the image")}
         className="relative cursor-pointer touch-none select-none overflow-hidden rounded-md"
         onPointerDown={onPointerDown}
         ref={areaRef}
@@ -189,10 +191,10 @@ function NavigatorBox({ width, height, k, view, zoom }: BoxProps) {
       </div>
       <div className="mt-1 flex items-center gap-0.5 ps-1">
         <span className="me-auto font-medium text-muted-foreground text-xs tabular-nums">{Math.round(zoom * 100)}%</span>
-        <ToolButton className="size-6" label="Fit to screen" onClick={zoomFit} shortcut="0">
+        <ToolButton className="size-6" label={t("Fit to screen")} onClick={zoomFit} shortcut="0">
           <MaximizeIcon className="size-3.5" />
         </ToolButton>
-        <ToolButton className="size-6" label="Hide navigator" onClick={toggleNavigator} shortcut="Shift N">
+        <ToolButton className="size-6" label={t("Hide navigator")} onClick={toggleNavigator} shortcut="Shift N">
           <XIcon className="size-3.5" />
         </ToolButton>
       </div>

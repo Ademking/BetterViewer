@@ -1,0 +1,29 @@
+{
+  "extDescription": {
+    "message": "Un'estensione del browser per visualizzare meglio le immagini"
+  },
+  "menuOpenImage": {
+    "message": "Apri questa immagine in BetterViewer"
+  },
+  "menuGallery": {
+    "message": "Sfoglia tutte le immagini della pagina in galleria"
+  },
+  "menuScreenshot": {
+    "message": "Screenshot di questa pagina"
+  },
+  "popupOpen": {
+    "message": "Apri BetterViewer"
+  },
+  "popupGallery": {
+    "message": "Sfoglia le immagini della pagina"
+  },
+  "popupSettings": {
+    "message": "Impostazioni"
+  },
+  "popupShortcuts": {
+    "message": "Scorciatoie da tastiera"
+  },
+  "popupAbout": {
+    "message": "Informazioni su BetterViewer"
+  }
+}

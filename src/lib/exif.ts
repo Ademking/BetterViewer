@@ -1,3 +1,4 @@
+import { currentLanguage, t as tr, tk } from "@/lib/i18n";
 import EXIF from "exif-js";
 
 /** exif-js returns rationals as Number objects carrying numerator/denominator. */
@@ -80,7 +81,7 @@ const formatExifDate = (v: unknown) => {
   const d = new Date(+m[1], +m[2] - 1, +m[3], +m[4], +m[5], +m[6]);
   return Number.isNaN(d.getTime())
     ? s
-    : d.toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" });
+    : d.toLocaleString(currentLanguage(), { dateStyle: "medium", timeStyle: "short" });
 };
 
 const dmsToDecimal = (dms: unknown, ref: unknown) => {
@@ -92,14 +93,14 @@ const dmsToDecimal = (dms: unknown, ref: unknown) => {
 };
 
 const ORIENTATION: Record<number, string> = {
-  1: "Normal",
-  2: "Mirrored",
-  3: "Rotated 180°",
-  4: "Mirrored vertically",
-  5: "Mirrored, rotated 90° CCW",
-  6: "Rotated 90° CW",
-  7: "Mirrored, rotated 90° CW",
-  8: "Rotated 90° CCW",
+  1: tk("Normal"),
+  2: tk("Mirrored"),
+  3: tk("Rotated 180°"),
+  4: tk("Mirrored vertically"),
+  5: tk("Mirrored, rotated 90° CCW"),
+  6: tk("Rotated 90° CW"),
+  7: tk("Mirrored, rotated 90° CW"),
+  8: tk("Rotated 90° CCW"),
 };
 
 /** Tags that are binary blobs or duplicated in the summary sections. */
@@ -136,32 +137,32 @@ function summarise(t: RawTags): ExifData {
     make && model && model.toLowerCase().startsWith(make.toLowerCase().split(" ")[0])
       ? model
       : [make, model].filter(Boolean).join(" ");
-  push(camera, "Camera", cameraName || undefined);
-  push(camera, "Software", str(t.Software));
-  push(camera, "Artist", str(t.Artist));
-  push(camera, "Copyright", str(t.Copyright));
+  push(camera, tr("Camera"), cameraName || undefined);
+  push(camera, tr("Software"), str(t.Software));
+  push(camera, tr("Artist"), str(t.Artist));
+  push(camera, tr("Copyright"), str(t.Copyright));
 
   // Capture
   const capture: ExifRow[] = [];
-  push(capture, "Taken", formatExifDate(t.DateTimeOriginal) ?? formatExifDate(t.DateTime));
-  push(capture, "Exposure", formatExposure(t.ExposureTime));
+  push(capture, tr("Taken"), formatExifDate(t.DateTimeOriginal) ?? formatExifDate(t.DateTime));
+  push(capture, tr("Exposure"), formatExposure(t.ExposureTime));
   const f = num(t.FNumber);
-  push(capture, "Aperture", f ? `f/${round(f)}` : undefined);
+  push(capture, tr("Aperture"), f ? `f/${round(f)}` : undefined);
   const iso = num(Array.isArray(t.ISOSpeedRatings) ? t.ISOSpeedRatings[0] : t.ISOSpeedRatings);
   push(capture, "ISO", iso ? String(iso) : undefined);
   const focal = num(t.FocalLength);
   const focal35 = num(t.FocalLengthIn35mmFilm);
   push(
     capture,
-    "Focal length",
-    focal ? `${round(focal)} mm${focal35 && focal35 !== Math.round(focal) ? ` (${focal35} mm eq.)` : ""}` : undefined
+    tr("Focal length"),
+    focal ? `${round(focal)} mm${focal35 && focal35 !== Math.round(focal) ? ` (${tr("{focal} mm eq.", { focal: focal35 })})` : ""}` : undefined
   );
   const bias = num(t.ExposureBias);
-  push(capture, "Exposure bias", bias ? `${bias > 0 ? "+" : ""}${round(bias)} EV` : undefined);
-  push(capture, "Flash", str(t.Flash));
-  push(capture, "Program", str(t.ExposureProgram));
-  push(capture, "Metering", str(t.MeteringMode));
-  push(capture, "White balance", str(t.WhiteBalance));
+  push(capture, tr("Exposure bias"), bias ? `${bias > 0 ? "+" : ""}${round(bias)} EV` : undefined);
+  push(capture, tr("Flash"), str(t.Flash));
+  push(capture, tr("Program"), str(t.ExposureProgram));
+  push(capture, tr("Metering"), str(t.MeteringMode));
+  push(capture, tr("White balance"), str(t.WhiteBalance));
 
   // Location
   const location: ExifRow[] = [];
@@ -172,24 +173,24 @@ function summarise(t: RawTags): ExifData {
     const altRaw = num(t.GPSAltitude);
     const alt = altRaw === undefined ? undefined : Number(t.GPSAltitudeRef) === 1 ? -altRaw : altRaw;
     gps = { lat, lng, alt };
-    push(location, "Coordinates", `${lat.toFixed(5)}, ${lng.toFixed(5)}`);
-    push(location, "Altitude", alt === undefined ? undefined : `${Math.round(alt)} m`);
+    push(location, tr("Coordinates"), `${lat.toFixed(5)}, ${lng.toFixed(5)}`);
+    push(location, tr("Altitude"), alt === undefined ? undefined : `${Math.round(alt)} m`);
   }
 
   // Image
   const image: ExifRow[] = [];
   const o = num(t.Orientation);
-  push(image, "Orientation", o ? ORIENTATION[o] ?? String(o) : undefined);
-  push(image, "Color space", t.ColorSpace === 1 ? "sRGB" : t.ColorSpace === 65535 ? "Uncalibrated" : undefined);
+  push(image, tr("Orientation"), o ? (ORIENTATION[o] ? tr(ORIENTATION[o]) : String(o)) : undefined);
+  push(image, tr("Color space"), t.ColorSpace === 1 ? "sRGB" : t.ColorSpace === 65535 ? tr("Uncalibrated") : undefined);
   const xr = num(t.XResolution);
-  push(image, "Resolution", xr ? `${Math.round(xr)} dpi` : undefined);
-  push(image, "Description", str(t.ImageDescription));
+  push(image, tr("Resolution"), xr ? `${Math.round(xr)} dpi` : undefined);
+  push(image, tr("Description"), str(t.ImageDescription));
 
   const sections = [
-    { title: "Camera", rows: camera },
-    { title: "Capture", rows: capture },
-    { title: "Location", rows: location },
-    { title: "Image", rows: image },
+    { title: tr("Camera"), rows: camera },
+    { title: tr("Capture"), rows: capture },
+    { title: tr("Location"), rows: location },
+    { title: tr("Image"), rows: image },
   ].filter((s) => s.rows.length > 0);
 
   const all: ExifRow[] = Object.keys(t)

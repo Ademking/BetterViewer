@@ -12,6 +12,7 @@ import {
   getFont,
 } from "@/lib/fonts";
 import { cn } from "@/lib/utils";
+import { useT } from "@/lib/i18n";
 
 const matches = (f: FontOption, query: string) => {
   const hay = `${f.label} ${f.category}`.toLowerCase();
@@ -84,6 +85,7 @@ interface FontPickerProps {
 
 /** Searchable font list, grouped by category, previewing each face. */
 export function FontPicker({ value, onChange }: FontPickerProps) {
+  const t = useT();
   const current = getFont(value);
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -134,7 +136,7 @@ export function FontPicker({ value, onChange }: FontPickerProps) {
       open={open}
       positioning={{ placement: "top", gutter: 12 }}
     >
-      <Hinted label="Font">
+      <Hinted label={t("Font")}>
         <PopoverTrigger className="flex h-8 max-w-40 items-center gap-1.5 rounded-lg px-2 text-sm transition-colors hover:bg-accent data-[state=open]:bg-accent">
           <span className="truncate" style={{ fontFamily: current.stack }}>
             {current.label}
@@ -146,7 +148,7 @@ export function FontPicker({ value, onChange }: FontPickerProps) {
         <div className="flex items-center gap-2 border-b px-3">
           <SearchIcon className="size-4 shrink-0 text-muted-foreground" />
           <input
-            aria-label="Search fonts"
+            aria-label={t("Search fonts")}
             autoFocus
             className="h-10 w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
             onChange={(e) => {
@@ -154,18 +156,18 @@ export function FontPicker({ value, onChange }: FontPickerProps) {
               setHighlight(0);
             }}
             onKeyDown={onKeyDown}
-            placeholder="Search fonts…"
+            placeholder={t("Search fonts…")}
             value={query}
           />
         </div>
         <ScrollArea className="h-72" scrollFade>
           <div className="p-1" role="listbox">
             {groups.length === 0 && (
-              <div className="px-3 py-8 text-center text-muted-foreground text-sm">No fonts found.</div>
+              <div className="px-3 py-8 text-center text-muted-foreground text-sm">{t("No fonts found.")}</div>
             )}
             {groups.map((g, gi) => (
               <div className={cn(gi > 0 && "mt-1 border-t pt-1")} key={g.cat} role="group">
-                <div className="px-2.5 py-1.5 font-medium text-muted-foreground text-xs">{g.cat}</div>
+                <div className="px-2.5 py-1.5 font-medium text-muted-foreground text-xs">{t(g.cat)}</div>
                 {g.fonts.map((f) => {
                   const index = flat.indexOf(f);
                   return (

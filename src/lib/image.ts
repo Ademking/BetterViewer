@@ -1,4 +1,5 @@
 import type { ImageInfo } from "@/state/document";
+import { currentLanguage, t } from "@/lib/i18n";
 
 const cache = new Map<string, Promise<HTMLImageElement>>();
 
@@ -11,7 +12,7 @@ export const loadHtmlImage = (src: string) => {
       img.onload = () => resolve(img);
       img.onerror = () => {
         cache.delete(src);
-        reject(new Error("The file could not be decoded as an image."));
+        reject(new Error(t("The file could not be decoded as an image.")));
       };
       img.src = src;
     });
@@ -34,7 +35,9 @@ export const ACCEPTED_TYPES = [
 /** File-picker filter: the formats above (SVG is not supported). */
 export const ACCEPT_ATTRIBUTE = [...ACCEPTED_TYPES, ".png", ".jpg", ".jpeg", ".webp", ".gif", ".avif", ".bmp", ".ico"].join(",");
 
-export const SUPPORTED_FORMATS_TEXT = "PNG, JPEG, WebP, GIF, AVIF, BMP or ICO";
+/** "PNG, JPEG, … or ICO" in the interface language. */
+export const supportedFormatsText = () =>
+  new Intl.ListFormat(currentLanguage(), { type: "disjunction" }).format(["PNG", "JPEG", "WebP", "GIF", "AVIF", "BMP", "ICO"]);
 
 /** Raster images only: SVG is not supported. */
 export const isSupportedImageType = (type: string) => type.startsWith("image/") && !type.includes("svg");
@@ -85,7 +88,7 @@ export async function cropImage(
   const type = info.type === "image/jpeg" ? "image/jpeg" : "image/png";
   const blob = await new Promise<Blob>((resolve, reject) =>
     canvas.toBlob(
-      (b) => (b ? resolve(b) : reject(new Error("Crop failed"))),
+      (b) => (b ? resolve(b) : reject(new Error(t("Crop failed")))),
       type,
       0.95
     )
@@ -135,6 +138,6 @@ export const formatBytes = (n: number) => {
 /** The demo photo ("Try a sample"), shipped in public/. */
 export async function createSampleImage(): Promise<ImageInfo> {
   const res = await fetch(`${import.meta.env.BASE_URL}cat.jpg`);
-  if (!res.ok) throw new Error(`Couldn't load the sample image (${res.status})`);
+  if (!res.ok) throw new Error(t("Couldn't load the sample image ({status})", { status: res.status }));
   return imageInfoFromBlob(await res.blob(), "cat.jpg");
 }

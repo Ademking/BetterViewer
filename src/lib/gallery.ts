@@ -20,6 +20,7 @@ import { fetchImage, nameFromUrl } from "@/lib/openUrl";
 import { createZip } from "@/lib/zip";
 import { isOverlay } from "@/lib/overlay";
 import { useDoc } from "@/state/document";
+import { t } from "@/lib/i18n";
 
 export interface GalleryItem {
   src: string;
@@ -75,7 +76,7 @@ function fetchFromPage(src: string): Promise<Blob> {
     waiting.set(id, { resolve, reject });
     window.parent.postMessage({ type: "betterviewer:fetch", id, src }, "*");
     setTimeout(() => {
-      if (waiting.delete(id)) reject(new Error("The page didn't send the image."));
+      if (waiting.delete(id)) reject(new Error(t("The page didn't send the image.")));
     }, 20000);
   });
 }
@@ -120,8 +121,8 @@ async function load(i: number) {
   } catch (err) {
     if (token !== loadToken) return;
     toast.error({
-      title: "Couldn't open this image",
-      description: (err as Error).message || "The image couldn't be downloaded.",
+      title: t("Couldn't open this image"),
+      description: (err as Error).message || t("The image couldn't be downloaded."),
     });
   } finally {
     if (token === loadToken) useGallery.setState({ busy: false });
@@ -134,9 +135,9 @@ export function showGalleryItem(i: number) {
   if (i < 0 || i >= items.length || i === index) return;
   if (useDoc.getState().past.length > 0) {
     confirmAction({
-      title: "Discard your edits?",
-      description: "Moving to another image drops the changes made to this one.",
-      confirmLabel: "Discard",
+      title: t("Discard your edits?"),
+      description: t("Moving to another image drops the changes made to this one."),
+      confirmLabel: t("Discard"),
       destructive: true,
       onConfirm: () => void load(i),
     });
@@ -170,12 +171,12 @@ export function startGallery() {
         if (!request) return;
         waiting.delete(data.id);
         if (data.blob instanceof Blob) request.resolve(data.blob);
-        else request.reject(new Error(data.error || "The page couldn't read the image."));
+        else request.reject(new Error(data.error || t("The page couldn't read the image.")));
       } else if (data?.type === "betterviewer:gallery" && Array.isArray(data.items)) {
         const items = data.items.filter((it) => typeof it?.src === "string");
         useGallery.setState({ items, index: -1, page: data.page ?? null });
         if (!items.length) {
-          toast.info({ title: "No images found", description: "This page has no pictures BetterViewer can open." });
+          toast.info({ title: t("No images found"), description: t("This page has no pictures BetterViewer can open.") });
           return;
         }
         for (const { src } of items) if (/^blob:/i.test(src)) void loadThumb(src);
@@ -215,8 +216,8 @@ export async function downloadGalleryZip() {
   useGallery.setState({ zipping: true });
   const id = toast.create({
     type: "loading",
-    title: `Downloading ${items.length} images…`,
-    description: "0 done",
+    title: t("Downloading {count} images…", { count: items.length }),
+    description: t("{done} of {total}", { done: 0, total: items.length }),
     duration: Number.POSITIVE_INFINITY,
     closable: false,
   });
@@ -238,7 +239,7 @@ export async function downloadGalleryZip() {
         // counted as failed below
       }
       done++;
-      toast.update(id, { description: `${done} of ${items.length}` });
+      toast.update(id, { description: t("{done} of {total}", { done, total: items.length }) });
     }
   };
 
@@ -248,22 +249,22 @@ export async function downloadGalleryZip() {
     const files = results
       .filter((r): r is { name: string; blob: Blob } => r !== null)
       .map((r, i) => ({ name: uniqueName(`${String(i + 1).padStart(3, "0")}-${r.name}`, taken), data: r.blob }));
-    if (!files.length) throw new Error("None of the images could be downloaded.");
+    if (!files.length) throw new Error(t("None of the images could be downloaded."));
     const zip = await createZip(files);
     const site = (page?.host || "page").replace(/^www\./, "").replace(/[^a-z0-9.-]+/gi, "_");
     downloadBlob(zip, `${site}-images.zip`);
     const failed = items.length - files.length;
     toast.update(id, {
       type: "success",
-      title: `Saved ${files.length} images`,
-      description: failed ? `${failed} couldn't be downloaded.` : "All images are in the ZIP file.",
+      title: t("Saved {count} images", { count: files.length }),
+      description: failed ? t("{count} couldn't be downloaded.", { count: failed }) : t("All images are in the ZIP file."),
       duration: 6000,
       closable: true,
     });
   } catch (err) {
     toast.update(id, {
       type: "error",
-      title: "Couldn't create the ZIP",
+      title: t("Couldn't create the ZIP"),
       description: (err as Error).message,
       duration: 8000,
       closable: true,

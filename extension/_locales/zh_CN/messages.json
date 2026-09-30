@@ -1,0 +1,29 @@
+{
+  "extDescription": {
+    "message": "让浏览器看图体验更好的扩展"
+  },
+  "menuOpenImage": {
+    "message": "在 BetterViewer 中打开此图片"
+  },
+  "menuGallery": {
+    "message": "以图库方式浏览页面所有图片"
+  },
+  "menuScreenshot": {
+    "message": "截取此页面"
+  },
+  "popupOpen": {
+    "message": "打开 BetterViewer"
+  },
+  "popupGallery": {
+    "message": "浏览页面图片"
+  },
+  "popupSettings": {
+    "message": "设置"
+  },
+  "popupShortcuts": {
+    "message": "键盘快捷键"
+  },
+  "popupAbout": {
+    "message": "关于 BetterViewer"
+  }
+}

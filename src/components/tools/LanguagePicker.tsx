@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
+import { useT } from "@/lib/i18n";
 
 export interface LanguageOption {
   value: string;
@@ -20,6 +21,7 @@ interface LanguagePickerProps {
 
 /** Full-width language button with a scrollable, keyboard-friendly list. */
 export function LanguagePicker({ value, options, onChange, disabled }: LanguagePickerProps) {
+  const t = useT();
   const [open, setOpen] = useState(false);
   const current = options.find((o) => o.value === value) ?? options[0];
   const [highlight, setHighlight] = useState(0);
@@ -91,7 +93,7 @@ export function LanguagePicker({ value, options, onChange, disabled }: LanguageP
         {/* Tall enough to show every language; scrolls only on short windows. */}
         <ScrollArea className="max-h-[min(28rem,calc(var(--available-height,28rem)-8px))]" scrollFade>
           <div
-            aria-label="Languages"
+            aria-label={t("Languages")}
             className="flex flex-col p-1 outline-none"
             onKeyDown={onKeyDown}
             ref={listRef}

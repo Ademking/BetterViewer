@@ -1,0 +1,29 @@
+{
+  "extDescription": {
+    "message": "इमेज देखने का बेहतर अनुभव देने वाला ब्राउज़र एक्सटेंशन"
+  },
+  "menuOpenImage": {
+    "message": "यह इमेज BetterViewer में खोलें"
+  },
+  "menuGallery": {
+    "message": "पेज की सभी इमेज गैलरी में देखें"
+  },
+  "menuScreenshot": {
+    "message": "इस पेज का स्क्रीनशॉट लें"
+  },
+  "popupOpen": {
+    "message": "BetterViewer खोलें"
+  },
+  "popupGallery": {
+    "message": "पेज की इमेज देखें"
+  },
+  "popupSettings": {
+    "message": "सेटिंग"
+  },
+  "popupShortcuts": {
+    "message": "कीबोर्ड शॉर्टकट"
+  },
+  "popupAbout": {
+    "message": "BetterViewer के बारे में"
+  }
+}

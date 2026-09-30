@@ -1,3 +1,4 @@
+import { t, tk } from "@/lib/i18n";
 /**
  * Annotation model. All coordinates live in image-local space (0..width, 0..height
  * of the current, cropped image) so annotations follow the image through
@@ -195,43 +196,43 @@ export const uid = () =>
   Math.random().toString(36).slice(2, 9) + Date.now().toString(36).slice(-4);
 
 export const SHAPE_LABELS: Record<ShapeKind, string> = {
-  rect: "Rectangle",
-  roundRect: "Rounded rectangle",
-  ellipse: "Ellipse",
-  triangle: "Triangle",
-  rightTriangle: "Right triangle",
-  diamond: "Diamond",
-  polygon: "Polygon",
-  star: "Star",
-  heart: "Heart",
-  cross: "Cross",
-  line: "Line",
-  arrow: "Arrow",
-  doubleArrow: "Double arrow",
-  callout: "Speech bubble",
-  roundCallout: "Round bubble",
-  counter: "Counter",
-  parallelogram: "Parallelogram",
-  trapezoid: "Trapezoid",
-  pentagon: "Pentagon",
-  octagon: "Octagon",
-  halfCircle: "Half circle",
-  star4: "4-point star",
-  lightning: "Lightning",
-  chevron: "Chevron",
-  tag: "Tag",
-  document: "Document",
-  blockArrowRight: "Arrow right",
-  blockArrowLeft: "Arrow left",
-  blockArrowUp: "Arrow up",
-  blockArrowDown: "Arrow down",
-  blockArrowBoth: "Arrow both ways",
+  rect: tk("Rectangle"),
+  roundRect: tk("Rounded rectangle"),
+  ellipse: tk("Ellipse"),
+  triangle: tk("Triangle"),
+  rightTriangle: tk("Right triangle"),
+  diamond: tk("Diamond"),
+  polygon: tk("Polygon"),
+  star: tk("Star"),
+  heart: tk("Heart"),
+  cross: tk("Cross"),
+  line: tk("Line"),
+  arrow: tk("Arrow"),
+  doubleArrow: tk("Double arrow"),
+  callout: tk("Speech bubble"),
+  roundCallout: tk("Round bubble"),
+  counter: tk("Counter"),
+  parallelogram: tk("Parallelogram"),
+  trapezoid: tk("Trapezoid"),
+  pentagon: tk("Pentagon"),
+  octagon: tk("Octagon"),
+  halfCircle: tk("Half circle"),
+  star4: tk("4-point star"),
+  lightning: tk("Lightning"),
+  chevron: tk("Chevron"),
+  tag: tk("Tag"),
+  document: tk("Document"),
+  blockArrowRight: tk("Arrow right"),
+  blockArrowLeft: tk("Arrow left"),
+  blockArrowUp: tk("Arrow up"),
+  blockArrowDown: tk("Arrow down"),
+  blockArrowBoth: tk("Arrow both ways"),
 };
 
 /** Order of the shape picker (a flat icon grid). */
 export const SHAPE_GROUPS: { label: string; kinds: ShapeKind[] }[] = [
   {
-    label: "Basic",
+    label: tk("Basic"),
     kinds: [
       "rect",
       "roundRect",
@@ -256,7 +257,7 @@ export const SHAPE_GROUPS: { label: string; kinds: ShapeKind[] }[] = [
     ],
   },
   {
-    label: "Arrows",
+    label: tk("Arrows"),
     kinds: [
       "blockArrowRight",
       "blockArrowLeft",
@@ -268,7 +269,7 @@ export const SHAPE_GROUPS: { label: string; kinds: ShapeKind[] }[] = [
       "doubleArrow",
     ],
   },
-  { label: "Callouts & markers", kinds: ["callout", "roundCallout", "counter"] },
+  { label: tk("Callouts & markers"), kinds: ["callout", "roundCallout", "counter"] },
 ];
 
 export interface StyleDefaults {
@@ -629,32 +630,33 @@ export const translateAnnotation = (
   dy: number
 ): Annotation => ({ ...a, x: a.x + dx, y: a.y + dy });
 
+/** Translated name of an annotation (layers, history). */
 export const annotationLabel = (a: Annotation) => {
   switch (a.type) {
     case "rect":
-      return a.cornerRadius > 0 ? "Rounded rectangle" : "Rectangle";
+      return a.cornerRadius > 0 ? t("Rounded rectangle") : t("Rectangle");
     case "ellipse":
-      return "Ellipse";
+      return t("Ellipse");
     case "line":
-      return "Line";
+      return t("Line");
     case "arrow":
-      return a.doubleHeaded ? "Double arrow" : "Arrow";
+      return a.doubleHeaded ? t("Double arrow") : t("Arrow");
     case "polygon":
-      return a.shape ? SHAPE_LABELS[a.shape] : "Polygon";
+      return a.shape ? t(SHAPE_LABELS[a.shape]) : t("Polygon");
     case "path":
-      return a.highlighter ? "Highlight" : "Drawing";
+      return a.highlighter ? t("Highlight") : t("Drawing");
     case "text":
-      return "Text";
+      return t("Text");
     case "emoji":
-      return a.label ? a.label[0].toUpperCase() + a.label.slice(1) : "Emoji";
+      return a.label ? a.label[0].toUpperCase() + a.label.slice(1) : t("Emoji");
     case "spotlight":
-      return "Spotlight";
+      return t("Spotlight");
     case "counter":
-      return `Counter ${a.number}`;
+      return t("Counter {number}", { number: a.number });
     case "redact":
-      return a.mode === "blur" ? "Blur" : "Pixelate";
+      return a.mode === "blur" ? t("Blur") : t("Pixelate");
     case "image":
-      return "Image";
+      return t("Image");
   }
 };
 

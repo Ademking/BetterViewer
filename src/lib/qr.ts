@@ -1,4 +1,5 @@
 import type { QrWorkerCode, QrWorkerRequest, QrWorkerResponse } from "@/lib/qr.worker";
+import { t as tr } from "@/lib/i18n";
 import { loadHtmlImage } from "@/lib/image";
 
 export type QrCode = QrWorkerCode;
@@ -75,6 +76,7 @@ export async function scanImageForQr(src: string): Promise<QrCode[]> {
 
 /* ------------------------------------------------------------------ content */
 
+// Labels are translated when described (tr = t; `t` is the content below).
 const parseWifi = (s: string): [string, string][] => {
   const body = s.replace(/^WIFI:/i, "");
   const fields: Record<string, string> = {};
@@ -84,10 +86,10 @@ const parseWifi = (s: string): [string, string][] => {
     fields[m[1].toUpperCase()] = m[2].replace(/\\(.)/g, "$1");
   }
   const out: [string, string][] = [];
-  if (fields.S) out.push(["Network", fields.S]);
-  if (fields.P) out.push(["Password", fields.P]);
-  if (fields.T) out.push(["Security", fields.T]);
-  if (fields.H) out.push(["Hidden", fields.H === "true" ? "Yes" : "No"]);
+  if (fields.S) out.push([tr("Network"), fields.S]);
+  if (fields.P) out.push([tr("Password"), fields.P]);
+  if (fields.T) out.push([tr("Security"), fields.T]);
+  if (fields.H) out.push([tr("Hidden"), fields.H === "true" ? tr("Yes") : tr("No")]);
   return out;
 };
 
@@ -97,26 +99,26 @@ const vcardField = (s: string, key: string) =>
 /** Recognise common QR payload formats. */
 export function describeQr(content: string): QrInfo {
   const t = content.trim();
-  if (/^https?:\/\/\S+$/i.test(t)) return { kind: "url", label: "Link", href: t };
-  if (/^www\.\S+\.\S+$/i.test(t)) return { kind: "url", label: "Link", href: `https://${t}` };
-  if (/^mailto:/i.test(t)) return { kind: "email", label: "Email", href: t, details: [["To", t.slice(7).split("?")[0]]] };
+  if (/^https?:\/\/\S+$/i.test(t)) return { kind: "url", label: tr("Link"), href: t };
+  if (/^www\.\S+\.\S+$/i.test(t)) return { kind: "url", label: tr("Link"), href: `https://${t}` };
+  if (/^mailto:/i.test(t)) return { kind: "email", label: tr("Email"), href: t, details: [[tr("To"), t.slice(7).split("?")[0]]] };
   if (/^MATMSG:/i.test(t)) {
     const to = t.match(/TO:([^;]*)/i)?.[1] ?? "";
-    return { kind: "email", label: "Email", href: `mailto:${to}`, details: [["To", to]] };
+    return { kind: "email", label: tr("Email"), href: `mailto:${to}`, details: [[tr("To"), to]] };
   }
-  if (/^tel:/i.test(t)) return { kind: "phone", label: "Phone number", href: t, details: [["Number", t.slice(4)]] };
+  if (/^tel:/i.test(t)) return { kind: "phone", label: tr("Phone number"), href: t, details: [[tr("Number"), t.slice(4)]] };
   if (/^(sms|smsto):/i.test(t)) {
     const [, num = "", body = ""] = t.split(":");
-    return { kind: "sms", label: "Text message", href: `sms:${num}`, details: [["To", num], ...(body ? [["Message", body] as [string, string]] : [])] };
+    return { kind: "sms", label: tr("Text message"), href: `sms:${num}`, details: [[tr("To"), num], ...(body ? [[tr("Message"), body] as [string, string]] : [])] };
   }
-  if (/^WIFI:/i.test(t)) return { kind: "wifi", label: "Wi-Fi network", details: parseWifi(t) };
+  if (/^WIFI:/i.test(t)) return { kind: "wifi", label: tr("Wi-Fi network"), details: parseWifi(t) };
   if (/^geo:/i.test(t)) {
     const [lat, lng] = t.slice(4).split(/[,?]/);
     return {
       kind: "geo",
-      label: "Location",
+      label: tr("Location"),
       href: `https://www.openstreetmap.org/?mlat=${lat}&mlon=${lng}#map=16/${lat}/${lng}`,
-      details: [["Coordinates", `${lat}, ${lng}`]],
+      details: [[tr("Coordinates"), `${lat}, ${lng}`]],
     };
   }
   if (/^BEGIN:VCARD/i.test(t)) {
@@ -125,27 +127,27 @@ export function describeQr(content: string): QrInfo {
     const tel = vcardField(t, "TEL");
     const email = vcardField(t, "EMAIL");
     const org = vcardField(t, "ORG");
-    if (name) details.push(["Name", name]);
-    if (org) details.push(["Organisation", org]);
-    if (tel) details.push(["Phone", tel]);
-    if (email) details.push(["Email", email]);
-    return { kind: "contact", label: "Contact card", details };
+    if (name) details.push([tr("Name"), name]);
+    if (org) details.push([tr("Organisation"), org]);
+    if (tel) details.push([tr("Phone"), tel]);
+    if (email) details.push([tr("Email"), email]);
+    return { kind: "contact", label: tr("Contact card"), details };
   }
   if (/^MECARD:/i.test(t)) {
     const details: [string, string][] = [];
     const name = t.match(/N:([^;]*)/i)?.[1];
     const tel = t.match(/TEL:([^;]*)/i)?.[1];
     const email = t.match(/EMAIL:([^;]*)/i)?.[1];
-    if (name) details.push(["Name", name.replace(",", " ")]);
-    if (tel) details.push(["Phone", tel]);
-    if (email) details.push(["Email", email]);
-    return { kind: "contact", label: "Contact card", details };
+    if (name) details.push([tr("Name"), name.replace(",", " ")]);
+    if (tel) details.push([tr("Phone"), tel]);
+    if (email) details.push([tr("Email"), email]);
+    return { kind: "contact", label: tr("Contact card"), details };
   }
   if (/^BEGIN:VEVENT/i.test(t) || /BEGIN:VCALENDAR/i.test(t)) {
     const summary = vcardField(t, "SUMMARY");
-    return { kind: "event", label: "Calendar event", details: summary ? [["Event", summary]] : [] };
+    return { kind: "event", label: tr("Calendar event"), details: summary ? [[tr("Event"), summary]] : [] };
   }
-  return { kind: "text", label: "Text" };
+  return { kind: "text", label: tr("Text") };
 }
 
 /** Only allow schemes that are safe to hand to window.open. */

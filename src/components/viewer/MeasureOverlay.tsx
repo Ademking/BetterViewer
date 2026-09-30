@@ -15,6 +15,7 @@ import {
   useMeasure,
 } from "@/state/measure";
 import { useUi } from "@/state/ui";
+import { useT } from "@/lib/i18n";
 
 type Pt = { x: number; y: number };
 
@@ -66,6 +67,7 @@ function Handle({
 }
 
 function Label({ at, text, id, interactive }: { at: Pt; text: string; id: string; interactive: boolean }) {
+  const t = useT();
   return (
     <span
       className="absolute flex -translate-x-1/2 -translate-y-1/2 items-center gap-1 whitespace-nowrap rounded-md bg-neutral-950/85 py-0.5 pr-1 pl-1.5 font-medium font-mono text-[11px] text-white tabular-nums shadow"
@@ -74,7 +76,7 @@ function Label({ at, text, id, interactive }: { at: Pt; text: string; id: string
       {text}
       {interactive && (
         <button
-          aria-label="Remove measurement"
+          aria-label={t("Remove measurement")}
           className="pointer-events-auto flex size-4 items-center justify-center rounded text-white/60 hover:bg-white/15 hover:text-white"
           onClick={() => removeMeasurement(id)}
           onPointerDown={(e) => e.stopPropagation()}

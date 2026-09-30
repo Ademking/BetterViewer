@@ -1,0 +1,34 @@
+{
+  "Add {count} items": {
+    "one": "Add {count} item",
+    "other": "Add {count} items"
+  },
+  "Delete {count} items": {
+    "one": "Delete {count} item",
+    "other": "Delete {count} items"
+  },
+  "Edit {count} items": {
+    "one": "Edit {count} item",
+    "other": "Edit {count} items"
+  },
+  "Downloading {count} images…": {
+    "one": "Downloading {count} image…",
+    "other": "Downloading {count} images…"
+  },
+  "Saved {count} images": {
+    "one": "Saved {count} image",
+    "other": "Saved {count} images"
+  },
+  "{count} QR codes found": {
+    "one": "QR code found",
+    "other": "{count} QR codes found"
+  },
+  "{count} codes found": {
+    "one": "{count} code found",
+    "other": "{count} codes found"
+  },
+  "{count} steps": {
+    "one": "{count} step",
+    "other": "{count} steps"
+  }
+}

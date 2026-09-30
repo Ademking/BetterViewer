@@ -87,6 +87,10 @@ runs in your browser, including OCR, background removal and QR scanning.
   line or everything
 - **Measure** distances and angles, **rulers** and draggable **guides**
 - Dark / light / system theme, floating panels, quick launch (**Ctrl/⌘ K**)
+- **16 languages**: English, 简体中文, 繁體中文, हिन्दी, Español, Français,
+  العربية (right to left), Português, Русский, Bahasa Indonesia, Deutsch,
+  日本語, Türkçe, 한국어, Tiếng Việt and Italiano. It follows your browser's
+  language; change it in **Settings → Appearance → Language**
 
 **Editing**
 
@@ -206,6 +210,15 @@ scripts/       build-extension.mjs (manifests + zips), build-emoji-data.mjs
 ```
 
 </details>
+
+### Translations
+
+Interface text lives in `src/locales/<code>.json`, keyed by the English text
+(`t("Fit to screen")` in the code). Missing entries show in English.
+`npm run i18n` lists missing, unused and mismatched keys for every language;
+`npm run i18n -- --keys` prints every key. To add a language, add a JSON file
+and an entry in `LANGUAGES` (`src/lib/i18n.ts`). The extension's menus, popup
+and store description are in `extension/_locales`.
 
 For ImgBB uploads, enter an API key in **Settings → Sharing** (kappa.lol needs
 none). For local development you can also set `VITE_IMGBB_API_KEY` in

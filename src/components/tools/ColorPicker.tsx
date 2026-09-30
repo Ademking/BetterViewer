@@ -7,6 +7,7 @@ import { Hinted, ToolButton } from "@/components/tools/ToolButton";
 import { applyColor, copyText } from "@/lib/actions";
 import { hexToRgb, rgbToHsl } from "@/lib/colors";
 import { getUi, useUi } from "@/state/ui";
+import { useT } from "@/lib/i18n";
 
 /** Open the color panel and start picking from the image right away. */
 export function openColorPicker() {
@@ -24,13 +25,14 @@ export function closeColorPicker() {
 
 /** Toolbar button: toggles the color tool (panel + eyedropper). */
 export function ColorPickerTool() {
+  const t = useT();
   const open = useUi((s) => s.panels.color);
   const picking = useUi((s) => s.tool === "eyedropper");
 
   return (
     <ToolButton
       active={open || picking}
-      label="Color picker"
+      label={t("Color picker")}
       onClick={() => (open ? closeColorPicker() : openColorPicker())}
       shortcut="I"
     >
@@ -45,6 +47,7 @@ export function ColorPickerTool() {
  * picking so values can be copied right after.
  */
 export function ColorPickerPanel() {
+  const t = useT();
   const open = useUi((s) => s.panels.color);
   const togglePanel = useUi((s) => s.togglePanel);
   const color = useUi((s) => s.style.stroke);
@@ -72,7 +75,7 @@ export function ColorPickerPanel() {
       minSize={{ width: 260, height: 220 }}
       onOpenChange={(o) => (o ? togglePanel("color", true) : closeColorPicker())}
       open={open}
-      title="Color"
+      title={t("Color")}
     >
       <div className="flex items-center gap-3">
         <div
@@ -81,14 +84,14 @@ export function ColorPickerPanel() {
         />
         <div className="min-w-0 flex-1">
           <div className="font-mono font-semibold text-sm">{hex}</div>
-          <div className="text-muted-foreground text-xs">Drawing color</div>
+          <div className="text-muted-foreground text-xs">{t("Drawing color")}</div>
         </div>
         <Button
           onClick={() => setTool(picking ? "select" : "eyedropper")}
           size="sm"
           variant={picking ? "default" : "outline"}
         >
-          <PipetteIcon /> {picking ? "Picking…" : "Pick"}
+          <PipetteIcon /> {picking ? t("Picking…") : t("Pick")}
         </Button>
       </div>
 
@@ -109,12 +112,12 @@ export function ColorPickerPanel() {
 
       {recent.length > 0 && (
         <div className="flex flex-col gap-1.5">
-          <span className="text-muted-foreground text-xs">Picked from image</span>
+          <span className="text-muted-foreground text-xs">{t("Picked from image")}</span>
           <div className="flex flex-wrap gap-1.5">
             {recent.map((c) => (
               <Hinted key={c} label={c.toUpperCase()}>
                 <button
-                  aria-label={`Use ${c}`}
+                  aria-label={t("Use {color}", { color: c })}
                   className="size-6 rounded-md border border-white/15 transition-transform hover:scale-110"
                   onClick={() => applyColor(c)}
                   style={{ background: c }}

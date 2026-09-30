@@ -1,0 +1,29 @@
+{
+  "extDescription": {
+    "message": "A browser extension for better image viewing experience"
+  },
+  "menuOpenImage": {
+    "message": "Open this image in BetterViewer"
+  },
+  "menuGallery": {
+    "message": "Browse all page images as a gallery"
+  },
+  "menuScreenshot": {
+    "message": "Screenshot this page"
+  },
+  "popupOpen": {
+    "message": "Open BetterViewer"
+  },
+  "popupGallery": {
+    "message": "Browse page images"
+  },
+  "popupSettings": {
+    "message": "Settings"
+  },
+  "popupShortcuts": {
+    "message": "Keyboard shortcuts"
+  },
+  "popupAbout": {
+    "message": "About BetterViewer"
+  }
+}

@@ -6,11 +6,12 @@ import { ScreenFloatingPanel } from "@/components/panels/FloatingPanel";
 import { LanguagePicker } from "@/components/tools/LanguagePicker";
 import { copyText } from "@/lib/actions";
 import { writeClipboardText } from "@/lib/clipboard";
-import { OCR_LANGUAGES, type OcrLine, runOcr, useOcr } from "@/lib/ocr";
+import { ocrLanguageOptions, type OcrLine, runOcr, useOcr } from "@/lib/ocr";
 import { cn } from "@/lib/utils";
 import { useDoc } from "@/state/document";
 import { useSettings } from "@/state/settings";
 import { getUi, useUi } from "@/state/ui";
+import { useT } from "@/lib/i18n";
 
 /** Open the OCR panel and extract text straight away (unless already done). */
 export function openOcr() {
@@ -41,13 +42,14 @@ function useCopied(text: string, label: string) {
 }
 
 function LineRow({ line }: { line: OcrLine }) {
+  const t = useT();
   const { copied, copy } = useCopied(line.text, "line");
   const unsure = line.confidence < 60;
   return (
     <button
       className="group/line -mx-1 flex items-start gap-2 rounded-md px-1 py-1 text-left text-[13px] leading-snug transition-colors hover:bg-accent/70"
       onClick={copy}
-      title={unsure ? `Low confidence (${Math.round(line.confidence)}%). Click to copy` : "Click to copy"}
+      title={unsure ? t("Low confidence ({percent}%). Click to copy", { percent: Math.round(line.confidence) }) : t("Click to copy")}
       type="button"
     >
       <span className={cn("min-w-0 flex-1 break-words", unsure && "text-muted-foreground")}>
@@ -67,6 +69,7 @@ function LineRow({ line }: { line: OcrLine }) {
 }
 
 export function OcrPanel() {
+  const t = useT();
   const open = useUi((s) => s.panels.ocr);
   const togglePanel = useUi((s) => s.togglePanel);
   const lang = useSettings((s) => s.ocrLang);
@@ -88,10 +91,10 @@ export function OcrPanel() {
             size="sm"
             variant="outline"
           >
-            {all.copied ? <CheckIcon /> : <CopyIcon />} {all.copied ? "Copied" : "Copy all"}
+            {all.copied ? <CheckIcon /> : <CopyIcon />} {all.copied ? t("Copied") : t("Copy all")}
           </Button>
           <Button disabled={running || !src} onClick={() => void runOcr()} size="sm" variant="ghost">
-            <RefreshCwIcon /> {status === "idle" || stale ? "Extract" : "Extract again"}
+            <RefreshCwIcon /> {status === "idle" || stale ? t("Extract") : t("Extract again")}
           </Button>
         </>
       }
@@ -101,7 +104,7 @@ export function OcrPanel() {
       minSize={{ width: 280, height: 240 }}
       onOpenChange={(o) => togglePanel("ocr", o)}
       open={open}
-      title="Extract text"
+      title={t("Extract text")}
     >
       <LanguagePicker
         disabled={running}
@@ -110,7 +113,7 @@ export function OcrPanel() {
           setSetting("ocrLang", v);
           if (src) void runOcr(v);
         }}
-        options={OCR_LANGUAGES}
+        options={ocrLanguageOptions()}
         value={lang}
       />
 
@@ -126,7 +129,7 @@ export function OcrPanel() {
             <div className="h-full rounded-full bg-brand transition-[width] duration-200" style={{ width: `${Math.round(progress * 100)}%` }} />
           </div>
           <p className="text-[11px] text-muted-foreground">
-            Runs on your device. Language data is downloaded once, then cached.
+            {t("Runs on your device. Language data is downloaded once, then cached.")}
           </p>
         </div>
       )}
@@ -138,9 +141,9 @@ export function OcrPanel() {
       {!running && (status === "idle" || stale) && (
         <div className="flex flex-col items-center gap-3 py-8 text-center text-muted-foreground text-sm">
           <ScanTextIcon className="size-8 opacity-60" />
-          Find and copy the text in this image.
+          {t("Find and copy the text in this image.")}
           <Button onClick={() => void runOcr()} size="sm">
-            <ScanTextIcon /> Extract text
+            <ScanTextIcon /> {t("Extract text")}
           </Button>
         </div>
       )}
@@ -149,9 +152,9 @@ export function OcrPanel() {
         result.lines.length === 0 ? (
           <div className="flex flex-col items-center gap-2 py-8 text-center">
             <ScanTextIcon className="size-8 text-muted-foreground opacity-60" />
-            <div className="font-medium text-sm">No text found</div>
+            <div className="font-medium text-sm">{t("No text found")}</div>
             <p className="max-w-60 text-muted-foreground text-xs">
-              Try another language, zoom-cropping the text, or a sharper image.
+              {t("Try another language, zoom-cropping the text, or a sharper image.")}
             </p>
           </div>
         ) : (

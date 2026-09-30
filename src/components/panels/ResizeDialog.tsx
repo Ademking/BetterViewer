@@ -10,6 +10,7 @@ import { resizeImage } from "@/lib/resize";
 import { cn } from "@/lib/utils";
 import { displaySize, useDoc } from "@/state/document";
 import { useUi } from "@/state/ui";
+import { dims, tk, useT } from "@/lib/i18n";
 
 type Unit = "px" | "%";
 
@@ -18,9 +19,9 @@ const MAX_SIDE = 16384;
 const PERCENT_PRESETS = [25, 50, 75, 150, 200];
 const WIDTH_PRESETS = [
   { label: "4K", width: 3840 },
-  { label: "Full HD", width: 1920 },
-  { label: "HD", width: 1280 },
-  { label: "Web", width: 800 },
+  { label: tk("Full HD"), width: 1920 },
+  { label: tk("HD"), width: 1280 },
+  { label: tk("Web"), width: 800 },
 ];
 
 function Field({
@@ -55,6 +56,7 @@ function Field({
 const fmt = (n: number, unit: Unit) => (unit === "%" ? String(Math.round(n * 100) / 100) : String(Math.round(n)));
 
 export function ResizeDialog() {
+  const t = useT();
   const open = useUi((s) => s.panels.resize);
   const togglePanel = useUi((s) => s.togglePanel);
   const doc = useDoc((s) => s.doc);
@@ -143,12 +145,12 @@ export function ResizeDialog() {
       await resizeImage(outW, outH);
       togglePanel("resize", false);
       toast.success({
-        title: "Image resized",
-        description: `${current.width} × ${current.height} → ${outW} × ${outH} px`,
-        action: { label: "Undo", onClick: undo },
+        title: t("Image resized"),
+        description: `${dims(current.width, current.height)} → ${dims(outW, outH)} px`,
+        action: { label: t("Undo"), onClick: undo },
       });
     } catch (err) {
-      toast.error({ title: "Couldn't resize", description: (err as Error).message });
+      toast.error({ title: t("Couldn't resize"), description: (err as Error).message });
     } finally {
       setBusy(false);
     }
@@ -158,8 +160,8 @@ export function ResizeDialog() {
     <Dialog onOpenChange={(d) => togglePanel("resize", d.open)} open={open}>
       <DialogContent className="glass" size="sm">
         <DialogHeader
-          description={`Currently ${current.width} × ${current.height} px. Drawings and text are scaled too.`}
-          title="Resize image"
+          description={t("Currently {width} × {height} px. Drawings and text are scaled too.", { width: current.width, height: current.height })}
+          title={t("Resize image")}
         />
         <DialogBody className="flex flex-col gap-5">
           <SegmentGroup
@@ -173,16 +175,16 @@ export function ResizeDialog() {
                 key={u}
                 value={u}
               >
-                <SegmentGroupItemText>{u === "px" ? "Pixels" : "Percent"}</SegmentGroupItemText>
+                <SegmentGroupItemText>{u === "px" ? t("Pixels") : t("Percent")}</SegmentGroupItemText>
               </SegmentGroupItem>
             ))}
           </SegmentGroup>
 
           <div className="flex items-end gap-2">
-            <Field label="Width" onChange={setWidth} unit={unit} value={w} />
-            <Hinted label={locked ? "Proportions locked" : "Proportions unlocked"}>
+            <Field label={t("Width")} onChange={setWidth} unit={unit} value={w} />
+            <Hinted label={locked ? t("Proportions locked") : t("Proportions unlocked")}>
               <button
-                aria-label={locked ? "Unlock proportions" : "Lock proportions"}
+                aria-label={locked ? t("Unlock proportions") : t("Lock proportions")}
                 aria-pressed={locked}
                 className={cn(
                   "mb-0.5 flex size-8 shrink-0 items-center justify-center rounded-lg transition-colors hover:bg-accent [&_svg]:size-4",
@@ -199,11 +201,11 @@ export function ResizeDialog() {
                 {locked ? <LinkIcon /> : <UnlinkIcon />}
               </button>
             </Hinted>
-            <Field label="Height" onChange={setHeight} unit={unit} value={h} />
+            <Field label={t("Height")} onChange={setHeight} unit={unit} value={h} />
           </div>
 
           <div className="flex flex-col gap-2">
-            <span className="font-medium text-muted-foreground text-xs">Quick sizes</span>
+            <span className="font-medium text-muted-foreground text-xs">{t("Quick sizes")}</span>
             <div className="flex flex-wrap gap-1.5">
               {PERCENT_PRESETS.map((p) => (
                 <Button key={p} onClick={() => applyPercent(p)} size="xs" variant="outline">
@@ -212,16 +214,16 @@ export function ResizeDialog() {
               ))}
               {WIDTH_PRESETS.filter((p) => p.width !== current.width).map((p) => (
                 <Button key={p.label} onClick={() => applyWidth(p.width)} size="xs" variant="outline">
-                  {p.label} <span className="text-muted-foreground">{p.width}</span>
+                  {t(p.label)} <span className="text-muted-foreground">{p.width}</span>
                 </Button>
               ))}
             </div>
           </div>
 
           <div className="flex items-center justify-between rounded-lg bg-muted/50 px-3 py-2 text-sm">
-            <span className="text-muted-foreground">New size</span>
+            <span className="text-muted-foreground">{t("New size")}</span>
             <span className="font-medium tabular-nums">
-              {valid ? `${outW} × ${outH} px` : "-"}
+              {valid ? `${dims(outW, outH)} px` : "-"}
               {valid && !unchanged && (
                 <span className="ms-2 text-muted-foreground text-xs">
                   {Math.round((outW / current.width) * 100)}%
@@ -238,16 +240,16 @@ export function ResizeDialog() {
           {!tooBig && valid && upscale && (
             <p className="flex items-start gap-2 text-muted-foreground text-xs">
               <TriangleAlertIcon className="mt-px size-3.5 shrink-0 text-warning" />
-              Enlarging can't add detail, so the image may look soft.
+              {t("Enlarging can't add detail, so the image may look soft.")}
             </p>
           )}
         </DialogBody>
         <DialogFooter className="py-3">
           <Button onClick={() => togglePanel("resize", false)} size="sm" variant="ghost">
-            Cancel
+            {t("Cancel")}
           </Button>
           <Button disabled={!valid || unchanged} isLoading={busy} onClick={apply} size="sm">
-            <ScalingIcon /> Resize
+            <ScalingIcon /> {t("Resize")}
           </Button>
         </DialogFooter>
       </DialogContent>

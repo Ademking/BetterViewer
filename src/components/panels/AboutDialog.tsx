@@ -1,6 +1,7 @@
 import { StarIcon } from "lucide-react";
 import { Dialog, DialogBody, DialogContent } from "@/components/ui/dialog";
 import { useUi } from "@/state/ui";
+import { useT } from "@/lib/i18n";
 
 export const REPO_URL = "https://github.com/Ademking/BetterViewer";
 const AUTHOR_URL = "https://github.com/Ademking";
@@ -15,11 +16,12 @@ export function GitHubMark({ className }: { className?: string }) {
 
 /** About BetterViewer: version, what it is, where to star it, who made it. */
 export function AboutDialog() {
+  const t = useT();
   const open = useUi((s) => s.panels.about);
   const togglePanel = useUi((s) => s.togglePanel);
   return (
     <Dialog onOpenChange={(d) => togglePanel("about", d.open)} open={open}>
-      <DialogContent aria-label="About BetterViewer" className="glass" size="sm">
+      <DialogContent aria-label={t("About BetterViewer")} className="glass" size="sm">
         <DialogBody>
           <div className="flex flex-col items-center px-2 pt-4 pb-2 text-center">
             <img alt="" className="size-20" draggable={false} height={80} src="/icon.png" width={80} />
@@ -29,16 +31,17 @@ export function AboutDialog() {
                 v{__APP_VERSION__}
               </span>
             </div>
-            <p className="mt-1 font-medium text-muted-foreground text-sm">Fast, simple &amp; easy image viewer</p>
+            <p className="mt-1 font-medium text-muted-foreground text-sm">{t("Fast, simple & easy image viewer")}</p>
 
             <p className="mt-5 max-w-sm text-pretty text-sm leading-relaxed">
-              BetterViewer makes viewing images faster, easier and more fun. It's designed as a better
-              alternative to your browser's built-in image viewer.
+              {t(
+                "BetterViewer makes viewing images faster, easier and more fun. It's designed as a better alternative to your browser's built-in image viewer."
+              )}
             </p>
 
             <div className="mt-6 flex w-full flex-col items-center gap-3 rounded-xl border bg-muted/40 p-4">
               <p className="text-balance text-muted-foreground text-sm">
-                Find BetterViewer useful? Don't forget to leave a star!
+                {t("Find BetterViewer useful? Don't forget to leave a star!")}
               </p>
               <a
                 className="inline-flex h-9 items-center gap-2 rounded-lg bg-brand px-4 font-medium text-sm text-white transition-colors hover:bg-brand/90 focus-visible:outline-2 focus-visible:outline-brand focus-visible:outline-offset-2"
@@ -46,7 +49,7 @@ export function AboutDialog() {
                 rel="noopener noreferrer"
                 target="_blank"
               >
-                <StarIcon className="size-4" /> Star on GitHub
+                <StarIcon className="size-4" /> {t("Star on GitHub")}
               </a>
               <a
                 className="inline-flex max-w-full items-center gap-1.5 text-muted-foreground text-xs transition-colors hover:text-foreground"
@@ -60,7 +63,7 @@ export function AboutDialog() {
             </div>
 
             <p className="mt-6 text-muted-foreground text-sm">
-              Created with ❤️🍪 by{" "}
+              {t("Created with ❤️🍪 by")}{" "}
               <a
                 className="font-medium text-foreground underline-offset-4 hover:underline"
                 href={AUTHOR_URL}

@@ -9,6 +9,7 @@ import { zoomActual, zoomFit, zoomIn, zoomOut, zoomToSelection } from "@/lib/act
 import { MAX_SCALE, MIN_SCALE, useView, viewport } from "@/lib/viewport";
 import { cn } from "@/lib/utils";
 import { useUi } from "@/state/ui";
+import { useT } from "@/lib/i18n";
 
 const LMIN = Math.log(MIN_SCALE);
 const LMAX = Math.log(MAX_SCALE);
@@ -18,6 +19,7 @@ const fromSlider = (v: number) => Math.exp(LMIN + (v / 1000) * (LMAX - LMIN));
 const PRESETS = [0.25, 0.5, 1, 2, 4, 8];
 
 export function ZoomControls({ compact = false }: { compact?: boolean }) {
+  const t = useT();
   const scale = useView((s) => s.scale);
   const hasSelection = useUi((s) => s.selectedIds.length > 0);
   const pct = Math.round(scale * 100);
@@ -25,12 +27,12 @@ export function ZoomControls({ compact = false }: { compact?: boolean }) {
   return (
     <div className="flex items-center gap-0.5">
       {!compact && (
-        <ToolButton label="Zoom out" onClick={zoomOut} shortcut={`${MOD} −`}>
+        <ToolButton label={t("Zoom out")} onClick={zoomOut} shortcut={`${MOD} −`}>
           <MinusIcon />
         </ToolButton>
       )}
       <Popover modal={false} positioning={{ placement: "top", gutter: 14 }}>
-        <Hinted label="Zoom options">
+        <Hinted label={t("Zoom options")}>
           <PopoverTrigger
             className={cn(
               "h-8 min-w-14 rounded-lg px-1.5 font-medium text-xs tabular-nums",
@@ -42,11 +44,11 @@ export function ZoomControls({ compact = false }: { compact?: boolean }) {
         </Hinted>
         <PopoverContent className="w-72 gap-3 p-3">
           <div className="flex items-center justify-between">
-            <span className="font-medium text-sm">Zoom</span>
+            <span className="font-medium text-sm">{t("Zoom")}</span>
             <span className="font-mono text-muted-foreground text-xs tabular-nums">{pct}%</span>
           </div>
           <Slider
-            aria-label={["Zoom level"]}
+            aria-label={[t("Zoom level")]}
             max={1000}
             min={0}
             onValueChange={(d) => viewport.zoomTo(fromSlider(d.value[0]), viewport.center, false)}
@@ -54,7 +56,7 @@ export function ZoomControls({ compact = false }: { compact?: boolean }) {
             value={[toSlider(scale)]}
           />
           <SegmentGroup
-            aria-label="Zoom presets"
+            aria-label={t("Zoom presets")}
             className="grid grid-cols-6 gap-0.5 rounded-lg bg-muted/60 p-0.5 [&>[data-part=indicator]]:bg-foreground/12 [&>[data-part=indicator]]:shadow-sm"
             onValueChange={(d) => d.value && viewport.zoomTo(Number(d.value))}
             value={PRESETS.find((p) => Math.abs(scale - p) < 0.005)?.toString() ?? null}
@@ -71,12 +73,12 @@ export function ZoomControls({ compact = false }: { compact?: boolean }) {
           </SegmentGroup>
           <Separator />
           <div className="grid gap-0.5">
-            <ZoomRow icon={<MaximizeIcon />} label="Fit to screen" onClick={zoomFit} shortcut="0" />
-            <ZoomRow icon={<span className="font-semibold text-[10px]">1:1</span>} label="Actual size (100%)" onClick={zoomActual} shortcut="1" />
+            <ZoomRow icon={<MaximizeIcon />} label={t("Fit to screen")} onClick={zoomFit} shortcut="0" />
+            <ZoomRow icon={<span className="font-semibold text-[10px]">1:1</span>} label={t("Actual size (100%)")} onClick={zoomActual} shortcut="1" />
             <ZoomRow
               disabled={!hasSelection}
               icon={<ScanIcon />}
-              label="Zoom to selection"
+              label={t("Zoom to selection")}
               onClick={zoomToSelection}
               shortcut="2"
             />
@@ -84,12 +86,12 @@ export function ZoomControls({ compact = false }: { compact?: boolean }) {
         </PopoverContent>
       </Popover>
       {!compact && (
-        <ToolButton label="Zoom in" onClick={zoomIn} shortcut={`${MOD} +`}>
+        <ToolButton label={t("Zoom in")} onClick={zoomIn} shortcut={`${MOD} +`}>
           <PlusIcon />
         </ToolButton>
       )}
       {!compact && (
-        <ToolButton label="Fit to screen" onClick={zoomFit} shortcut="0">
+        <ToolButton label={t("Fit to screen")} onClick={zoomFit} shortcut="0">
           <MaximizeIcon />
         </ToolButton>
       )}

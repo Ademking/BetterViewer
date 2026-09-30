@@ -1,5 +1,6 @@
 "use client";
 
+import { t } from "@/lib/i18n";
 import { Portal } from "@ark-ui/react";
 import { Combobox as ArkCombobox } from "@ark-ui/react/combobox";
 import { Dialog as ArkDialog } from "@ark-ui/react/dialog";
@@ -198,7 +199,7 @@ export const CommandEmpty = (
       data-slot="command-empty"
       {...rest}
     >
-      {children || "No results found."}
+      {children || t("No results found.")}
     </ComboboxEmpty>
   );
 };

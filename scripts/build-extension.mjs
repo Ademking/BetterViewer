@@ -20,7 +20,9 @@ const base = {
   name: "BetterViewer",
   short_name: "BetterViewer",
   version: pkg.version,
-  description: pkg.description,
+  // Translated in extension/_locales (English matches package.json).
+  description: "__MSG_extDescription__",
+  default_locale: "en",
   homepage_url: "https://github.com/Ademking/BetterViewer",
   icons: { 16: "icons/icon-16.png", 32: "icons/icon-32.png", 48: "icons/icon-48.png", 128: "icons/icon-128.png" },
   action: {
@@ -36,11 +38,11 @@ const base = {
   commands: {
     "open-gallery": {
       suggested_key: { default: "Alt+Shift+G" },
-      description: "Browse all page images as a gallery",
+      description: "__MSG_menuGallery__",
     },
     "take-screenshot": {
       suggested_key: { default: "Alt+Shift+S" },
-      description: "Screenshot this page",
+      description: "__MSG_menuScreenshot__",
     },
   },
   // Needed to detect images opened in tabs, and to download them (with the
@@ -154,6 +156,7 @@ for (const [target, manifest] of Object.entries(targets)) {
   mkdirSync(out, { recursive: true });
   cpSync(app, out, { recursive: true });
   cpSync(join(root, "extension", "icons"), join(out, "icons"), { recursive: true });
+  cpSync(join(root, "extension", "_locales"), join(out, "_locales"), { recursive: true });
   cpSync(join(root, "extension", "content.js"), join(out, "content.js"));
   for (const file of ["background.js", "popup.html", "popup.js"]) {
     cpSync(join(root, "extension", file), join(out, file));

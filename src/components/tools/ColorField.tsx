@@ -18,6 +18,7 @@ import { Hinted } from "@/components/tools/ToolButton";
 import { isTransparent, TRANSPARENT } from "@/lib/annotations";
 import { SWATCHES } from "@/lib/colors";
 import { cn } from "@/lib/utils";
+import { useT } from "@/lib/i18n";
 
 interface ColorPanelProps {
   value: string;
@@ -29,6 +30,7 @@ interface ColorPanelProps {
 
 /** Inline Shark color picker: area, hue/alpha, hex input, eyedropper, swatches. */
 export function ColorPanel({ value, onChange, allowNone, alpha, className }: ColorPanelProps) {
+  const t = useT();
   const none = isTransparent(value);
   const pickerValue = none ? "#ffffff" : value;
 
@@ -65,7 +67,7 @@ export function ColorPanel({ value, onChange, allowNone, alpha, className }: Col
         <ColorPickerSwatchGroup className="grid grid-cols-7 gap-1.5">
           {allowNone && (
             <button
-              aria-label="No color"
+              aria-label={t("No color")}
               className={cn(
                 "flex size-6 items-center justify-center rounded-full border text-muted-foreground transition-transform hover:scale-110",
                 none && "ring-2 ring-brand"

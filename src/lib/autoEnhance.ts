@@ -2,6 +2,7 @@ import { toast } from "@/components/ui/toast";
 import { type Levels, isIdentityLevels } from "@/lib/develop-core";
 import { histogramOf, loadSample } from "@/lib/histogram";
 import { getDoc, updateDoc, useDoc } from "@/state/document";
+import { t } from "@/lib/i18n";
 
 const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v));
 
@@ -98,8 +99,8 @@ export async function autoEnhance() {
   }));
   if (useDoc.getState().past.length === past) return;
   toast.success({
-    title: "Auto-enhanced",
-    description: "Levels, white balance, vibrance and sharpening were adjusted.",
-    action: { label: "Undo", onClick: () => useDoc.getState().undo() },
+    title: t("Auto-enhanced"),
+    description: t("Levels, white balance, vibrance and sharpening were adjusted."),
+    action: { label: t("Undo"), onClick: () => useDoc.getState().undo() },
   });
 }

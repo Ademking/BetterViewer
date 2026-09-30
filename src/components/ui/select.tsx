@@ -9,6 +9,7 @@ import type { VariantProps } from "tailwind-variants";
 import { cn } from "@/lib/utils";
 import { inputVariants } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
+import { t } from "@/lib/i18n";
 
 export const useSelect = useSelectContext;
 
@@ -69,7 +70,7 @@ export const SelectTrigger = (props: SelectTriggerProps) => {
       >
         {children}
 
-        <div className="ms-auto flex items-center gap-1 rtl:me-auto">
+        <div className="ms-auto flex items-center gap-1">
           {showClear && (
             <SelectClearTrigger>
               <XIcon />
@@ -242,7 +243,7 @@ export const SelectClearTrigger = (
 
   return (
     <ArkSelect.ClearTrigger
-      aria-label="Clear selected value(s)"
+      aria-label={t("Clear selected value(s)")}
       className={cn(
         "[&_svg]:pointer-events-none [&_svg]:size-3.5 [&_svg]:shrink-0 [&_svg]:text-muted-foreground",
         "transition-opacity",

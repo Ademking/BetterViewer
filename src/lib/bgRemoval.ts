@@ -4,6 +4,7 @@ import { baseName, imageInfoFromBlob } from "@/lib/image";
 import { getDoc, updateDoc } from "@/state/document";
 import { isExtension, vendorUrl } from "@/lib/platform";
 import { getSettings } from "@/state/settings";
+import { t } from "@/lib/i18n";
 
 /**
  * Background removal with ormbg (Apache-2.0, ISNet-based) via Transformers.js.
@@ -97,13 +98,13 @@ function runInWorker(image: Blob, backend: Backend, onProgress: (e: ProgressEven
       w.removeEventListener("message", onMessage);
       w.removeEventListener("error", onError);
       if (e.data.type === "done" && e.data.blob) resolve(e.data.blob);
-      else reject(new Error(e.data.message || "The model failed to run in this browser."));
+      else reject(new Error(e.data.message || t("The model failed to run in this browser.")));
     };
     const onError = (e: ErrorEvent) => {
       w.removeEventListener("message", onMessage);
       w.removeEventListener("error", onError);
       resetWorker();
-      reject(new Error(e.message || "The background removal worker stopped."));
+      reject(new Error(e.message || t("The background removal worker stopped.")));
     };
     w.addEventListener("message", onMessage);
     w.addEventListener("error", onError);
@@ -139,10 +140,10 @@ export async function removeBackground() {
 
   const id = toast.create({
     type: "loading",
-    title: "Removing background…",
+    title: t("Removing background…"),
     description: loaded
-      ? "Processing on your device…"
-      : `Loading the model (≈${MODEL_MB[backend.dtype]} MB, downloaded once)…`,
+      ? t("Processing on your device…")
+      : t("Loading the model (≈{size} MB, downloaded once)…", { size: MODEL_MB[backend.dtype] }),
     duration: Number.POSITIVE_INFINITY,
     closable: false,
   });
@@ -156,15 +157,15 @@ export async function removeBackground() {
     toast.update(id, {
       description:
         pct >= 100
-          ? "Processing on your device…"
-          : `Downloading model… ${pct}% (${Math.round((e.total ?? 0) / 1e6)} MB, once)`,
+          ? t("Processing on your device…")
+          : t("Downloading model… {percent}% ({size} MB, once)", { percent: pct, size: Math.round((e.total ?? 0) / 1e6) }),
     });
   };
 
   try {
     const image = await (await fetch(src)).blob();
     const blob = await segment(image, backend, onProgress, () =>
-      toast.update(id, { description: "Your GPU couldn't run the model, so it's using the CPU instead…" })
+      toast.update(id, { description: t("Your GPU couldn't run the model, so it's using the CPU instead…") })
     );
     modelLoaded = true;
 
@@ -179,20 +180,20 @@ export async function removeBackground() {
 
     toast.update(id, {
       type: "success",
-      title: "Background removed",
-      description: `Undo with ${MOD} Z if you want it back.`,
+      title: t("Background removed"),
+      description: t("Undo with {keys} if you want it back.", { keys: `${MOD} Z` }),
       duration: 6000,
       closable: true,
       action:
         getSettings().boardBackground === "grid"
           ? undefined
-          : { label: "Show transparency", onClick: () => getSettings().set("boardBackground", "grid") },
+          : { label: t("Show transparency"), onClick: () => getSettings().set("boardBackground", "grid") },
     });
   } catch (err) {
     toast.update(id, {
       type: "error",
-      title: "Couldn't remove the background",
-      description: (err as Error).message || "The model failed to run in this browser.",
+      title: t("Couldn't remove the background"),
+      description: (err as Error).message || t("The model failed to run in this browser."),
       duration: 8000,
       closable: true,
     });

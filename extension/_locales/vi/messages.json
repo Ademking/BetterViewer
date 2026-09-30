@@ -1,0 +1,29 @@
+{
+  "extDescription": {
+    "message": "Tiện ích trình duyệt giúp xem ảnh tốt hơn"
+  },
+  "menuOpenImage": {
+    "message": "Mở ảnh này trong BetterViewer"
+  },
+  "menuGallery": {
+    "message": "Duyệt mọi ảnh trên trang dạng thư viện"
+  },
+  "menuScreenshot": {
+    "message": "Chụp màn hình trang này"
+  },
+  "popupOpen": {
+    "message": "Mở BetterViewer"
+  },
+  "popupGallery": {
+    "message": "Duyệt ảnh trên trang"
+  },
+  "popupSettings": {
+    "message": "Cài đặt"
+  },
+  "popupShortcuts": {
+    "message": "Phím tắt"
+  },
+  "popupAbout": {
+    "message": "Giới thiệu BetterViewer"
+  }
+}

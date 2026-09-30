@@ -1,3 +1,4 @@
+import { tk } from "@/lib/i18n";
 /** Tone curves: control points per channel, turned into 256-entry lookup tables. */
 
 export type CurveChannel = "rgb" | "r" | "g" | "b";
@@ -7,9 +8,9 @@ export type Curves = Record<CurveChannel, CurvePoint[]>;
 
 export const CHANNELS: { id: CurveChannel; label: string; color: string }[] = [
   { id: "rgb", label: "RGB", color: "#e5e5e5" },
-  { id: "r", label: "Red", color: "#ff5a52" },
-  { id: "g", label: "Green", color: "#3ddc6f" },
-  { id: "b", label: "Blue", color: "#4f9dff" },
+  { id: "r", label: tk("Red"), color: "#ff5a52" },
+  { id: "g", label: tk("Green"), color: "#3ddc6f" },
+  { id: "b", label: tk("Blue"), color: "#4f9dff" },
 ];
 
 const LINEAR: CurvePoint[] = [
@@ -100,12 +101,12 @@ export const curvesKey = (c: Curves | null | undefined) =>
   isIdentityCurves(c) ? "" : JSON.stringify(c);
 
 export const CURVE_PRESETS: { name: string; rgb: CurvePoint[] }[] = [
-  { name: "Linear", rgb: LINEAR },
-  { name: "More contrast", rgb: [[0, 0], [64, 48], [192, 208], [255, 255]] },
-  { name: "Strong contrast", rgb: [[0, 0], [64, 36], [192, 220], [255, 255]] },
-  { name: "Less contrast", rgb: [[0, 16], [64, 72], [192, 184], [255, 240]] },
-  { name: "Lighter", rgb: [[0, 0], [128, 160], [255, 255]] },
-  { name: "Darker", rgb: [[0, 0], [128, 96], [255, 255]] },
-  { name: "Matte", rgb: [[0, 36], [80, 84], [200, 208], [255, 245]] },
-  { name: "Negative", rgb: [[0, 255], [255, 0]] },
+  { name: tk("Linear"), rgb: LINEAR },
+  { name: tk("More contrast"), rgb: [[0, 0], [64, 48], [192, 208], [255, 255]] },
+  { name: tk("Strong contrast"), rgb: [[0, 0], [64, 36], [192, 220], [255, 255]] },
+  { name: tk("Less contrast"), rgb: [[0, 16], [64, 72], [192, 184], [255, 240]] },
+  { name: tk("Lighter"), rgb: [[0, 0], [128, 160], [255, 255]] },
+  { name: tk("Darker"), rgb: [[0, 0], [128, 96], [255, 255]] },
+  { name: tk("Matte"), rgb: [[0, 36], [80, 84], [200, 208], [255, 245]] },
+  { name: tk("Negative"), rgb: [[0, 255], [255, 0]] },
 ];

@@ -1,4 +1,5 @@
 import { getSettings } from "@/state/settings";
+import { t, tk } from "@/lib/i18n";
 
 export interface ImgbbUpload {
   id: string;
@@ -18,11 +19,11 @@ export interface ImgbbUpload {
 }
 
 export const EXPIRY_OPTIONS: { value: number; label: string }[] = [
-  { value: 0, label: "Never" },
-  { value: 60 * 60, label: "1 hour" },
-  { value: 60 * 60 * 24, label: "1 day" },
-  { value: 60 * 60 * 24 * 7, label: "1 week" },
-  { value: 60 * 60 * 24 * 30, label: "1 month" },
+  { value: 0, label: tk("Never") },
+  { value: 60 * 60, label: tk("1 hour") },
+  { value: 60 * 60 * 24, label: tk("1 day") },
+  { value: 60 * 60 * 24 * 7, label: tk("1 week") },
+  { value: 60 * 60 * 24 * 30, label: tk("1 month") },
 ];
 
 /** API key from Settings, falling back to the built-in default (VITE_IMGBB_API_KEY). */
@@ -56,7 +57,7 @@ export async function uploadToImgbb(
   { expiration = 0, name }: { expiration?: number; name?: string } = {}
 ): Promise<ImgbbUpload> {
   const key = getImgbbKey();
-  if (!key) throw new Error("Add your ImgBB API key in Settings → Sharing.");
+  if (!key) throw new Error(t("Add your ImgBB API key in Settings → Sharing."));
 
   const params = new URLSearchParams({ key });
   if (expiration > 0) params.set("expiration", String(expiration));
@@ -69,13 +70,13 @@ export async function uploadToImgbb(
   try {
     res = await fetch(`https://api.imgbb.com/1/upload?${params}`, { method: "POST", body: form });
   } catch {
-    throw new Error("Couldn't reach ImgBB. Check your connection and try again.");
+    throw new Error(t("Couldn't reach ImgBB. Check your connection and try again."));
   }
 
   const json = (await res.json().catch(() => ({}))) as ImgbbResponse;
   if (!res.ok || !json.success || !json.data) {
     const msg = json.error?.message ?? `Upload failed (HTTP ${res.status}).`;
-    if (res.status === 400 && /key/i.test(msg)) throw new Error("ImgBB rejected the API key. Check it in Settings → Sharing.");
+    if (res.status === 400 && /key/i.test(msg)) throw new Error(t("ImgBB rejected the API key. Check it in Settings → Sharing."));
     throw new Error(msg);
   }
 

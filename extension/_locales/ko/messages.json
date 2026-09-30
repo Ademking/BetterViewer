@@ -1,0 +1,29 @@
+{
+  "extDescription": {
+    "message": "브라우저에서 이미지를 더 편하게 볼 수 있게 해 주는 확장 프로그램"
+  },
+  "menuOpenImage": {
+    "message": "BetterViewer에서 이 이미지 열기"
+  },
+  "menuGallery": {
+    "message": "페이지의 모든 이미지를 갤러리로 보기"
+  },
+  "menuScreenshot": {
+    "message": "이 페이지 스크린샷"
+  },
+  "popupOpen": {
+    "message": "BetterViewer 열기"
+  },
+  "popupGallery": {
+    "message": "페이지 이미지 보기"
+  },
+  "popupSettings": {
+    "message": "설정"
+  },
+  "popupShortcuts": {
+    "message": "키보드 단축키"
+  },
+  "popupAbout": {
+    "message": "BetterViewer 정보"
+  }
+}

@@ -7,6 +7,7 @@ import { DEFAULT_LEVELS, isIdentityLevels, type Levels } from "@/lib/develop-cor
 import { histogramPath, histogramPeak } from "@/lib/histogram";
 import { cn } from "@/lib/utils";
 import { updateDoc, useDoc } from "@/state/document";
+import { useT } from "@/lib/i18n";
 
 const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v));
 
@@ -106,6 +107,7 @@ function NumberBox({
 
 /** Levels: input black / midtones / white over the histogram, and output range. */
 export function LevelsEditor({ hist }: { hist: Uint32Array | null }) {
+  const t = useT();
   const levels = useDoc((s) => s.doc?.levels) ?? DEFAULT_LEVELS;
   const { inBlack, inWhite, gamma, outBlack, outWhite } = levels;
   const midPos = (inBlack + gammaToPos(gamma) * (inWhite - inBlack)) / 255;
@@ -126,13 +128,13 @@ export function LevelsEditor({ hist }: { hist: Uint32Array | null }) {
         <div className="relative mx-0 h-4">
           <Handle
             fill="#000"
-            label="Input black point"
+            label={t("Input black point")}
             onDrag={(v, key) => setLevels({ inBlack: Math.min(Math.round(v * 255), inWhite - 2) }, key)}
             pos={inBlack / 255}
           />
           <Handle
             fill="#808080"
-            label="Midtones"
+            label={t("Midtones")}
             onDrag={(v, key) => {
               const p = (v * 255 - inBlack) / Math.max(1, inWhite - inBlack);
               setLevels({ gamma: Math.round(posToGamma(p) * 100) / 100 }, key);
@@ -141,56 +143,56 @@ export function LevelsEditor({ hist }: { hist: Uint32Array | null }) {
           />
           <Handle
             fill="#fff"
-            label="Input white point"
+            label={t("Input white point")}
             onDrag={(v, key) => setLevels({ inWhite: Math.max(Math.round(v * 255), inBlack + 2) }, key)}
             pos={inWhite / 255}
           />
         </div>
         <div className="mt-1 flex items-center justify-between">
-          <NumberBox label="Input black" max={inWhite - 2} min={0} onChange={(v) => setLevels({ inBlack: v }, numKey)} value={inBlack} />
+          <NumberBox label={t("Input black")} max={inWhite - 2} min={0} onChange={(v) => setLevels({ inBlack: v }, numKey)} value={inBlack} />
           <NumberBox
             digits={2}
-            label="Midtones (gamma)"
+            label={t("Midtones (gamma)")}
             max={9.99}
             min={0.1}
             onChange={(v) => setLevels({ gamma: v }, numKey)}
             step={0.01}
             value={gamma}
           />
-          <NumberBox label="Input white" max={255} min={inBlack + 2} onChange={(v) => setLevels({ inWhite: v }, numKey)} value={inWhite} />
+          <NumberBox label={t("Input white")} max={255} min={inBlack + 2} onChange={(v) => setLevels({ inWhite: v }, numKey)} value={inWhite} />
         </div>
       </div>
 
       <div className="flex flex-col">
-        <span className="mb-1.5 font-medium text-[11px] text-muted-foreground">Output</span>
+        <span className="mb-1.5 font-medium text-[11px] text-muted-foreground">{t("Output")}</span>
         <div className="h-3 rounded-sm border bg-linear-to-r from-black to-white" />
         <div className="relative h-4">
           <Handle
             fill="#000"
-            label="Output black"
+            label={t("Output black")}
             onDrag={(v, key) => setLevels({ outBlack: Math.round(v * 255) }, key)}
             pos={outBlack / 255}
           />
           <Handle
             fill="#fff"
-            label="Output white"
+            label={t("Output white")}
             onDrag={(v, key) => setLevels({ outWhite: Math.round(v * 255) }, key)}
             pos={outWhite / 255}
           />
         </div>
         <div className="mt-1 flex items-center justify-between">
-          <NumberBox label="Output black" max={255} min={0} onChange={(v) => setLevels({ outBlack: v }, numKey)} value={outBlack} />
-          <NumberBox label="Output white" max={255} min={0} onChange={(v) => setLevels({ outWhite: v }, numKey)} value={outWhite} />
+          <NumberBox label={t("Output black")} max={255} min={0} onChange={(v) => setLevels({ outBlack: v }, numKey)} value={outBlack} />
+          <NumberBox label={t("Output white")} max={255} min={0} onChange={(v) => setLevels({ outWhite: v }, numKey)} value={outWhite} />
         </div>
       </div>
 
       <div className="flex items-center justify-between gap-2">
         <Button onClick={() => void applyAutoLevels()} size="sm" variant="outline">
-          <WandSparklesIcon /> Auto
+          <WandSparklesIcon /> {t("Auto")}
         </Button>
-        <Hinted label="Reset levels">
+        <Hinted label={t("Reset levels")}>
           <Button
-            aria-label="Reset levels"
+            aria-label={t("Reset levels")}
             className={cn(isIdentityLevels(levels) && "invisible")}
             onClick={() => updateDoc((d) => ({ ...d, levels: null }))}
             size="icon-sm"

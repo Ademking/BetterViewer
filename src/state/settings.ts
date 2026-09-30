@@ -13,6 +13,8 @@ export type SaveFormat = "png" | "jpeg" | "webp";
 
 export interface Settings {
   // Appearance
+  /** Interface language: a code from LANGUAGES (src/lib/i18n.ts), or "auto" for the browser's. */
+  language: string;
   boardBackground: BoardBackground;
   theme: ThemeMode;
   showToolbar: boolean;
@@ -49,6 +51,7 @@ export interface Settings {
 }
 
 export const DEFAULT_SETTINGS: Settings = {
+  language: "auto",
   boardBackground: "blur",
   theme: "dark",
   showToolbar: true,

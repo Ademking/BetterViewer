@@ -8,6 +8,7 @@
  * of the page) to copy instead: `betterviewer:clipboard` → `betterviewer:clipboard-done`.
  */
 import { isOverlay } from "@/lib/overlay";
+import { t } from "@/lib/i18n";
 
 /** Chromium reports the frame's permissions policy; other browsers don't gate the clipboard this way. */
 const blockedHere = () =>
@@ -37,7 +38,7 @@ function copyThroughPage(data: { text: string } | { blob: Blob }): Promise<void>
     waiting.set(id, { resolve, reject });
     window.parent.postMessage({ type: "betterviewer:clipboard", id, ...data }, "*");
     setTimeout(() => {
-      if (waiting.delete(id)) reject(new Error("This page doesn't allow copying."));
+      if (waiting.delete(id)) reject(new Error(t("This page doesn't allow copying.")));
     }, 10000);
   });
 }

@@ -1,3 +1,4 @@
+import { t } from "@/lib/i18n";
 /** kappa.lol file host: anonymous uploads, deletable with a per-file key. */
 
 const API = "https://kappa.lol/api";
@@ -26,9 +27,9 @@ export async function uploadToKappa(image: Blob, filename: string): Promise<Kapp
   try {
     res = await fetch(`${API}/upload`, { method: "POST", body: form });
   } catch {
-    throw new Error("Couldn't reach kappa.lol. Check your connection and try again.");
+    throw new Error(t("Couldn't reach kappa.lol. Check your connection and try again."));
   }
-  if (!res.ok) throw new Error(await errorMessage(res, "Upload failed"));
+  if (!res.ok) throw new Error(await errorMessage(res, t("Upload failed")));
 
   const d = (await res.json()) as {
     id: string;
@@ -57,9 +58,9 @@ export async function deleteFromKappa(key: string): Promise<void> {
   try {
     res = await fetch(`${API}/delete?key=${encodeURIComponent(key)}`);
   } catch {
-    throw new Error("Couldn't reach kappa.lol.");
+    throw new Error(t("Couldn't reach kappa.lol."));
   }
-  if (!res.ok) throw new Error(await errorMessage(res, "Delete failed"));
+  if (!res.ok) throw new Error(await errorMessage(res, t("Delete failed")));
   const d = (await res.json().catch(() => ({}))) as { success?: boolean; error?: string };
   if (!d.success) throw new Error(d.error ?? "kappa.lol couldn't delete the file.");
 }

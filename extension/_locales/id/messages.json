@@ -1,0 +1,29 @@
+{
+  "extDescription": {
+    "message": "Ekstensi browser untuk pengalaman melihat gambar yang lebih baik"
+  },
+  "menuOpenImage": {
+    "message": "Buka gambar ini di BetterViewer"
+  },
+  "menuGallery": {
+    "message": "Jelajahi semua gambar halaman sebagai galeri"
+  },
+  "menuScreenshot": {
+    "message": "Tangkap layar halaman ini"
+  },
+  "popupOpen": {
+    "message": "Buka BetterViewer"
+  },
+  "popupGallery": {
+    "message": "Jelajahi gambar halaman"
+  },
+  "popupSettings": {
+    "message": "Pengaturan"
+  },
+  "popupShortcuts": {
+    "message": "Pintasan keyboard"
+  },
+  "popupAbout": {
+    "message": "Tentang BetterViewer"
+  }
+}

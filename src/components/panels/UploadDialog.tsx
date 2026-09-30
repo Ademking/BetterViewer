@@ -34,6 +34,7 @@ import { PROVIDER_LIST, PROVIDERS, type UploadResult } from "@/lib/upload";
 import { useDoc } from "@/state/document";
 import { type UploadProviderId, useSettings } from "@/state/settings";
 import { useUi } from "@/state/ui";
+import { dims, midSentence, useT } from "@/lib/i18n";
 
 function Segments<T extends string | number>({
   value,
@@ -44,6 +45,7 @@ function Segments<T extends string | number>({
   options: { value: T; label: string }[];
   onChange: (v: T) => void;
 }) {
+  const t = useT();
   return (
     <SegmentGroup
       className="grid auto-cols-fr grid-flow-col gap-0.5 rounded-lg bg-muted/60 p-0.5 [&>[data-part=indicator]]:bg-foreground/12 [&>[data-part=indicator]]:shadow-sm"
@@ -59,7 +61,7 @@ function Segments<T extends string | number>({
           key={String(o.value)}
           value={String(o.value)}
         >
-          <SegmentGroupItemText>{o.label}</SegmentGroupItemText>
+          <SegmentGroupItemText>{t(o.label)}</SegmentGroupItemText>
         </SegmentGroupItem>
       ))}
     </SegmentGroup>
@@ -67,6 +69,7 @@ function Segments<T extends string | number>({
 }
 
 function LinkRow({ label, value, hint }: { label: string; value: string; hint?: string }) {
+  const t = useT();
   return (
     <div className="flex flex-col gap-1.5">
       <div className="flex items-baseline justify-between gap-2">
@@ -76,7 +79,7 @@ function LinkRow({ label, value, hint }: { label: string; value: string; hint?: 
       <Clipboard className="w-full" rootClassName="w-full" value={value}>
         <ClipboardInput className="min-w-0 flex-1 font-mono text-xs" readOnly />
         <ClipboardTrigger asChild>
-          <Button aria-label={`Copy ${label.toLowerCase()}`} size="icon-md" variant="outline">
+          <Button aria-label={t("Copy {item}", { item: midSentence(label) })} size="icon-md" variant="outline">
             <ClipboardIndicator copied={<CheckIcon className="text-success" />}>
               <CopyIcon />
             </ClipboardIndicator>
@@ -96,6 +99,7 @@ const FORMATS: { value: ExportFormat; label: string }[] = [
 const PROVIDER_OPTIONS = PROVIDER_LIST.map((p) => ({ value: p.id, label: p.label }));
 
 export function UploadDialog() {
+  const t = useT();
   const open = useUi((s) => s.panels.upload);
   const togglePanel = useUi((s) => s.togglePanel);
   const image = useDoc((s) => s.doc?.image);
@@ -138,7 +142,7 @@ export function UploadDialog() {
       });
       setDeleted(false);
       setResult(res);
-      toast.success({ title: `Uploaded to ${provider.label}`, description: "The link is ready to share." });
+      toast.success({ title: t("Uploaded to {service}", { service: provider.label }), description: t("The link is ready to share.") });
     } catch (err) {
       setError((err as Error).message);
     } finally {
@@ -152,24 +156,25 @@ export function UploadDialog() {
     try {
       await result.deleteNow();
       setDeleted(true);
-      toast.success({ title: "Deleted", description: `The image was removed from ${PROVIDERS[result.provider].label}.` });
+      toast.success({ title: t("Deleted"), description: t("The image was removed from {service}.", { service: PROVIDERS[result.provider].label }) });
     } catch (err) {
-      toast.error({ title: "Couldn't delete", description: (err as Error).message });
+      toast.error({ title: t("Couldn't delete"), description: (err as Error).message });
     } finally {
       setDeleting(false);
     }
   };
 
   const expiryLabel = (r: UploadResult) => {
-    if (r.provider === "kappa") return "Stays online until you delete it";
+    if (r.provider === "kappa") return t("Stays online until you delete it");
     const secs = r.expiration ?? 0;
+    const option = EXPIRY_OPTIONS.find((o) => o.value === secs);
     return secs
-      ? `Expires in ${EXPIRY_OPTIONS.find((o) => o.value === secs)?.label ?? `${Math.round(secs / 3600)} h`}`
-      : "Never expires";
+      ? t("Expires in {time}", { time: option ? t(option.label) : `${Math.round(secs / 3600)} h` })
+      : t("Never expires");
   };
 
   const resultMeta = (r: UploadResult) =>
-    [r.width && r.height ? `${r.width} × ${r.height} px` : null, r.size ? formatBytes(r.size) : null]
+    [r.width && r.height ? `${dims(r.width, r.height)} px` : null, r.size ? formatBytes(r.size) : null]
       .filter(Boolean)
       .join(" · ");
 
@@ -180,11 +185,11 @@ export function UploadDialog() {
           description={
             result
               ? deleted
-                ? "The image has been deleted; these links no longer work."
-                : "Anyone with these links can view the image."
-              : "Uploads the edited image and creates a public link anyone can open."
+                ? t("The image has been deleted; these links no longer work.")
+                : t("Anyone with these links can view the image.")
+              : t("Uploads the edited image and creates a public link anyone can open.")
           }
-          title={result ? (deleted ? "Deleted" : "Uploaded") : "Upload image"}
+          title={result ? (deleted ? t("Deleted") : t("Uploaded")) : t("Upload image")}
         />
         <DialogBody className="flex flex-col gap-5">
           {!result && (
@@ -202,13 +207,13 @@ export function UploadDialog() {
                     {image?.name}
                   </div>
                   <div className="text-muted-foreground text-xs">
-                    {image?.width} × {image?.height} px · includes edits and annotations
+                    {dims(image?.width, image?.height)} px · {t("includes edits and annotations")}
                   </div>
                 </div>
               </div>
 
               <div className="flex flex-col gap-2">
-                <span className="font-medium text-sm">Upload to</span>
+                <span className="font-medium text-sm">{t("Upload to")}</span>
                 <Segments
                   onChange={(v: UploadProviderId) => setSetting("uploadProvider", v)}
                   options={PROVIDER_OPTIONS}
@@ -219,7 +224,7 @@ export function UploadDialog() {
               {needsKey && (
                 <div className="flex flex-col gap-2 rounded-xl border bg-muted/40 p-3">
                   <div className="flex items-center gap-2 font-medium text-sm">
-                    <KeyRoundIcon className="size-4 text-muted-foreground" /> ImgBB API key
+                    <KeyRoundIcon className="size-4 text-muted-foreground" /> {t("ImgBB API key")}
                   </div>
                   <p className="text-muted-foreground text-xs">
                     Get a free key at{" "}
@@ -234,10 +239,10 @@ export function UploadDialog() {
                     , or upload to kappa.lol instead (no key needed).
                   </p>
                   <Input
-                    aria-label="ImgBB API key"
+                    aria-label={t("ImgBB API key")}
                     autoComplete="off"
                     onChange={(e) => setKeyDraft(e.target.value)}
-                    placeholder="Paste your API key"
+                    placeholder={t("Paste your API key")}
                     size="sm"
                     spellCheck={false}
                     type="password"
@@ -247,13 +252,13 @@ export function UploadDialog() {
               )}
 
               <div className="flex flex-col gap-2">
-                <span className="font-medium text-sm">Format</span>
+                <span className="font-medium text-sm">{t("Format")}</span>
                 <Segments onChange={setFormat} options={FORMATS} value={format} />
               </div>
 
               {provider.supportsExpiry ? (
                 <div className="flex flex-col gap-2">
-                  <span className="font-medium text-sm">Delete automatically</span>
+                  <span className="font-medium text-sm">{t("Delete automatically")}</span>
                   <Segments onChange={setExpiration} options={EXPIRY_OPTIONS} value={expiration} />
                 </div>
               ) : (
@@ -282,7 +287,7 @@ export function UploadDialog() {
               <div className="flex items-center gap-3">
                 {image && (
                   <img
-                    alt="Uploaded image"
+                    alt={t("Uploaded image")}
                     className="checkerboard checker-sm size-16 shrink-0 rounded-lg border object-contain"
                     src={result.provider === "imgbb" ? result.thumbUrl : image.src}
                   />
@@ -294,16 +299,16 @@ export function UploadDialog() {
                       <span className="font-normal text-muted-foreground"> · {resultMeta(result)}</span>
                     )}
                   </div>
-                  <div className="text-muted-foreground">{deleted ? "Deleted" : expiryLabel(result)}</div>
+                  <div className="text-muted-foreground">{deleted ? t("Deleted") : expiryLabel(result)}</div>
                 </div>
               </div>
               {!deleted && (
                 <>
-                  <LinkRow label="Share link" value={result.pageUrl} />
+                  <LinkRow label={t("Share link")} value={result.pageUrl} />
                   {result.directUrl !== result.pageUrl && (
-                    <LinkRow label="Direct image link" value={result.directUrl} />
+                    <LinkRow label={t("Direct image link")} value={result.directUrl} />
                   )}
-                  <LinkRow hint="Keep this private" label="Delete link" value={result.deleteUrl} />
+                  <LinkRow hint={t("Keep this private")} label={t("Delete link")} value={result.deleteUrl} />
                 </>
               )}
             </>
@@ -313,7 +318,7 @@ export function UploadDialog() {
           {!result ? (
             <>
               <Button onClick={() => togglePanel("upload", false)} size="sm" variant="ghost">
-                Cancel
+                {t("Cancel")}
               </Button>
               <Button disabled={!image || (needsKey && !keyDraft.trim())} isLoading={busy} onClick={upload} size="sm">
                 <CloudUploadIcon /> Upload to {provider.label}
@@ -329,11 +334,11 @@ export function UploadDialog() {
                   size="sm"
                   variant="ghost"
                 >
-                  <TrashIcon /> Delete now
+                  <TrashIcon /> {t("Delete now")}
                 </Button>
               )}
               <Button onClick={() => setResult(null)} size="sm" variant="ghost">
-                <RotateCcwIcon /> Upload again
+                <RotateCcwIcon /> {t("Upload again")}
               </Button>
               {!deleted && (
                 <Button
@@ -341,11 +346,11 @@ export function UploadDialog() {
                   size="sm"
                   variant="outline"
                 >
-                  <ExternalLinkIcon /> Open
+                  <ExternalLinkIcon /> {t("Open")}
                 </Button>
               )}
               <Button onClick={() => togglePanel("upload", false)} size="sm">
-                Done
+                {t("Done")}
               </Button>
             </>
           )}
