@@ -50,13 +50,25 @@ const overlayOpen = () =>
     '[data-scope="dialog"][data-part="content"][data-state="open"], [data-scope="menu"][data-part="content"][data-state="open"], [data-scope="popover"][data-part="content"][data-state="open"]'
   );
 
+/**
+ * The key a shortcut matches, lowercased. Letters come from the layout, so
+ * AZERTY's A and QWERTZ's Z are still A and Z; a layout that types other
+ * letters (Cyrillic, Greek, Arabic…) uses the key's US-layout letter instead.
+ */
+const shortcutKey = (e: KeyboardEvent) => {
+  const key = e.key.toLowerCase();
+  if (key.length === 1 && /\p{L}/u.test(key) && !/[a-z]/.test(key) && e.code.startsWith("Key"))
+    return e.code.slice(3).toLowerCase();
+  return key;
+};
+
 export function useKeyboardShortcuts() {
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       if (isTyping(e.target)) return;
       const ui = getUi();
       const mod = e.ctrlKey || e.metaKey;
-      const key = e.key.toLowerCase();
+      const key = shortcutKey(e);
       const hasDoc = !!getDoc();
 
       // Global (work without an image)
