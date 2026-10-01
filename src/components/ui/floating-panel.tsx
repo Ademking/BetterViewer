@@ -51,9 +51,10 @@ export const FloatingPanelContent = (props: FloatingPanelContentProps) => {
     <Portal>
       {/* Ark sets an inline z-index of 1, 2, … (most recently used panel on
           top). Keep that order, but above the viewer's floating controls
-          (z-20) and below dialogs and menus (z-50). */}
+          (z-20) and below dialogs and menus (z-50). Ark's x is from the left
+          edge in any direction, so it's a physical left, not inline-start. */}
       <ArkFloatingPanel.Positioner
-        className="inset-s-(--x) top-(--y) z-[calc(30+var(--z-index,0))]!"
+        className="left-(--x) top-(--y) z-[calc(30+var(--z-index,0))]!"
         data-slot="floating-panel-positioner"
       >
         <ArkFloatingPanel.Content

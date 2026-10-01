@@ -79,7 +79,8 @@ export function FilterPanel() {
           This browser can't apply canvas filters; adjustments won't be visible.
         </p>
       )}
-      <div className="grid grid-cols-2 gap-2">
+      {/* Side by side, each on its own line when a translation is too long. */}
+      <div className="flex flex-wrap gap-2 *:grow *:basis-0">
         <Button
           isLoading={enhancing}
           onClick={async () => {
@@ -95,7 +96,7 @@ export function FilterPanel() {
           <WandSparklesIcon /> {t("Auto enhance")}
         </Button>
         <Hinted label={t("Curves, levels and histogram")} shortcut="Shift C">
-          <Button onClick={() => togglePanel("curves", true)} size="sm" variant="outline">
+          <Button className="w-full" onClick={() => togglePanel("curves", true)} size="sm" variant="outline">
             <ChartSplineIcon /> {t("Levels & curves")}
           </Button>
         </Hinted>

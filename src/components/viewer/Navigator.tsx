@@ -10,9 +10,17 @@ import { useSettings } from "@/state/settings";
 import { getUi } from "@/state/ui";
 import { useT } from "@/lib/i18n";
 
-/** Largest size of the navigator's picture (CSS px). */
-const MAX_W = 208;
-const MAX_H = 156;
+/** Largest size of the navigator's picture for most images (CSS px). */
+const MAX_W = 160;
+const MAX_H = 120;
+/** A long image's navigator grows along its long side, up to this (CSS px). */
+const MAX_LONG = 240;
+/** Thinnest a long image's picture gets when zoomed in; its long side is then cropped. */
+const MIN_SIDE = 72;
+/** Most of the navigator the outlined view takes up before the picture is enlarged. */
+const VIEW_SHARE = 0.6;
+/** Largest picture to render for a long image (device px). */
+const MAX_RENDER = 4096;
 /** Wait this long after the last redraw of the board before refreshing the picture. */
 const REFRESH_DELAY = 250;
 
@@ -22,9 +30,10 @@ export const toggleNavigator = () => {
 };
 
 /**
- * Bottom-right overview of the whole image while it doesn't fit in the
- * window: the visible part is outlined; click or drag to move there, scroll
- * to zoom.
+ * Bottom-right overview of the image, shown whenever it's enabled: the
+ * visible part is outlined; click or drag to move there, scroll to zoom. For a
+ * long image zoomed in, the picture grows (up to MIN_SIDE thin) to keep the
+ * outline usable, showing the part around the view.
  */
 export const Navigator = memo(function Navigator() {
   const enabled = useSettings((s) => s.showNavigator);
@@ -40,36 +49,55 @@ export const Navigator = memo(function Navigator() {
   // Content rect in screen space (content is centred on the world origin).
   const left = x - (cw / 2) * scale;
   const top = y - (ch / 2) * scale;
-  const overflows = left < -1 || top < -1 || left + cw * scale > vw + 1 || top + ch * scale > vh + 1;
-  if (!overflows) return null;
 
-  const k = Math.min(MAX_W / cw, MAX_H / ch);
+  // Picture px per image px: the whole image fits, unless the visible part
+  // would get too small to work with.
+  const maxW = clamp((MAX_W * cw) / (2 * ch), MAX_W, MAX_LONG);
+  const maxH = clamp((MAX_H * ch) / (2 * cw), MAX_H, MAX_LONG);
+  const fit = Math.min(maxW / cw, maxH / ch);
+  const largest = Math.max(fit, MIN_SIDE / Math.min(cw, ch));
+  const seen = VIEW_SHARE * Math.min(maxW / Math.min(vw / scale, cw), maxH / Math.min(vh / scale, ch));
+  const k = clamp(seen, fit, largest);
   return (
     <NavigatorBox
-      height={Math.max(1, Math.round(ch * k))}
+      height={ch * k}
       k={k}
-      // Visible part of the image, in navigator px.
+      max={{ width: maxW, height: maxH }}
+      renderSide={Math.max(cw, ch) * largest}
+      // Visible part of the image, in picture px.
       view={{ x: (-left / scale) * k, y: (-top / scale) * k, width: (vw / scale) * k, height: (vh / scale) * k }}
-      width={Math.max(1, Math.round(cw * k))}
+      width={cw * k}
       zoom={scale}
     />
   );
 });
 
 interface BoxProps {
+  /** Size of the whole picture, which may be larger than the navigator. */
   width: number;
   height: number;
-  /** Navigator px per image px. */
+  /** Picture px per image px. */
   k: number;
+  /** Largest size of the part on show (CSS px). */
+  max: { width: number; height: number };
+  /** Long side to render the picture at (CSS px), covering every `k`. */
+  renderSide: number;
   view: { x: number; y: number; width: number; height: number };
   zoom: number;
 }
 
-function NavigatorBox({ width, height, k, view, zoom }: BoxProps) {
+function NavigatorBox({ width, height, k, max, renderSide, view, zoom }: BoxProps) {
   const t = useT();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const areaRef = useRef<HTMLDivElement>(null);
   const toolbar = useSettings((s) => s.showToolbar);
+
+  // The part of the picture on show: all of it, or for a long image the part
+  // around the view.
+  const aw = Math.max(1, Math.round(Math.min(width, max.width)));
+  const ah = Math.max(1, Math.round(Math.min(height, max.height)));
+  const ox = clamp(view.x + view.width / 2 - aw / 2, 0, width - aw);
+  const oy = clamp(view.y + view.height / 2 - ah / 2, 0, height - ah);
 
   // The picture: the board as drawn (adjustments, annotations…), refreshed a
   // moment after it last changed.
@@ -83,7 +111,7 @@ function NavigatorBox({ width, height, k, view, zoom }: BoxProps) {
       rendering = true;
       try {
         const dpr = window.devicePixelRatio || 1;
-        const pic = renderDocumentThumbnail(Math.ceil(Math.max(width, height) * dpr));
+        const pic = renderDocumentThumbnail(Math.min(MAX_RENDER, Math.ceil(renderSide * dpr)));
         out.width = pic.width;
         out.height = pic.height;
         out.getContext("2d")?.drawImage(pic, 0, 0);
@@ -105,7 +133,7 @@ function NavigatorBox({ width, height, k, view, zoom }: BoxProps) {
       window.clearTimeout(timer);
       for (const l of layers) l?.off("draw.navigator");
     };
-  }, [width, height]);
+  }, [renderSide]);
 
   // Scroll over the navigator to zoom around the centre of the view.
   useEffect(() => {
@@ -125,24 +153,26 @@ function NavigatorBox({ width, height, k, view, zoom }: BoxProps) {
     if (e.button !== 0) return;
     e.preventDefault();
     const box = e.currentTarget.getBoundingClientRect();
-    const at = (ev: { clientX: number; clientY: number }) => ({ x: ev.clientX - box.left, y: ev.clientY - box.top });
-    const p = at(e);
-    const inside = p.x >= view.x && p.x <= view.x + view.width && p.y >= view.y && p.y <= view.y + view.height;
-    // Keep the grabbed spot under the pointer; elsewhere, jump to the point.
-    const grab = inside ? { x: p.x - (view.x + view.width / 2), y: p.y - (view.y + view.height / 2) } : { x: 0, y: 0 };
-    const centreOn = (q: { x: number; y: number }) => {
+    // Picture point under the pointer.
+    const px = e.clientX - box.left + ox;
+    const py = e.clientY - box.top + oy;
+    const inside = px >= view.x && px <= view.x + view.width && py >= view.y && py <= view.y + view.height;
+    if (!inside) {
       const { cur, size } = viewport;
       const { width: cw, height: ch } = viewport.content;
-      // Image point (from its top-left corner) to bring to the middle of the view.
-      const ix = (q.x - grab.x) / k;
-      const iy = (q.y - grab.y) / k;
       const left = cur.x - (cw / 2) * cur.scale;
       const top = cur.y - (ch / 2) * cur.scale;
-      viewport.panBy(size.width / 2 - ix * cur.scale - left, size.height / 2 - iy * cur.scale - top);
-    };
-    centreOn(p);
+      viewport.panBy(size.width / 2 - (px / k) * cur.scale - left, size.height / 2 - (py / k) * cur.scale - top);
+    }
+    // The outline follows the pointer from there; by how far it moves, as the
+    // picture itself may scroll along.
+    let last = { x: e.clientX, y: e.clientY };
     getUi().set({ isPanning: true });
-    const move = (ev: PointerEvent) => centreOn(at(ev));
+    const move = (ev: PointerEvent) => {
+      const { scale } = viewport.cur;
+      viewport.panBy((-(ev.clientX - last.x) / k) * scale, (-(ev.clientY - last.y) / k) * scale);
+      last = { x: ev.clientX, y: ev.clientY };
+    };
     const up = () => {
       getUi().set({ isPanning: false });
       window.removeEventListener("pointermove", move);
@@ -155,10 +185,13 @@ function NavigatorBox({ width, height, k, view, zoom }: BoxProps) {
   };
 
   // The outline, kept inside the picture.
-  const x0 = Math.max(0, view.x);
-  const y0 = Math.max(0, view.y);
-  const x1 = Math.min(width, view.x + view.width);
-  const y1 = Math.min(height, view.y + view.height);
+  const x0 = Math.max(0, view.x - ox);
+  const y0 = Math.max(0, view.y - oy);
+  const x1 = Math.min(aw, view.x + view.width - ox);
+  const y1 = Math.min(ah, view.y + view.height - oy);
+  // Nothing to point out while the whole image is in view.
+  const whole =
+    view.x <= 0.5 && view.y <= 0.5 && view.x + view.width >= width - 0.5 && view.y + view.height >= height - 0.5;
 
   return (
     <div
@@ -171,14 +204,18 @@ function NavigatorBox({ width, height, k, view, zoom }: BoxProps) {
     >
       <div
         aria-label={t("Navigator: drag to move around the image")}
-        className="relative cursor-pointer touch-none select-none overflow-hidden rounded-md"
+        className="relative mx-auto cursor-pointer touch-none select-none overflow-hidden rounded-md"
         onPointerDown={onPointerDown}
         ref={areaRef}
         role="presentation"
-        style={{ width, height }}
+        style={{ width: aw, height: ah }}
       >
-        <canvas className="checker-sm block size-full" ref={canvasRef} />
-        {x1 > x0 && y1 > y0 && (
+        <canvas
+          className="checker-sm absolute block"
+          ref={canvasRef}
+          style={{ left: -ox, top: -oy, width, height }}
+        />
+        {!whole && x1 > x0 && y1 > y0 && (
           <div
             className={cn(
               "pointer-events-none absolute rounded-[2px] border-2 border-brand",
@@ -201,3 +238,5 @@ function NavigatorBox({ width, height, k, view, zoom }: BoxProps) {
     </div>
   );
 }
+
+const clamp = (v: number, lo: number, hi: number) => Math.min(Math.max(v, lo), hi);

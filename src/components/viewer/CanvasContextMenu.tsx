@@ -94,7 +94,7 @@ export function CanvasContextMenu({ children }: { children: React.ReactNode }) {
               <ContextMenuShortcut>0</ContextMenuShortcut>
             </ContextMenuItem>
             <ContextMenuItem onSelect={zoomActual} value="actual">
-              <span className="w-3.5 text-center font-semibold text-[9px]">1:1</span> Actual size
+              <span className="w-3.5 text-center font-semibold text-[9px]">1:1</span> {t("Actual size")}
               <ContextMenuShortcut>1</ContextMenuShortcut>
             </ContextMenuItem>
             <ContextMenuSub positioning={SUB}>

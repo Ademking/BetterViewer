@@ -79,7 +79,7 @@ runs in your browser, including OCR, background removal and QR scanning.
 
 - Smooth zoom (wheel, pinch, **+ / −**), fit / 100% / zoom to selection, pan
   (drag, **Space**, scrollbars), crisp pixels when zoomed in close
-- **Navigator**: an overview of the whole image while zoomed in; click or
+- **Navigator**: an overview of the whole image with the visible part outlined; click or
   drag it to move around, scroll over it to zoom (**Shift N**)
 - Board background: blurred image, black, white or transparency grid
 - Rotate left / right, flip horizontal / vertical

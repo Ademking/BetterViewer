@@ -160,7 +160,7 @@ const hintContentVariants = tv({
   variants: {
     placement: {
       bottom: [
-        "inset-s-1/2 top-full -translate-x-1/2",
+        "left-1/2 top-full -translate-x-1/2",
         "mt-(--gutter)",
         "data-[state=open]:slide-in-from-top-5 origin-bottom",
       ],
@@ -175,7 +175,7 @@ const hintContentVariants = tv({
         "data-[state=open]:slide-in-from-end-5 origin-start",
       ],
       top: [
-        "inset-s-1/2 bottom-full mb-(--gutter) -translate-x-1/2",
+        "left-1/2 bottom-full mb-(--gutter) -translate-x-1/2",
         "mb-(--gutter)",
         "data-[state=open]:slide-in-from-bottom-5 origin-top",
       ],

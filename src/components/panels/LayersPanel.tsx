@@ -269,7 +269,7 @@ export function LayersPanel() {
       minSize={{ width: 240, height: 200 }}
       onOpenChange={(o) => togglePanel("layers", o)}
       open={open}
-      title={`Layers${count ? ` · ${count}` : ""}`}
+      title={`${t("Layers")}${count ? ` · ${count}` : ""}`}
     >
       <div className="flex flex-col gap-0.5" role="listbox" aria-label={t("Layers")} aria-multiselectable>
         {rows.map(({ a, index }) => (
