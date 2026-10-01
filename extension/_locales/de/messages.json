@@ -1,0 +1,29 @@
+{
+  "extDescription": {
+    "message": "Eine Browsererweiterung für ein besseres Bildbetrachtungserlebnis"
+  },
+  "menuOpenImage": {
+    "message": "Dieses Bild in BetterViewer öffnen"
+  },
+  "menuGallery": {
+    "message": "Alle Bilder der Seite als Galerie durchsehen"
+  },
+  "menuScreenshot": {
+    "message": "Screenshot dieser Seite"
+  },
+  "popupOpen": {
+    "message": "BetterViewer öffnen"
+  },
+  "popupGallery": {
+    "message": "Bilder der Seite durchsehen"
+  },
+  "popupSettings": {
+    "message": "Einstellungen"
+  },
+  "popupShortcuts": {
+    "message": "Tastenkürzel"
+  },
+  "popupAbout": {
+    "message": "Über BetterViewer"
+  }
+}

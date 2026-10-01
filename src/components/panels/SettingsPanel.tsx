@@ -28,6 +28,8 @@ import { ColorField } from "@/components/tools/ColorField";
 import { LabeledSlider } from "@/components/tools/StyleControls";
 import { MOD } from "@/components/tools/ToolButton";
 import { cn } from "@/lib/utils";
+import { LANGUAGES, resolveLanguage, tk, useT } from "@/lib/i18n";
+import { LanguagePicker } from "@/components/tools/LanguagePicker";
 import { type BoardBackground, type Settings, useSettings } from "@/state/settings";
 import { useDoc } from "@/state/document";
 import { useUi } from "@/state/ui";
@@ -59,12 +61,12 @@ function Row({
   );
 }
 
-function Toggle<K extends keyof Settings>({ k }: { k: K }) {
+function Toggle<K extends keyof Settings>({ k, label }: { k: K; label: string }) {
   const value = useSettings((s) => s[k]) as boolean;
   const set = useSettings((s) => s.set);
   return (
     <Switch
-      aria-label={String(k)}
+      aria-label={label}
       checked={value}
       onCheckedChange={(d) => set(k, d.checked as Settings[K])}
     />
@@ -73,13 +75,14 @@ function Toggle<K extends keyof Settings>({ k }: { k: K }) {
 
 /** Extension only: lives in extension storage, read by the content script. */
 function AutoOpenToggle() {
+  const t = useT();
   const [value, setValue] = useState<boolean | null>(null);
   useEffect(() => {
     getAutoOpen().then(setValue, () => setValue(true));
   }, []);
   return (
     <Switch
-      aria-label="Open images automatically"
+      aria-label={t("Open images automatically")}
       checked={value ?? true}
       disabled={value === null}
       onCheckedChange={(d) => {
@@ -121,11 +124,12 @@ function Segments<K extends keyof Settings>({
   );
 }
 
+/** Labels are English; translate with t() where shown. */
 export const BOARD_OPTIONS: { value: BoardBackground; label: string; preview: string }[] = [
-  { value: "blur", label: "Blurred image", preview: "" },
-  { value: "black", label: "Black", preview: "bg-black" },
-  { value: "white", label: "White", preview: "bg-white" },
-  { value: "grid", label: "Transparent grid", preview: "checkerboard" },
+  { value: "blur", label: tk("Blurred image"), preview: "" },
+  { value: "black", label: tk("Black"), preview: "bg-black" },
+  { value: "white", label: tk("White"), preview: "bg-white" },
+  { value: "grid", label: tk("Transparent grid"), preview: "checkerboard" },
 ];
 
 /** Miniature board preview using the open image (neutral placeholder otherwise). */
@@ -148,6 +152,7 @@ export function BoardSwatch({ mode, className }: { mode: BoardBackground; classN
 }
 
 function BoardPicker() {
+  const t = useT();
   const value = useSettings((s) => s.boardBackground);
   const set = useSettings((s) => s.set);
   const src = useDoc((s) => s.doc?.image.src);
@@ -186,7 +191,7 @@ function BoardPicker() {
               value === o.value ? "text-foreground" : "text-muted-foreground"
             )}
           >
-            {o.label}
+            {t(o.label)}
           </span>
         </button>
       ))}
@@ -194,7 +199,36 @@ function BoardPicker() {
   );
 }
 
+/** Interface language: automatic (the browser's) or one of LANGUAGES. */
+function LanguageSetting() {
+  const t = useT();
+  const value = useSettings((s) => s.language);
+  const set = useSettings((s) => s.set);
+  const names = new Intl.DisplayNames([resolveLanguage(value)], { type: "language" });
+  const localName = (code: string) => {
+    try {
+      return names.of(code) ?? code;
+    } catch {
+      return code;
+    }
+  };
+  const auto = LANGUAGES.find((l) => l.code === resolveLanguage("auto"))!;
+  return (
+    <div className="w-56">
+      <LanguagePicker
+        onChange={(v) => set("language", v)}
+        options={[
+          { value: "auto", label: t("Automatic"), hint: auto.name },
+          ...LANGUAGES.map((l) => ({ value: l.code, label: l.name, hint: l.name === localName(l.code) ? undefined : localName(l.code) })),
+        ]}
+        value={value}
+      />
+    </div>
+  );
+}
+
 function ImgbbKeyField() {
+  const t = useT();
   const key = useSettings((s) => s.imgbbApiKey);
   const set = useSettings((s) => s.set);
   const hasDefault = !!(import.meta.env.VITE_IMGBB_API_KEY as string | undefined);
@@ -202,11 +236,11 @@ function ImgbbKeyField() {
     <div className="flex flex-col gap-2">
       <div className="flex gap-2">
         <Input
-          aria-label="ImgBB API key"
+          aria-label={t("ImgBB API key")}
           autoComplete="off"
           className="flex-1 font-mono"
           onChange={(e) => set("imgbbApiKey", e.target.value.trim())}
-          placeholder={hasDefault ? "Optional: paste your own key" : "Paste your API key"}
+          placeholder={hasDefault ? t("Optional: paste your own key") : t("Paste your API key")}
           size="sm"
           spellCheck={false}
           type="password"
@@ -214,29 +248,39 @@ function ImgbbKeyField() {
         />
         {key && (
           <Button onClick={() => set("imgbbApiKey", "")} size="sm" variant="ghost">
-            Clear
+            {t("Clear")}
           </Button>
         )}
       </div>
       <span className="text-muted-foreground text-xs">
-        {hasDefault && !key && "If you don't add a key, BetterViewer uses its default one. "}
-        {hasDefault && key && "Using your key. Clear it to go back to BetterViewer's default one. "}
-        Get {hasDefault ? "your own" : "a"} free key at{" "}
-        <a
-          className="text-foreground underline underline-offset-2"
-          href="https://api.imgbb.com/"
-          rel="noreferrer noopener"
-          target="_blank"
-        >
-          api.imgbb.com
-        </a>
-        .
+        {hasDefault && !key && `${t("If you don't add a key, BetterViewer uses its default one.")} `}
+        {hasDefault && key && `${t("Using your key. Clear it to go back to BetterViewer's default one.")} `}
+        {(hasDefault ? t("Get your own free key at {site}.") : t("Get a free key at {site}."))
+          .split("{site}")
+          .map((part, i) =>
+            i === 0 ? (
+              part
+            ) : (
+              <span key={part}>
+                <a
+                  className="text-foreground underline underline-offset-2"
+                  href="https://api.imgbb.com/"
+                  rel="noreferrer noopener"
+                  target="_blank"
+                >
+                  api.imgbb.com
+                </a>
+                {part}
+              </span>
+            )
+          )}
       </span>
     </div>
   );
 }
 
 export function SettingsPanel() {
+  const t = useT();
   const open = useUi((s) => s.panels.settings);
   const togglePanel = useUi((s) => s.togglePanel);
   const defaultColor = useSettings((s) => s.defaultColor);
@@ -249,115 +293,124 @@ export function SettingsPanel() {
   return (
     <Dialog onOpenChange={(d) => togglePanel("settings", d.open)} open={open}>
       <DialogContent className="glass max-h-[min(640px,calc(100svh-2rem))]" size="lg">
-        <DialogHeader description="Preferences are saved on this device." title="Settings" />
+        <DialogHeader description={t("Preferences are saved on this device.")} title={t("Settings")} />
         <Tabs className="min-h-0 flex-1" defaultValue="appearance">
           <div className="px-6">
             <TabsList className="w-full">
               <TabsTrigger value="appearance">
-                <PaletteIcon /> Appearance
+                <PaletteIcon /> {t("Appearance")}
               </TabsTrigger>
               <TabsTrigger value="viewer">
-                <MousePointerClickIcon /> Viewer
+                <MousePointerClickIcon /> {t("Viewer")}
               </TabsTrigger>
               <TabsTrigger value="editing">
-                <PenLineIcon /> Editing
+                <PenLineIcon /> {t("Editing")}
               </TabsTrigger>
               <TabsTrigger value="sharing">
-                <Share2Icon /> Sharing
+                <Share2Icon /> {t("Sharing")}
               </TabsTrigger>
             </TabsList>
           </div>
           <DialogBody className="pt-2">
             <TabsContent className="divide-y" value="appearance">
+              <Row title={t("Language")}>
+                <LanguageSetting />
+              </Row>
               <Row
-                description="What's shown behind the image."
+                description={t("What's shown behind the image.")}
                 stacked
-                title="Board background"
+                title={t("Board background")}
               >
                 <BoardPicker />
               </Row>
-              <Row title="Theme">
+              <Row title={t("Theme")}>
                 <Segments
                   k="theme"
                   options={[
-                    { value: "dark", label: "Dark", icon: <MoonIcon /> },
-                    { value: "light", label: "Light", icon: <SunIcon /> },
-                    { value: "system", label: "System", icon: <MonitorIcon /> },
+                    { value: "dark", label: t("Dark"), icon: <MoonIcon /> },
+                    { value: "light", label: t("Light"), icon: <SunIcon /> },
+                    { value: "system", label: t("System"), icon: <MonitorIcon /> },
                   ]}
                 />
               </Row>
-              <Row description="The floating tool bar at the bottom." title="Show toolbar">
-                <Toggle k="showToolbar" />
+              <Row description={t("The floating tool bar at the bottom.")} title={t("Show toolbar")}>
+                <Toggle k="showToolbar" label={t("Show toolbar")} />
               </Row>
-              <Row description="Tooltips with names and shortcuts." title="Show hints">
-                <Toggle k="showHints" />
+              <Row description={t("Tooltips with names and shortcuts.")} title={t("Show hints")}>
+                <Toggle k="showHints" label={t("Show hints")} />
               </Row>
               <Row
-                description="Fade the interface after a few seconds of inactivity."
-                title="Auto-hide interface"
+                description={t("Fade the interface after a few seconds of inactivity.")}
+                title={t("Auto-hide interface")}
               >
-                <Toggle k="autoHideUi" />
+                <Toggle k="autoHideUi" label={t("Auto-hide interface")} />
               </Row>
-              <Row title="Show scrollbars">
-                <Toggle k="showScrollbars" />
+              <Row title={t("Show scrollbars")}>
+                <Toggle k="showScrollbars" label={t("Show scrollbars")} />
+              </Row>
+              <Row
+                description={t("A small overview of the image while it doesn't fit in the window. Click or drag it to move around.")}
+                title={t("Show navigator")}
+              >
+                <Toggle k="showNavigator" label={t("Show navigator")} />
               </Row>
             </TabsContent>
 
             <TabsContent className="divide-y" value="viewer">
               {isExtension && (
                 <Row
-                  description="Images you open in a tab (links, “Open image in new tab”, files) show up here instead of the browser's viewer."
-                  title="Open images automatically"
+                  description={t("Images you open in a tab (links, “Open image in new tab”, files) show up here instead of the browser's viewer.")}
+                  title={t("Open images automatically")}
                 >
                   <AutoOpenToggle />
                 </Row>
               )}
-              <Row description="Zoom used when an image is opened." title="Default zoom">
+              <Row description={t("Zoom used when an image is opened.")} title={t("Default zoom")}>
                 <Segments
                   k="defaultZoom"
                   options={[
-                    { value: "shrink", label: "Fit if larger" },
-                    { value: "fit", label: "Fit" },
+                    { value: "shrink", label: t("Fit if larger") },
+                    { value: "fit", label: t("Fit") },
                     { value: "actual", label: "100%" },
                   ]}
                 />
               </Row>
               <Row
-                description={`${MOD} + wheel and pinch always zoom.`}
-                title="Mouse wheel"
+                description={t("{mod} + wheel and pinch always zoom.", { mod: MOD })}
+                title={t("Mouse wheel")}
               >
                 <Segments
                   k="wheelBehavior"
                   options={[
-                    { value: "zoom", label: "Zoom" },
-                    { value: "scroll", label: "Scroll" },
+                    { value: "zoom", label: t("Zoom") },
+                    { value: "scroll", label: t("Scroll") },
                   ]}
                 />
               </Row>
               <Row
-                description="Otherwise dragging empty space draws a selection box. Space + drag always pans."
-                title="Drag empty space to pan"
+                description={t("Otherwise dragging empty space draws a selection box. Space + drag always pans.")}
+                title={t("Drag empty space to pan")}
               >
-                <Toggle k="panOnEmptyDrag" />
+                <Toggle k="panOnEmptyDrag" label={t("Drag empty space to pan")} />
               </Row>
-              <Row description="Animate zoom, fit and rotation." title="Smooth animations">
-                <Toggle k="smoothAnimations" />
+              <Row description={t("Animate zoom, fit and rotation.")} title={t("Smooth animations")}>
+                <Toggle k="smoothAnimations" label={t("Smooth animations")} />
               </Row>
-              <Row description="Show crisp pixels above 300% zoom." title="Pixel-perfect zoom">
-                <Toggle k="pixelatedZoom" />
+              <Row description={t("Show crisp pixels above 300% zoom.")} title={t("Pixel-perfect zoom")}>
+                <Toggle k="pixelatedZoom" label={t("Pixel-perfect zoom")} />
               </Row>
               <Row
-                description="Scan opened images and let you know when a QR code is found."
-                title="Detect QR codes automatically"
+                description={t("Scan opened images and let you know when a QR code is found.")}
+                title={t("Detect QR codes automatically")}
               >
-                <Toggle k="autoDetectQr" />
+                <Toggle k="autoDetectQr" label={t("Detect QR codes automatically")} />
               </Row>
             </TabsContent>
 
             <TabsContent className="divide-y" value="editing">
-              <Row description="Used for new drawings and shapes." title="Default color">
+              <Row description={t("Used for new drawings and shapes.")} title={t("Default color")}>
                 <ColorField
-                  label="Default color"
+                  label={t("Default color")}
                   onChange={(c) => {
                     set("defaultColor", c);
                     useUi.getState().setStyle({ stroke: c });
@@ -365,9 +418,9 @@ export function SettingsPanel() {
                   value={defaultColor}
                 />
               </Row>
-              <Row stacked title="Default stroke width">
+              <Row stacked title={t("Default stroke width")}>
                 <LabeledSlider
-                  label="Width"
+                  label={t("Width")}
                   max={30}
                   min={1}
                   onChange={(v) => {
@@ -380,13 +433,13 @@ export function SettingsPanel() {
                   value={defaultStrokeWidth}
                 />
               </Row>
-              <Row description="Snap moves and new shapes to a grid." title="Snap to grid">
-                <Toggle k="snapToGrid" />
+              <Row description={t("Snap moves and new shapes to a grid.")} title={t("Snap to grid")}>
+                <Toggle k="snapToGrid" label={t("Snap to grid")} />
               </Row>
               {snap && (
-                <Row stacked title="Grid size">
+                <Row stacked title={t("Grid size")}>
                   <LabeledSlider
-                    label="Size (image px)"
+                    label={t("Size (image px)")}
                     max={100}
                     min={2}
                     onChange={(v) => set("gridSize", v)}
@@ -397,20 +450,20 @@ export function SettingsPanel() {
                 </Row>
               )}
               <Row
-                description="Resize and rotate handles on selected objects."
-                title="Show selection handles"
+                description={t("Resize and rotate handles on selected objects.")}
+                title={t("Show selection handles")}
               >
-                <Toggle k="showSelectionHandles" />
+                <Toggle k="showSelectionHandles" label={t("Show selection handles")} />
               </Row>
               <Row
-                description="Switch back to Select after creating a shape or text."
-                title="Return to select tool"
+                description={t("Switch back to Select after creating a shape or text.")}
+                title={t("Return to select tool")}
               >
-                <Toggle k="returnToSelect" />
+                <Toggle k="returnToSelect" label={t("Return to select tool")} />
               </Row>
               <Row
-                description={`File type used by ${MOD} S. Other formats stay in Export.`}
-                title="Save format"
+                description={t("File type used by {mod} S. Other formats stay in Export.", { mod: MOD })}
+                title={t("Save format")}
               >
                 <Segments
                   k="saveFormat"
@@ -422,23 +475,23 @@ export function SettingsPanel() {
                 />
               </Row>
               <Row
-                description="Dropping or pasting a picture while an image is open."
-                title="Adding another image"
+                description={t("Dropping or pasting a picture while an image is open.")}
+                title={t("Adding another image")}
               >
                 <Segments
                   k="incomingImage"
                   options={[
-                    { value: "ask", label: "Ask" },
-                    { value: "layer", label: "Add on top" },
-                    { value: "open", label: "Open new" },
+                    { value: "ask", label: t("Ask") },
+                    { value: "layer", label: t("Add on top") },
+                    { value: "open", label: t("Open new") },
                   ]}
                 />
               </Row>
             </TabsContent>
             <TabsContent className="divide-y" value="sharing">
               <Row
-                description="Where “Upload image”, Photopea and the image search engines send the image."
-                title="Upload service"
+                description={t("Where “Upload image”, Photopea and the image search engines send the image.")}
+                title={t("Upload service")}
               >
                 <Segments
                   k="uploadProvider"
@@ -449,9 +502,9 @@ export function SettingsPanel() {
                 />
               </Row>
               <Row
-                description="Only used for ImgBB (kappa.lol needs no key). Stored only in this browser."
+                description={t("Only used for ImgBB (kappa.lol needs no key). Stored only in this browser.")}
                 stacked
-                title="ImgBB API key"
+                title={t("ImgBB API key")}
               >
                 <ImgbbKeyField />
               </Row>
@@ -462,15 +515,15 @@ export function SettingsPanel() {
           <Button
             onClick={() => {
               reset();
-              toast.info({ title: "Settings restored to defaults" });
+              toast.info({ title: t("Settings restored to defaults") });
             }}
             size="sm"
             variant="ghost"
           >
-            <RotateCcwIcon /> Restore defaults
+            <RotateCcwIcon /> {t("Restore defaults")}
           </Button>
           <Button onClick={() => togglePanel("settings", false)} size="sm">
-            Done
+            {t("Done")}
           </Button>
         </DialogFooter>
       </DialogContent>

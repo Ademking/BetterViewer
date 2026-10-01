@@ -1,3 +1,4 @@
+import Konva from "konva";
 import { toast } from "@/components/ui/toast";
 import { askIncomingImage } from "@/components/panels/IncomingImageDialog";
 import { MOD } from "@/components/tools/ToolButton";
@@ -16,7 +17,7 @@ import {
   imageInfoFromBlob,
   isImageFile,
   isSupportedImageType,
-  SUPPORTED_FORMATS_TEXT,
+  supportedFormatsText,
 } from "@/lib/image";
 import { closeOverlay, isOverlay } from "@/lib/overlay";
 import { writeClipboardImage, writeClipboardText } from "@/lib/clipboard";
@@ -25,10 +26,11 @@ import { viewport, ZOOM_STEP } from "@/lib/viewport";
 import { displaySize, getDoc, updateAnnotations, updateDoc, useDoc, type ImageInfo } from "@/state/document";
 import { getSettings, type SaveFormat } from "@/state/settings";
 import { getUi, useUi } from "@/state/ui";
+import { t } from "@/lib/i18n";
 
 /* ------------------------------------------------------------------ Image IO */
 
-export async function openBlob(blob: Blob, name = "Pasted image", extra?: Partial<ImageInfo>) {
+export async function openBlob(blob: Blob, name = t("Pasted image"), extra?: Partial<ImageInfo>) {
   const ui = getUi();
   ui.set({ loading: true });
   try {
@@ -36,7 +38,7 @@ export async function openBlob(blob: Blob, name = "Pasted image", extra?: Partia
     openInfo({ ...info, ...extra });
   } catch (err) {
     toast.error({
-      title: "Couldn't open image",
+      title: t("Couldn't open image"),
       description: (err as Error).message,
     });
   } finally {
@@ -75,7 +77,7 @@ function openInfo(info: Parameters<ReturnType<typeof useDoc.getState>["load"]>[0
  * Place a picture on top of the current image, centred in the view and
  * scaled to fit comfortably (≤ 50% of the image).
  */
-export async function insertImageLayer(blob: Blob, name = "Image") {
+export async function insertImageLayer(blob: Blob, name = t("Image")) {
   const doc = getDoc();
   if (!doc) return openBlob(blob, name);
   try {
@@ -104,7 +106,7 @@ export async function insertImageLayer(blob: Blob, name = "Image") {
     addAnnotation(layer, true);
     getUi().set({ tool: "select", selectedIds: [layer.id] });
   } catch (err) {
-    toast.error({ title: "Couldn't add image", description: (err as Error).message });
+    toast.error({ title: t("Couldn't add image"), description: (err as Error).message });
   }
 }
 
@@ -143,8 +145,8 @@ export function insertImagePicker() {
 function unsupportedFile(f: File) {
   const svg = /svg/i.test(f.type) || /\.svgz?$/i.test(f.name);
   toast.error({
-    title: svg ? "SVG files aren't supported" : "Unsupported file",
-    description: `Use a ${SUPPORTED_FORMATS_TEXT} image.`,
+    title: svg ? t("SVG files aren't supported") : t("Unsupported file"),
+    description: t("Use a {formats} image.", { formats: supportedFormatsText() }),
   });
 }
 
@@ -172,7 +174,7 @@ export async function openSample() {
   try {
     openInfo(await createSampleImage());
   } catch (err) {
-    toast.error({ title: "Couldn't open the sample", description: (err as Error).message });
+    toast.error({ title: t("Couldn't open the sample"), description: (err as Error).message });
   } finally {
     ui.set({ loading: false });
   }
@@ -185,15 +187,15 @@ export async function pasteFromClipboard() {
       const type = item.types.find(isSupportedImageType);
       if (type) {
         const blob = await item.getType(type);
-        await receiveImage(blob, "Pasted image");
+        await receiveImage(blob, t("Pasted image"));
         return true;
       }
     }
-    toast.info({ title: "No image on the clipboard" });
+    toast.info({ title: t("No image on the clipboard") });
   } catch {
     toast.info({
-      title: `Press ${MOD} V to paste`,
-      description: "Your browser needs a paste gesture to read images.",
+      title: t("Press {keys} to paste", { keys: `${MOD} V` }),
+      description: t("Your browser needs a paste gesture to read images."),
     });
   }
   return false;
@@ -220,12 +222,47 @@ export function renderDocumentCanvas(
     exclude?: Annotation["type"][];
   } = {}
 ): HTMLCanvasElement {
+  const doc = getDoc();
+  if (!doc) throw new Error("Nothing to export");
+  const { width, height } = displaySize(doc);
+  stageRegistry.exporting = true;
+  try {
+    return renderDocumentAt(width, height, options.exclude);
+  } finally {
+    stageRegistry.exporting = false;
+    stageRegistry.stage?.batchDraw();
+  }
+}
+
+/**
+ * Small, quick copy of the edited image (annotations included) whose longest
+ * side is `maxSide` px: draws the on-screen image, not the full-resolution one.
+ */
+export function renderDocumentThumbnail(maxSide: number): HTMLCanvasElement {
+  const doc = getDoc();
+  if (!doc) throw new Error("Nothing to render");
+  const { width, height } = displaySize(doc);
+  const k = Math.min(1, maxSide / Math.max(width, height));
+  // Handles hidden for the render come back as they were: no redraw needed.
+  const autoDraw = Konva.autoDrawEnabled;
+  Konva.autoDrawEnabled = false;
+  stageRegistry.thumbnail = true;
+  try {
+    return renderDocumentAt(Math.max(1, Math.round(width * k)), Math.max(1, Math.round(height * k)));
+  } finally {
+    stageRegistry.thumbnail = false;
+    Konva.autoDrawEnabled = autoDraw;
+  }
+}
+
+/** Render the document (as displayed: rotated, flipped) to a `width` × `height` canvas. */
+function renderDocumentAt(width: number, height: number, exclude?: Annotation["type"][]): HTMLCanvasElement {
   const { stage, imageGroup, annotationLayer } = stageRegistry;
   const doc = getDoc();
   if (!stage || !imageGroup || !doc) throw new Error("Nothing to export");
 
   const excludedIds = new Set(
-    doc.annotations.filter((a) => options.exclude?.includes(a.type)).map((a) => a.id)
+    doc.annotations.filter((a) => exclude?.includes(a.type)).map((a) => a.id)
   );
   const hidden = annotationLayer?.find(
     (n: { getClassName: () => string; name: () => string; id: () => string }) =>
@@ -237,7 +274,6 @@ export function renderDocumentCanvas(
   ) ?? [];
   const prevVisible = hidden.map((n) => n.visible());
   hidden.forEach((n) => n.visible(false));
-  stageRegistry.exporting = true;
 
   try {
     // Screen-space bounds of the image, from its exact transform (Konva's
@@ -258,14 +294,12 @@ export function renderDocumentCanvas(
       width: Math.max(...corners.map((p) => p.x)) - minX,
       height: Math.max(...corners.map((p) => p.y)) - minY,
     };
-    const scale = viewport.cur.scale;
-    const { width, height } = displaySize(doc);
     const canvas = stage.toCanvas({
       x: rect.x,
       y: rect.y,
       width: rect.width,
       height: rect.height,
-      pixelRatio: width / rect.width || 1 / scale,
+      pixelRatio: width / rect.width || 1 / viewport.cur.scale,
     });
     // Normalise to exact pixel dimensions.
     const out = document.createElement("canvas");
@@ -274,9 +308,7 @@ export function renderDocumentCanvas(
     out.getContext("2d")!.drawImage(canvas, 0, 0, width, height);
     return out;
   } finally {
-    stageRegistry.exporting = false;
     hidden.forEach((n, i) => n.visible(prevVisible[i]));
-    stage.batchDraw();
   }
 }
 
@@ -304,7 +336,7 @@ export function encodeCanvas(
   ctx.drawImage(source, 0, 0, width, height);
   return new Promise<Blob>((resolve, reject) =>
     out.toBlob(
-      (b) => (b ? resolve(b) : reject(new Error("Encoding failed"))),
+      (b) => (b ? resolve(b) : reject(new Error(t("Encoding failed")))),
       `image/${format}`,
       quality
     )
@@ -323,9 +355,9 @@ export async function exportImage(format: ExportFormat = getSettings().saveForma
     const blob = await renderDocument(format);
     const ext = format === "jpeg" ? "jpg" : format;
     downloadBlob(blob, `${baseName(doc.image.name)}-edited.${ext}`);
-    toast.success({ title: "Image exported", description: `Saved as ${ext.toUpperCase()}` });
+    toast.success({ title: t("Image exported"), description: t("Saved as {format}", { format: ext.toUpperCase() }) });
   } catch (err) {
-    toast.error({ title: "Export failed", description: (err as Error).message });
+    toast.error({ title: t("Export failed"), description: (err as Error).message });
   }
 }
 
@@ -343,9 +375,9 @@ export async function saveOriginalImage() {
     const file = await originalFile();
     if (!file) return;
     downloadBlob(file.blob, file.name);
-    toast.success({ title: "Original image saved" });
+    toast.success({ title: t("Original image saved") });
   } catch (err) {
-    toast.error({ title: "Couldn't save the original", description: (err as Error).message });
+    toast.error({ title: t("Couldn't save the original"), description: (err as Error).message });
   }
 }
 
@@ -365,9 +397,9 @@ export async function copyOriginalImage() {
       png = await encodeCanvas(canvas, "png");
     }
     await writeClipboardImage(png);
-    toast.success({ title: "Original image copied" });
+    toast.success({ title: t("Original image copied") });
   } catch (err) {
-    toast.error({ title: "Couldn't copy image", description: (err as Error).message });
+    toast.error({ title: t("Couldn't copy image"), description: (err as Error).message });
   }
 }
 
@@ -376,9 +408,9 @@ export async function copyImageToClipboard() {
   try {
     const blob = await renderDocument("png");
     await writeClipboardImage(blob);
-    toast.success({ title: "Copied to clipboard" });
+    toast.success({ title: t("Copied to clipboard") });
   } catch (err) {
-    toast.error({ title: "Couldn't copy image", description: (err as Error).message });
+    toast.error({ title: t("Couldn't copy image"), description: (err as Error).message });
   }
 }
 
@@ -547,11 +579,12 @@ export function applyFill(color: string, key = "fill") {
   }
 }
 
+/** Copy text; `label` (already translated) names it in the confirmation. */
 export async function copyText(text: string, label = text) {
   try {
     await writeClipboardText(text);
-    toast.success({ title: `Copied ${label}` });
+    toast.success({ title: t("Copied {item}", { item: label }) });
   } catch {
-    toast.error({ title: "Clipboard unavailable" });
+    toast.error({ title: t("Clipboard unavailable") });
   }
 }

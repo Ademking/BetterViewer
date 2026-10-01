@@ -359,7 +359,7 @@ export const MenuSubTrigger = (
       {children}
 
       <MenuShortcut>
-        <ChevronRight />
+        <ChevronRight className="rtl:rotate-180" />
       </MenuShortcut>
     </ArkMenu.TriggerItem>
   );
@@ -371,7 +371,7 @@ export const MenuShortcut = (props: React.ComponentProps<typeof ark.span>) => {
   return (
     <ark.span
       className={cn(
-        "ms-auto shrink-0 ps-6 rtl:me-auto rtl:ps-0 rtl:pe-6",
+        "ms-auto shrink-0 ps-6",
         "text-muted-foreground text-xs tracking-wide",
         "group-data-highlighted/menu-item:group-data-[variant=destructive]/menu-item:text-destructive dark:group-data-highlighted/menu-item:group-data-[variant=destructive]/menu-item:text-destructive-foreground",
         className

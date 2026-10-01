@@ -5,16 +5,18 @@ import { Spinner } from "@/components/ui/spinner";
 import { type GalleryItem, loadThumb, showGalleryItem, stepGallery, useGallery } from "@/lib/gallery";
 import { cn } from "@/lib/utils";
 import { useSettings } from "@/state/settings";
+import { dims, useT } from "@/lib/i18n";
 
 /** Rail width + its margin; the board keeps this much room on the left. */
 export const GALLERY_RAIL_SPACE = 112;
 
 function Thumb({ item, i, active }: { item: GalleryItem; i: number; active: boolean }) {
+  const t = useT();
   // A downloaded copy when the address can't be shown directly (see loadThumb).
   const downloaded = useGallery((s) => s.thumbs[item.src]);
   const src = downloaded ?? (/^blob:/i.test(item.src) ? undefined : item.src);
   const broken = downloaded === "failed";
-  const label = item.alt?.trim() || `Image ${i + 1}`;
+  const label = item.alt?.trim() || t("Image {number}", { number: i + 1 });
   return (
     <button
       aria-current={active || undefined}
@@ -26,7 +28,7 @@ function Thumb({ item, i, active }: { item: GalleryItem; i: number; active: bool
       )}
       data-index={i}
       onClick={() => showGalleryItem(i)}
-      title={item.width && item.height ? `${label} (${item.width} × ${item.height})` : label}
+      title={item.width && item.height ? `${label} (${dims(item.width, item.height)})` : label}
       type="button"
     >
       {src && !broken ? (
@@ -48,6 +50,7 @@ function Thumb({ item, i, active }: { item: GalleryItem; i: number; active: bool
 
 /** Left thumbnail rail + previous / next buttons of the page gallery. */
 export function GalleryRail() {
+  const t = useT();
   const items = useGallery((s) => s.items);
   const index = useGallery((s) => s.index);
   const busy = useGallery((s) => s.busy);
@@ -72,7 +75,7 @@ export function GalleryRail() {
     <>
       {railOpen && (
         <nav
-          aria-label="Images on this page"
+          aria-label={t("Images on this page")}
           className={cn(
             "glass absolute z-20 flex w-24 flex-col rounded-2xl border shadow-lg/10",
             rulers ? "top-[72px] left-8" : "top-14 left-3",
@@ -97,9 +100,9 @@ export function GalleryRail() {
 
       {several && (
         <>
-          <Hinted label="Previous image" shortcut="←" side="right">
+          <Hinted label={t("Previous image")} shortcut="←" side="right">
             <button
-              aria-label="Previous image"
+              aria-label={t("Previous image")}
               className={cn(arrow, railOpen ? (rulers ? "left-[136px]" : "left-[112px]") : rulers ? "left-11" : "left-3")}
               data-chrome
               onClick={() => stepGallery(-1)}
@@ -108,9 +111,9 @@ export function GalleryRail() {
               <ChevronLeftIcon className="size-5" />
             </button>
           </Hinted>
-          <Hinted label="Next image" shortcut="→" side="left">
+          <Hinted label={t("Next image")} shortcut="→" side="left">
             <button
-              aria-label="Next image"
+              aria-label={t("Next image")}
               className={cn(arrow, "right-3")}
               data-chrome
               onClick={() => stepGallery(1)}

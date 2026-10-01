@@ -1,5 +1,6 @@
 import type Konva from "konva";
 import { stageRegistry } from "@/lib/stageRegistry";
+import { tk } from "@/lib/i18n";
 
 export type FontCategory = "Sans" | "Serif" | "Display" | "Mono" | "Handwriting";
 
@@ -94,7 +95,7 @@ export const FONTS: FontOption[] = [
 
 export const DEFAULT_FONT = "inter";
 
-export const FONT_CATEGORIES: FontCategory[] = ["Sans", "Serif", "Display", "Mono", "Handwriting"];
+export const FONT_CATEGORIES: FontCategory[] = [tk("Sans"), tk("Serif"), tk("Display"), tk("Mono"), tk("Handwriting")];
 
 export const getFont = (id: string | undefined) =>
   FONTS.find((f) => f.id === id) ?? FONTS[0];

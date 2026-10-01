@@ -7,6 +7,7 @@ import { Switch } from "@/components/ui/switch";
 import { formatBytes } from "@/lib/image";
 import { useDoc } from "@/state/document";
 import { type IncomingImageAction, useSettings } from "@/state/settings";
+import { dims, useT } from "@/lib/i18n";
 
 interface IncomingRequest {
   blob: Blob;
@@ -60,6 +61,7 @@ function ChoiceCard({
 }
 
 export function IncomingImageDialog() {
+  const t = useT();
   const request = useIncoming((s) => s.request);
   const hasHistory = useDoc((s) => s.past.length > 0);
   const setSetting = useSettings((s) => s.set);
@@ -93,8 +95,8 @@ export function IncomingImageDialog() {
     <Dialog onOpenChange={(d) => !d.open && close()} open={!!request}>
       <DialogContent className="glass" size="md">
         <DialogHeader
-          description="You already have an image open. Where should this one go?"
-          title="Add this image?"
+          description={t("You already have an image open. Where should this one go?")}
+          title={t("Add this image?")}
         />
         <DialogBody>
           <div className="flex flex-col gap-4">
@@ -106,7 +108,7 @@ export function IncomingImageDialog() {
                 <div className="flex min-w-0 flex-col">
                   <span className="truncate font-medium text-sm">{request.name}</span>
                   <span className="text-muted-foreground text-xs tabular-nums">
-                    {preview ? `${preview.width} × ${preview.height} px · ` : ""}
+                    {preview ? `${dims(preview.width, preview.height)} px · ` : ""}
                     {formatBytes(request.blob.size)}
                   </span>
                 </div>
@@ -115,17 +117,17 @@ export function IncomingImageDialog() {
             <div className="grid gap-3 sm:grid-cols-2">
               <ChoiceCard
                 autoFocus
-                description="Place it on top as a layer you can move, resize and rotate."
+                description={t("Place it on top as a layer you can move, resize and rotate.")}
                 icon={<LayersIcon />}
                 onClick={() => choose("layer")}
-                title="Add to this image"
+                title={t("Add to this image")}
               />
               <ChoiceCard
-                description="Close the current image and view this one instead."
+                description={t("Close the current image and view this one instead.")}
                 icon={<ImageIcon />}
                 onClick={() => choose("open")}
-                title="Open as new image"
-                warning={hasHistory ? "Your current edits will be closed." : undefined}
+                title={t("Open as new image")}
+                warning={hasHistory ? t("Your current edits will be closed.") : undefined}
               />
             </div>
           </div>
@@ -133,10 +135,10 @@ export function IncomingImageDialog() {
         <DialogFooter className="flex-row items-center justify-between sm:justify-between">
           <label className="flex cursor-pointer items-center gap-2 text-muted-foreground text-xs">
             <Switch checked={remember} onCheckedChange={(d) => setRemember(d.checked)} />
-            Remember my choice
+            {t("Remember my choice")}
           </label>
           <Button onClick={close} size="sm" variant="ghost">
-            Cancel
+            {t("Cancel")}
           </Button>
         </DialogFooter>
       </DialogContent>

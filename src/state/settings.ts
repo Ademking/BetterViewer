@@ -13,6 +13,8 @@ export type SaveFormat = "png" | "jpeg" | "webp";
 
 export interface Settings {
   // Appearance
+  /** Interface language: a code from LANGUAGES (src/lib/i18n.ts), or "auto" for the browser's. */
+  language: string;
   boardBackground: BoardBackground;
   theme: ThemeMode;
   showToolbar: boolean;
@@ -21,6 +23,8 @@ export interface Settings {
   showHints: boolean;
   autoHideUi: boolean;
   showScrollbars: boolean;
+  /** Overview of the whole image while it doesn't fit in the window. */
+  showNavigator: boolean;
   // Viewer
   defaultZoom: DefaultZoom;
   wheelBehavior: WheelBehavior;
@@ -47,6 +51,7 @@ export interface Settings {
 }
 
 export const DEFAULT_SETTINGS: Settings = {
+  language: "auto",
   boardBackground: "blur",
   theme: "dark",
   showToolbar: true,
@@ -54,6 +59,7 @@ export const DEFAULT_SETTINGS: Settings = {
   showHints: true,
   autoHideUi: false,
   showScrollbars: true,
+  showNavigator: true,
   defaultZoom: "shrink",
   wheelBehavior: "zoom",
   panOnEmptyDrag: true,

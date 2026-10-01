@@ -4,6 +4,7 @@ import { loadHtmlImage } from "@/lib/image";
 import { isOverlay } from "@/lib/overlay";
 import { extensionApi, isExtension, originalUrl } from "@/lib/platform";
 import { getUi } from "@/state/ui";
+import { t } from "@/lib/i18n";
 
 const EXT_BY_TYPE: Record<string, string> = {
   "image/png": ".png",
@@ -60,7 +61,7 @@ function withImageType(blob: Blob, src: string): Blob {
 export async function fetchImage(src: string): Promise<Blob> {
   try {
     const res = await fetch(src, { credentials: "include" });
-    if (!res.ok) throw new Error(`The server answered ${res.status}.`);
+    if (!res.ok) throw new Error(t("The server answered {status}.", { status: res.status }));
     return withImageType(await res.blob(), src);
   } catch (fetchErr) {
     try {
@@ -92,10 +93,10 @@ export async function openFromLocation() {
     await openBlob(blob, nameFromUrl(src, blob.type), { sourceUrl: src });
   } catch (err) {
     toast.error({
-      title: "Couldn't open this image",
-      description: (err as Error).message || "The image couldn't be downloaded.",
+      title: t("Couldn't open this image"),
+      description: (err as Error).message || t("The image couldn't be downloaded."),
       action: isExtension
-        ? { label: "Open original", onClick: () => (isOverlay ? viewOriginal(src) : location.replace(originalUrl(src))) }
+        ? { label: t("Open original"), onClick: () => (isOverlay ? viewOriginal(src) : location.replace(originalUrl(src))) }
         : undefined,
       duration: Number.POSITIVE_INFINITY,
     });

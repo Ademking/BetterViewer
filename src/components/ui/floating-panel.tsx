@@ -1,5 +1,6 @@
 "use client";
 
+import { t } from "@/lib/i18n";
 import { ark } from "@ark-ui/react/factory";
 import {
   FloatingPanel as ArkFloatingPanel,
@@ -50,9 +51,10 @@ export const FloatingPanelContent = (props: FloatingPanelContentProps) => {
     <Portal>
       {/* Ark sets an inline z-index of 1, 2, … (most recently used panel on
           top). Keep that order, but above the viewer's floating controls
-          (z-20) and below dialogs and menus (z-50). */}
+          (z-20) and below dialogs and menus (z-50). Ark's x is from the left
+          edge in any direction, so it's a physical left, not inline-start. */}
       <ArkFloatingPanel.Positioner
-        className="inset-s-(--x) top-(--y) z-[calc(30+var(--z-index,0))]!"
+        className="left-(--x) top-(--y) z-[calc(30+var(--z-index,0))]!"
         data-slot="floating-panel-positioner"
       >
         <ArkFloatingPanel.Content
@@ -134,7 +136,7 @@ export const FloatingPanelControl = (
 
   return (
     <ArkFloatingPanel.Control
-      className={cn("ms-auto flex items-center gap-2 rtl:me-auto", className)}
+      className={cn("ms-auto flex items-center gap-2", className)}
       {...rest}
     />
   );
@@ -154,7 +156,7 @@ export const FloatingPanelMinimize = (
 
   return (
     <ArkFloatingPanel.StageTrigger {...rest} asChild stage="minimized">
-      <Button aria-label="Minimize" size={size} variant={variant}>
+      <Button aria-label={t("Minimize")} size={size} variant={variant}>
         <MinusIcon />
       </Button>
     </ArkFloatingPanel.StageTrigger>
@@ -168,7 +170,7 @@ export const FloatingPanelMaximize = (
 
   return (
     <ArkFloatingPanel.StageTrigger {...rest} asChild stage="maximized">
-      <Button aria-label="Maximize" size={size} variant={variant}>
+      <Button aria-label={t("Maximize")} size={size} variant={variant}>
         <Maximize />
       </Button>
     </ArkFloatingPanel.StageTrigger>
@@ -180,7 +182,7 @@ export const FloatingPanelRestore = (props: FloatingPanelStageTriggerProps) => {
 
   return (
     <ArkFloatingPanel.StageTrigger {...rest} asChild stage="default">
-      <Button aria-label="Restore" size={size} variant={variant}>
+      <Button aria-label={t("Restore")} size={size} variant={variant}>
         <MinimizeIcon className="hidden group-data-maximized/floating-panel:block" />
         <MaximizeIcon className="hidden group-data-minimized/floating-panel:block" />
       </Button>

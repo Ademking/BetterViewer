@@ -50,6 +50,7 @@ import { loadHtmlImage } from "@/lib/image";
 import { updateAnnotations, useDoc } from "@/state/document";
 import { getUi, type TextStyle, useUi } from "@/state/ui";
 import { cn } from "@/lib/utils";
+import { useT } from "@/lib/i18n";
 
 
 /* ------------------------------------------------------------------ stroke */
@@ -112,14 +113,15 @@ interface StrokeControlProps {
 
 /** Stroke width + opacity in a compact popover. Width is shown in screen px at fit zoom. */
 export function StrokeControl({ width, opacity, color, showOpacity = true }: StrokeControlProps) {
+  const t = useT();
   const docUnit = useUi((s) => s.docUnit);
   // Whole pixels: fractional values made the readout (and the bar) change width.
   const display = Math.max(1, Math.round(width / docUnit));
   return (
     <Popover modal={false} positioning={{ placement: "top", gutter: 12 }}>
-      <Hinted label={showOpacity ? "Width & opacity" : "Width"}>
+      <Hinted label={showOpacity ? t("Width & opacity") : t("Width")}>
         <PopoverTrigger
-          aria-label={`Width ${display} px`}
+          aria-label={`${t("Width")} ${display} px`}
           className="flex h-8 items-center gap-2 rounded-lg px-2 text-xs transition-colors hover:bg-accent data-[state=open]:bg-accent"
         >
           {/* What the stroke looks like: thickness and color. */}
@@ -138,7 +140,7 @@ export function StrokeControl({ width, opacity, color, showOpacity = true }: Str
       </Hinted>
       <PopoverContent className="w-60 gap-4 p-4">
         <LabeledSlider
-          label="Width"
+          label={t("Width")}
           max={60}
           min={1}
           onChange={setStrokeWidth}
@@ -148,7 +150,7 @@ export function StrokeControl({ width, opacity, color, showOpacity = true }: Str
         />
         {showOpacity && (
           <LabeledSlider
-            label="Opacity"
+            label={t("Opacity")}
             max={100}
             min={5}
             onChange={(v) => setOpacity(v / 100)}
@@ -212,6 +214,7 @@ export function ShapeStyleControls({
   target?: Annotation;
   showFill?: boolean;
 }) {
+  const t = useT();
   const style = useUi((s) => s.style);
   const stroke = target && "stroke" in target ? target.stroke : style.stroke;
   const fill = !showFill
@@ -228,13 +231,13 @@ export function ShapeStyleControls({
   return (
     <>
       <ColorField
-        caption={fill !== null ? "Stroke" : undefined}
-        label={fill !== null ? "Stroke color" : "Color"}
+        caption={fill !== null ? t("Stroke") : undefined}
+        label={fill !== null ? t("Stroke color") : t("Color")}
         onChange={(c) => applyColor(c)}
         value={stroke}
       />
       {fill !== null && (
-        <ColorField allowNone alpha caption="Fill" label="Fill color" onChange={(c) => applyFill(c)} value={fill} />
+        <ColorField allowNone alpha caption={t("Fill")} label={t("Fill color")} onChange={(c) => applyFill(c)} value={fill} />
       )}
       <StrokeControl color={stroke} opacity={opacity} width={isHighlight ? width / 3 : width} />
     </>
@@ -256,6 +259,7 @@ export function setTextProp(patch: Partial<TextStyle>, key = "text-style") {
 }
 
 export function TextStyleControls({ target }: { target?: TextAnnotation }) {
+  const tr = useT();
   const defaults = useUi((s) => s.textStyle);
   const docUnit = useUi((s) => s.docUnit);
   const t = target ?? defaults;
@@ -268,7 +272,7 @@ export function TextStyleControls({ target }: { target?: TextAnnotation }) {
         value={t.fontFamily}
       />
       <Popover modal={false} positioning={{ placement: "top", gutter: 12 }}>
-        <Hinted label="Font size">
+        <Hinted label={tr("Font size")}>
           <PopoverTrigger className="flex h-8 items-center gap-1 rounded-lg px-2 font-medium text-xs tabular-nums transition-colors hover:bg-accent data-[state=open]:bg-accent">
             <span className="font-serif text-sm italic opacity-70">A</span>
             <FixedValue value={display} widest={888} />
@@ -276,7 +280,7 @@ export function TextStyleControls({ target }: { target?: TextAnnotation }) {
         </Hinted>
         <PopoverContent className="w-60 gap-3 p-4">
           <LabeledSlider
-            label="Font size"
+            label={tr("Font size")}
             max={200}
             min={8}
             onChange={(v) => setTextProp({ fontSize: v * docUnit })}
@@ -301,9 +305,9 @@ export function TextStyleControls({ target }: { target?: TextAnnotation }) {
           </div>
         </PopoverContent>
       </Popover>
-      <Hinted label="Bold">
+      <Hinted label={tr("Bold")}>
         <Toggle
-          aria-label="Bold"
+          aria-label={tr("Bold")}
           onPressedChange={(p) => setTextProp({ fontWeight: p ? "bold" : "normal" })}
           pressed={t.fontWeight === "bold"}
           size="md"
@@ -311,9 +315,9 @@ export function TextStyleControls({ target }: { target?: TextAnnotation }) {
           <BoldIcon />
         </Toggle>
       </Hinted>
-      <Hinted label="Italic">
+      <Hinted label={tr("Italic")}>
         <Toggle
-          aria-label="Italic"
+          aria-label={tr("Italic")}
           onPressedChange={(p) => setTextProp({ fontStyle: p ? "italic" : "normal" })}
           pressed={t.fontStyle === "italic"}
           size="md"
@@ -329,28 +333,28 @@ export function TextStyleControls({ target }: { target?: TextAnnotation }) {
         size="md"
         value={[t.align]}
       >
-        <ToggleGroupItem aria-label="Align left" value="left">
+        <ToggleGroupItem aria-label={tr("Align left")} value="left">
           <TextAlignStartIcon />
         </ToggleGroupItem>
-        <ToggleGroupItem aria-label="Align centre" value="center">
+        <ToggleGroupItem aria-label={tr("Align centre")} value="center">
           <TextAlignCenterIcon />
         </ToggleGroupItem>
-        <ToggleGroupItem aria-label="Align right" value="right">
+        <ToggleGroupItem aria-label={tr("Align right")} value="right">
           <TextAlignEndIcon />
         </ToggleGroupItem>
       </ToggleGroup>
       <ToolbarDivider />
       <ColorField
-        caption="Text"
-        label="Text color"
+        caption={tr("Text")}
+        label={tr("Text color")}
         onChange={(c) => setTextProp({ fill: c }, "text-fill")}
         value={t.fill}
       />
       <ColorField
         allowNone
         alpha
-        caption="Background"
-        label="Background color"
+        caption={tr("Background")}
+        label={tr("Background color")}
         onChange={(c) => setTextProp({ background: c }, "text-bg")}
         value={t.background}
       />
@@ -361,27 +365,28 @@ export function TextStyleControls({ target }: { target?: TextAnnotation }) {
 
 /** Outline and drop shadow for text (sizes relative to the font size). */
 function TextEffects({ t }: { t: TextStyle | TextAnnotation }) {
+  const tr = useT();
   const hasOutline = !!t.outline && !isTransparent(t.outline);
   const hasShadow = !!t.shadow && !isTransparent(t.shadow);
   const pct = (v: number | undefined, d: number) => Math.round((v ?? d) * 100);
   return (
     <Popover modal={false} positioning={{ placement: "top", gutter: 12 }}>
-      <Hinted label="Outline & shadow">
+      <Hinted label={tr("Outline & shadow")}>
         <PopoverTrigger
-          aria-label="Outline and shadow"
+          aria-label={tr("Outline and shadow")}
           className="flex h-8 items-center gap-1.5 rounded-lg px-2 font-medium text-xs transition-colors hover:bg-accent data-[state=open]:bg-accent [&_svg]:size-4"
         >
           <SparklesIcon />
-          Effects
+          {tr("Effects")}
           {(hasOutline || hasShadow) && <span className="size-1.5 rounded-full bg-brand" />}
         </PopoverTrigger>
       </Hinted>
       <PopoverContent className="w-64 gap-4 p-4">
         <section className="flex flex-col gap-3">
           <div className="flex items-center justify-between">
-            <span className="font-medium text-sm">Outline</span>
+            <span className="font-medium text-sm">{tr("Outline")}</span>
             <Switch
-              aria-label="Outline"
+              aria-label={tr("Outline")}
               checked={hasOutline}
               onCheckedChange={(d) =>
                 setTextProp(d.checked ? TEXT_OUTLINE_DEFAULT : { outline: undefined }, "text-outline")
@@ -391,13 +396,13 @@ function TextEffects({ t }: { t: TextStyle | TextAnnotation }) {
           {hasOutline && (
             <>
               <ColorField
-                caption="Color"
-                label="Outline color"
+                caption={tr("Color")}
+                label={tr("Outline color")}
                 onChange={(c) => setTextProp({ outline: c }, "text-outline-color")}
                 value={t.outline!}
               />
               <LabeledSlider
-                label="Thickness"
+                label={tr("Thickness")}
                 max={25}
                 min={1}
                 onChange={(v) => setTextProp({ outlineWidth: v / 100 }, "text-outline-width")}
@@ -411,9 +416,9 @@ function TextEffects({ t }: { t: TextStyle | TextAnnotation }) {
         <div className="h-px bg-border" />
         <section className="flex flex-col gap-3">
           <div className="flex items-center justify-between">
-            <span className="font-medium text-sm">Shadow</span>
+            <span className="font-medium text-sm">{tr("Shadow")}</span>
             <Switch
-              aria-label="Shadow"
+              aria-label={tr("Shadow")}
               checked={hasShadow}
               onCheckedChange={(d) =>
                 setTextProp(d.checked ? TEXT_SHADOW_DEFAULT : { shadow: undefined }, "text-shadow")
@@ -424,13 +429,13 @@ function TextEffects({ t }: { t: TextStyle | TextAnnotation }) {
             <>
               <ColorField
                 alpha
-                caption="Color"
-                label="Shadow color"
+                caption={tr("Color")}
+                label={tr("Shadow color")}
                 onChange={(c) => setTextProp({ shadow: c }, "text-shadow-color")}
                 value={t.shadow!}
               />
               <LabeledSlider
-                label="Blur"
+                label={tr("Blur")}
                 max={100}
                 min={0}
                 onChange={(v) => setTextProp({ shadowBlur: v / 100 }, "text-shadow-blur")}
@@ -439,7 +444,7 @@ function TextEffects({ t }: { t: TextStyle | TextAnnotation }) {
                 value={pct(t.shadowBlur, TEXT_SHADOW_DEFAULT.shadowBlur)}
               />
               <LabeledSlider
-                label="Distance"
+                label={tr("Distance")}
                 max={50}
                 min={0}
                 onChange={(v) => setTextProp({ shadowOffset: v / 100 }, "text-shadow-offset")}
@@ -469,13 +474,14 @@ export function setCounterRadius(displaySize: number) {
 }
 
 function CounterSize({ radius }: { radius: number }) {
+  const t = useT();
   const docUnit = useUi((s) => s.docUnit);
   const display = Math.max(4, Math.round(radius / docUnit));
   return (
     <Popover modal={false} positioning={{ placement: "top", gutter: 12 }}>
-      <Hinted label="Size">
+      <Hinted label={t("Size")}>
         <PopoverTrigger
-          aria-label={`Size ${display} px`}
+          aria-label={`${t("Size")} ${display} px`}
           className="flex h-8 items-center gap-2 rounded-lg px-2 text-xs transition-colors hover:bg-accent data-[state=open]:bg-accent"
         >
           <span className="size-3.5 rounded-full border-2 border-current opacity-70" />
@@ -484,7 +490,7 @@ function CounterSize({ radius }: { radius: number }) {
       </Hinted>
       <PopoverContent className="w-60 p-4">
         <LabeledSlider
-          label="Size"
+          label={t("Size")}
           max={80}
           min={6}
           onChange={setCounterRadius}
@@ -528,6 +534,7 @@ function NumberField({
 
 /** Options while placing counters: color, size and the next number. */
 export function CounterOptions() {
+  const t = useT();
   const color = useUi((s) => s.style.stroke);
   const radius = useUi((s) => s.style.counterRadius);
   const counterNext = useUi((s) => s.counterNext);
@@ -537,13 +544,13 @@ export function CounterOptions() {
   return (
     <>
       <ToolbarDivider />
-      <ColorField label="Counter color" onChange={(c) => applyColor(c)} value={color} />
+      <ColorField label={t("Counter color")} onChange={(c) => applyColor(c)} value={color} />
       <CounterSize radius={radius} />
       <ToolbarDivider />
-      <span className="px-1 text-muted-foreground text-xs">Next</span>
-      <NumberField label="Next number" onChange={(n) => set({ counterNext: n })} value={next} />
-      <Hinted label="Restart at 1">
-        <Button aria-label="Restart at 1" onClick={() => set({ counterNext: 1 })} size="icon-sm" variant="ghost">
+      <span className="px-1 text-muted-foreground text-xs">{t("Next")}</span>
+      <NumberField label={t("Next number")} onChange={(n) => set({ counterNext: n })} value={next} />
+      <Hinted label={t("Restart at 1")}>
+        <Button aria-label={t("Restart at 1")} onClick={() => set({ counterNext: 1 })} size="icon-sm" variant="ghost">
           <RotateCcwIcon />
         </Button>
       </Hinted>
@@ -553,14 +560,15 @@ export function CounterOptions() {
 
 /** Properties for selected counters. */
 export function CounterControls({ targets }: { targets: CounterAnnotation[] }) {
+  const t = useT();
   const first = targets[0];
   return (
     <>
-      <ColorField label="Counter color" onChange={(c) => applyColor(c)} value={first.fill} />
+      <ColorField label={t("Counter color")} onChange={(c) => applyColor(c)} value={first.fill} />
       <CounterSize radius={first.radius} />
       {targets.length === 1 && (
         <NumberField
-          label="Number"
+          label={t("Number")}
           onChange={(n) =>
             updateAnnotations([first.id], (a) => (a.type === "counter" ? { ...a, number: n } : a), {
               key: `counter-number-${first.id}`,
@@ -577,23 +585,24 @@ export function CounterControls({ targets }: { targets: CounterAnnotation[] }) {
 
 /** Opacity and "original proportions" for inserted pictures. */
 export function ImageLayerControls({ targets }: { targets: ImageAnnotation[] }) {
+  const t = useT();
   const first = targets[0];
   const opacity = Math.round(first.opacity * 100);
   return (
     <>
       <Popover modal={false} positioning={{ placement: "top", gutter: 12 }}>
-        <Hinted label="Opacity">
+        <Hinted label={t("Opacity")}>
           <PopoverTrigger
-            aria-label={`Opacity ${opacity}%`}
+            aria-label={`${t("Opacity")} ${opacity}%`}
             className="flex h-8 items-center gap-2 rounded-lg px-2 text-xs transition-colors hover:bg-accent data-[state=open]:bg-accent"
           >
-            <span className="font-medium text-muted-foreground">Opacity</span>
+            <span className="font-medium text-muted-foreground">{t("Opacity")}</span>
             <FixedValue unit="%" value={opacity} widest={888} />
           </PopoverTrigger>
         </Hinted>
         <PopoverContent className="w-60 p-4">
           <LabeledSlider
-            label="Opacity"
+            label={t("Opacity")}
             max={100}
             min={5}
             onChange={(v) => setOpacity(v / 100)}
@@ -603,9 +612,9 @@ export function ImageLayerControls({ targets }: { targets: ImageAnnotation[] }) 
           />
         </PopoverContent>
       </Popover>
-      <Hinted label="Restore original proportions">
+      <Hinted label={t("Restore original proportions")}>
         <Button
-          aria-label="Restore original proportions"
+          aria-label={t("Restore original proportions")}
           onClick={() => void restoreProportions(targets)}
           size="icon-sm"
           variant="ghost"
@@ -632,20 +641,21 @@ async function restoreProportions(targets: ImageAnnotation[]) {
 /* ------------------------------------------------------------------ actions */
 
 export function SelectionActions() {
+  const t = useT();
   return (
     <>
-      <ToolButton label="Duplicate" onClick={duplicateSelected} shortcut={`${MOD} D`}>
+      <ToolButton label={t("Duplicate")} onClick={duplicateSelected} shortcut={`${MOD} D`}>
         <CopyPlusIcon />
       </ToolButton>
-      <ToolButton label="Bring to front" onClick={() => reorderSelected("front")} shortcut="]">
+      <ToolButton label={t("Bring to front")} onClick={() => reorderSelected("front")} shortcut="]">
         <ArrowUpToLineIcon />
       </ToolButton>
-      <ToolButton label="Send to back" onClick={() => reorderSelected("back")} shortcut="[">
+      <ToolButton label={t("Send to back")} onClick={() => reorderSelected("back")} shortcut="[">
         <ArrowDownToLineIcon />
       </ToolButton>
       <ToolButton
         className="hover:bg-destructive/15 hover:text-destructive-foreground"
-        label="Delete"
+        label={t("Delete")}
         onClick={deleteSelected}
         shortcut="Del"
       >

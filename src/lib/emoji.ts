@@ -1,3 +1,4 @@
+import { tk } from "@/lib/i18n";
 /**
  * Emoji picker data and helpers. Emojis are drawn with the system's colour
  * emoji font (works offline, exports as-is); emojis the OS can't draw are
@@ -30,12 +31,12 @@ interface RawData {
 
 /** Skin tones: 0 = default yellow, 1–5 = light → dark. */
 export const SKIN_TONES = [
-  { tone: 0, swatch: "#ffc93a", label: "Default" },
-  { tone: 1, swatch: "#f7dece", label: "Light" },
-  { tone: 2, swatch: "#f3d2a2", label: "Medium-light" },
-  { tone: 3, swatch: "#d5ab88", label: "Medium" },
-  { tone: 4, swatch: "#af7e57", label: "Medium-dark" },
-  { tone: 5, swatch: "#7c533e", label: "Dark" },
+  { tone: 0, swatch: "#ffc93a", label: tk("Default") },
+  { tone: 1, swatch: "#f7dece", label: tk("Light") },
+  { tone: 2, swatch: "#f3d2a2", label: tk("Medium-light") },
+  { tone: 3, swatch: "#d5ab88", label: tk("Medium") },
+  { tone: 4, swatch: "#af7e57", label: tk("Medium-dark") },
+  { tone: 5, swatch: "#7c533e", label: tk("Dark") },
 ];
 
 export const withTone = (item: EmojiItem, tone: number) =>
@@ -154,3 +155,16 @@ export function emojiMetrics(ctx: CanvasRenderingContext2D, emoji: string, size:
     y: (size - h) / 2 + m.actualBoundingBoxAscent,
   };
 }
+
+/** Emoji category names (from emoji-data.json), for translation. */
+export const EMOJI_GROUP_LABELS = [
+  tk("Smileys & emotion"),
+  tk("People & body"),
+  tk("Animals & nature"),
+  tk("Food & drink"),
+  tk("Travel & places"),
+  tk("Activities"),
+  tk("Objects"),
+  tk("Symbols"),
+  tk("Flags"),
+];

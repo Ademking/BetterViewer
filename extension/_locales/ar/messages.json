@@ -1,0 +1,29 @@
+{
+  "extDescription": {
+    "message": "إضافة للمتصفح لتجربة أفضل في عرض الصور"
+  },
+  "menuOpenImage": {
+    "message": "فتح هذه الصورة في BetterViewer"
+  },
+  "menuGallery": {
+    "message": "تصفح كل صور الصفحة كمعرض"
+  },
+  "menuScreenshot": {
+    "message": "لقطة شاشة لهذه الصفحة"
+  },
+  "popupOpen": {
+    "message": "فتح BetterViewer"
+  },
+  "popupGallery": {
+    "message": "تصفح صور الصفحة"
+  },
+  "popupSettings": {
+    "message": "الإعدادات"
+  },
+  "popupShortcuts": {
+    "message": "اختصارات لوحة المفاتيح"
+  },
+  "popupAbout": {
+    "message": "حول BetterViewer"
+  }
+}

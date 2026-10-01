@@ -1,0 +1,29 @@
+{
+  "extDescription": {
+    "message": "Daha iyi bir görüntü izleme deneyimi için tarayıcı uzantısı"
+  },
+  "menuOpenImage": {
+    "message": "Bu görüntüyü BetterViewer'da aç"
+  },
+  "menuGallery": {
+    "message": "Sayfadaki tüm görüntülere galeri olarak göz at"
+  },
+  "menuScreenshot": {
+    "message": "Bu sayfanın ekran görüntüsünü al"
+  },
+  "popupOpen": {
+    "message": "BetterViewer'ı aç"
+  },
+  "popupGallery": {
+    "message": "Sayfa görüntülerine göz at"
+  },
+  "popupSettings": {
+    "message": "Ayarlar"
+  },
+  "popupShortcuts": {
+    "message": "Klavye kısayolları"
+  },
+  "popupAbout": {
+    "message": "BetterViewer hakkında"
+  }
+}

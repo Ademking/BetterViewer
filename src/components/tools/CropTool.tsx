@@ -11,10 +11,11 @@ import { useView, viewport } from "@/lib/viewport";
 import { getDoc, normRotation, updateDoc, useDoc } from "@/state/document";
 import { type CropRect, getUi, useUi } from "@/state/ui";
 import { ACCENT } from "@/components/viewer/SelectionTransformer";
+import { dims, t, tk, useT } from "@/lib/i18n";
 
 export const ASPECTS: { id: string; label: string; value: number | null | "original" }[] = [
-  { id: "free", label: "Free", value: null },
-  { id: "original", label: "Original", value: "original" },
+  { id: "free", label: tk("Free"), value: null },
+  { id: "original", label: tk("Original"), value: "original" },
   { id: "1:1", label: "1:1", value: 1 },
   { id: "4:3", label: "4:3", value: 4 / 3 },
   { id: "3:2", label: "3:2", value: 3 / 2 },
@@ -111,9 +112,9 @@ export async function applyCrop() {
     }));
     getUi().set({ crop: null, tool: "select" });
     viewport.fit();
-    toast.success({ title: "Image cropped", description: `${image.width} × ${image.height} px` });
+    toast.success({ title: t("Image cropped"), description: `${dims(image.width, image.height)} px` });
   } catch (err) {
-    toast.error({ title: "Crop failed", description: String((err as Error).message) });
+    toast.error({ title: t("Crop failed"), description: String((err as Error).message) });
   }
 }
 
@@ -284,6 +285,7 @@ export function CropTransformer() {
 
 /** Contextual controls shown above the toolbar while cropping. */
 export function CropBar() {
+  const t = useT();
   const crop = useUi((s) => s.crop);
   const rotation = useDoc((s) => s.doc?.rotation ?? 0);
   const [busy, setBusy] = useState(false);
@@ -306,16 +308,16 @@ export function CropBar() {
             key={a.id}
             value={a.id}
           >
-            <SegmentGroupItemText>{a.label}</SegmentGroupItemText>
+            <SegmentGroupItemText>{t(a.label)}</SegmentGroupItemText>
           </SegmentGroupItem>
         ))}
       </SegmentGroup>
       <div className="h-5 w-px shrink-0 bg-border" />
       <span className="shrink-0 px-1 font-mono text-xs tabular-nums text-muted-foreground">
-        {w} × {h}
+        {dims(w, h)}
       </span>
       <Button
-        aria-label="Reset crop"
+        aria-label={t("Reset crop")}
         onClick={() => {
           const doc = getDoc();
           if (!doc) return;
@@ -331,7 +333,7 @@ export function CropBar() {
         <RotateCcwIcon />
       </Button>
       <Button onClick={cancelCrop} size="sm" variant="ghost">
-        <XIcon /> Cancel
+        <XIcon /> {t("Cancel")}
       </Button>
       <Button
         isLoading={busy}
@@ -342,7 +344,7 @@ export function CropBar() {
         }}
         size="sm"
       >
-        <CheckIcon /> Apply
+        <CheckIcon /> {t("Apply")}
       </Button>
     </div>
   );

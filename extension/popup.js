@@ -6,6 +6,13 @@ const $ = (id) => document.getElementById(id);
 
 $("version").textContent = api.runtime.getManifest().version;
 
+// Labels in the browser's language (extension/_locales); the HTML has English.
+for (const el of document.querySelectorAll("[data-i18n]")) {
+  el.textContent = api.i18n.getMessage(el.dataset.i18n) || el.textContent;
+}
+document.documentElement.lang = api.i18n.getUILanguage();
+document.documentElement.dir = api.i18n.getMessage("@@bidi_dir") || "ltr";
+
 /** Open BetterViewer in a new tab (optionally with a panel open) and close the popup. */
 const openViewer = async (query = "") => {
   await api.tabs.create({ url: `${api.runtime.getURL("index.html")}${query}` });

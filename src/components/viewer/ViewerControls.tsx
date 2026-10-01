@@ -28,6 +28,7 @@ import {
 } from "@/lib/annotations";
 import { useDoc } from "@/state/document";
 import { useUi } from "@/state/ui";
+import { useT } from "@/lib/i18n";
 
 function Bar({ children }: { children: React.ReactNode }) {
   return (
@@ -42,6 +43,7 @@ function Bar({ children }: { children: React.ReactNode }) {
  * creation tool is active, or properties + actions for the selection.
  */
 export function ViewerControls() {
+  const t = useT();
   const tool = useUi((s) => s.tool);
   const selectedIds = useUi((s) => s.selectedIds);
   const editing = useUi((s) => s.editingTextId);
@@ -61,7 +63,7 @@ export function ViewerControls() {
       <Bar>
         <span className="flex items-center gap-2 px-2 text-xs">
           <PipetteIcon className="size-4 text-muted-foreground" />
-          Click the image to pick a color
+          {t("Click the image to pick a color")}
         </span>
         {picked && (
           <span className="flex items-center gap-1.5 rounded-md bg-accent px-2 py-1 font-mono text-xs">
@@ -70,7 +72,7 @@ export function ViewerControls() {
           </span>
         )}
         <span className="flex items-center gap-1 pr-2 text-muted-foreground text-xs">
-          <Kbd>Esc</Kbd> to finish
+          <Kbd>Esc</Kbd> {t("to finish")}
         </span>
       </Bar>
     );
@@ -128,7 +130,7 @@ export function ViewerControls() {
       <Bar>
         <TextStyleControls />
         <ToolbarDivider />
-        <span className="px-2 text-muted-foreground text-xs">Click to add text</span>
+        <span className="px-2 text-muted-foreground text-xs">{t("Click to add text")}</span>
       </Bar>
     );
   }

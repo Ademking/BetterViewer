@@ -1,5 +1,6 @@
 "use client";
 
+import { t } from "@/lib/i18n";
 import {
   Combobox as ArkCombobox,
   type ComboboxList as ArkComboboxList,
@@ -305,7 +306,7 @@ export const ComboboxEmpty = (
       data-slot="combobox-empty"
       {...rest}
     >
-      {children || "No results found."}
+      {children || t("No results found.")}
     </ArkCombobox.Empty>
   );
 };

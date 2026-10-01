@@ -13,6 +13,7 @@ import { Hinted, ToolbarDivider, ToolButton } from "@/components/tools/ToolButto
 import { isLineKind, SHAPE_GROUPS, SHAPE_LABELS, type ShapeKind, shapeOutline } from "@/lib/annotations";
 import { cn } from "@/lib/utils";
 import { useUi } from "@/state/ui";
+import { useT } from "@/lib/i18n";
 
 /** Shape icons are drawn from the shapes' own geometry, in Lucide's style. */
 function Glyph({ children }: { children: React.ReactNode }) {
@@ -136,12 +137,13 @@ function ShapeGridContent() {
 
 /** Toolbar button: opens the shape grid; the icon reflects the current shape. */
 export function ShapeToolButton() {
+  const t = useT();
   const tool = useUi((s) => s.tool);
   const kind = useUi((s) => s.shapeKind);
   return (
     <Menu positioning={{ placement: "top", gutter: 14 }}>
       <MenuTrigger asChild>
-        <ToolButton active={tool === "shape"} label="Shapes" shortcut="S">
+        <ToolButton active={tool === "shape"} label={t("Shapes")} shortcut="S">
           {SHAPE_ICONS[kind]}
         </ToolButton>
       </MenuTrigger>
@@ -152,13 +154,14 @@ export function ShapeToolButton() {
 
 /** Options shown above the toolbar while the shape tool is active. */
 export function ShapeOptions() {
+  const t = useT();
   const kind = useUi((s) => s.shapeKind);
   const sides = useUi((s) => s.style.polygonSides);
   const setStyle = useUi((s) => s.setStyle);
   return (
     <>
       <Menu positioning={{ placement: "top", gutter: 12 }}>
-        <Hinted label="Change shape">
+        <Hinted label={t("Change shape")}>
           <MenuTrigger className="flex h-8 items-center gap-1.5 rounded-lg px-2 font-medium text-xs transition-colors hover:bg-accent data-[state=open]:bg-accent [&_svg]:size-4">
             {SHAPE_ICONS[kind]}
             <span className="max-w-28 truncate">{SHAPE_LABELS[kind]}</span>
@@ -169,7 +172,7 @@ export function ShapeOptions() {
       </Menu>
       {kind === "counter" && <CounterOptions />}
       {kind === "polygon" && (
-        <Hinted label="Sides">
+        <Hinted label={t("Sides")}>
           <NumberInput
             className="w-24"
             max={12}

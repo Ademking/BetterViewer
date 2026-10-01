@@ -17,6 +17,9 @@ const ACTION_SCREENSHOT_ID = "betterviewer-action-screenshot";
 // Web pages and local files only, not BetterViewer's own pages.
 const PAGES = ["http://*/*", "https://*/*", "file:///*"];
 
+/** Text in the browser's language (extension/_locales), English as a fallback. */
+const msg = (key, fallback) => api.i18n?.getMessage(key) || fallback;
+
 const viewerUrl = (query = "") => `${api.runtime.getURL("index.html")}${query}`;
 
 // Menus survive restarts in Chromium; Firefox event pages may need them again.
@@ -24,19 +27,19 @@ const createMenu = () =>
   Promise.resolve(api.contextMenus.removeAll()).then(() => {
     api.contextMenus.create({
       id: MENU_ID,
-      title: "Open this image in BetterViewer",
+      title: msg("menuOpenImage", "Open this image in BetterViewer"),
       contexts: ["image"],
       documentUrlPatterns: PAGES,
     });
     api.contextMenus.create({
       id: GALLERY_ID,
-      title: "Browse all page images as a gallery",
+      title: msg("menuGallery", "Browse all page images as a gallery"),
       contexts: ["page", "frame", "selection", "link"],
       documentUrlPatterns: PAGES,
     });
     // Right-click on the toolbar button.
-    api.contextMenus.create({ id: ACTION_SCREENSHOT_ID, title: "Screenshot this page", contexts: ["action"] });
-    api.contextMenus.create({ id: ACTION_GALLERY_ID, title: "Browse all page images as a gallery", contexts: ["action"] });
+    api.contextMenus.create({ id: ACTION_SCREENSHOT_ID, title: msg("menuScreenshot", "Screenshot this page"), contexts: ["action"] });
+    api.contextMenus.create({ id: ACTION_GALLERY_ID, title: msg("menuGallery", "Browse all page images as a gallery"), contexts: ["action"] });
   });
 api.runtime.onInstalled.addListener(createMenu);
 api.runtime.onStartup.addListener(createMenu);

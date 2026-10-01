@@ -27,6 +27,7 @@ import { closeOverlay, isOverlay } from "@/lib/overlay";
 import { stepGallery } from "@/lib/gallery";
 import { applyStraighten, cancelStraighten } from "@/lib/straighten";
 import { toggleRulers } from "@/components/tools/MeasureTool";
+import { toggleNavigator } from "@/components/viewer/Navigator";
 import { getDoc } from "@/state/document";
 import { scanCurrentImage } from "@/state/qr";
 import { getUi, useUi } from "@/state/ui";
@@ -240,7 +241,8 @@ export function useKeyboardShortcuts() {
           else ui.setShapeKind("line");
           return;
         case "n":
-          ui.setShapeKind("counter");
+          if (e.shiftKey) toggleNavigator();
+          else ui.setShapeKind("counter");
           return;
         case "m":
           ui.setTool("redact");

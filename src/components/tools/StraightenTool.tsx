@@ -10,6 +10,7 @@ import { applyStraighten, cancelStraighten, setStraighten } from "@/lib/straight
 import { useView } from "@/lib/viewport";
 import { displaySize, useDoc } from "@/state/document";
 import { useUi } from "@/state/ui";
+import { useT } from "@/lib/i18n";
 
 /** Grid over the image and the level line being drawn (screen space). */
 export function StraightenOverlay() {
@@ -82,16 +83,17 @@ function PerspectiveControl({
 
 /** Controls above the toolbar while straightening. */
 export function StraightenBar() {
+  const t = useT();
   const s = useUi((st) => st.straighten);
   const [busy, setBusy] = useState(false);
   if (!s) return null;
   return (
     <div className="glass flex max-w-[calc(100vw-2rem)] items-center gap-2 overflow-x-auto rounded-xl border p-1.5 shadow-lg/10">
       <div className="flex shrink-0 items-center gap-2 px-1.5">
-        <span className="font-medium text-muted-foreground text-xs">Angle</span>
+        <span className="font-medium text-muted-foreground text-xs">{t("Angle")}</span>
         <div className="w-40">
           <Slider
-            aria-label={["Angle"]}
+            aria-label={[t("Angle")]}
             max={45}
             min={-45}
             onValueChange={(d) => setStraighten({ angle: Math.round(d.value[0] * 10) / 10 })}
@@ -100,7 +102,7 @@ export function StraightenBar() {
           />
         </div>
         <input
-          aria-label="Angle in degrees"
+          aria-label={t("Angle in degrees")}
           className="h-7 w-16 rounded-md border bg-transparent px-1.5 text-right font-mono text-xs tabular-nums outline-none focus-visible:border-brand"
           max={45}
           min={-45}
@@ -116,24 +118,24 @@ export function StraightenBar() {
       </div>
       <div className="h-5 w-px shrink-0 bg-border" />
       <PerspectiveControl
-        hint="Fix lines that lean in or out, like buildings shot from below"
+        hint={t("Fix lines that lean in or out, like buildings shot from below")}
         icon={<MoveVerticalIcon />}
-        label="Vertical"
+        label={t("Vertical")}
         onChange={(v) => setStraighten({ vertical: v })}
         value={s.vertical}
       />
       <PerspectiveControl
-        hint="Fix a wall or document shot at an angle from the side"
+        hint={t("Fix a wall or document shot at an angle from the side")}
         icon={<MoveHorizontalIcon />}
-        label="Horizontal"
+        label={t("Horizontal")}
         onChange={(v) => setStraighten({ horizontal: v })}
         value={s.horizontal}
       />
       <div className="h-5 w-px shrink-0 bg-border" />
-      <span className="shrink-0 px-1 text-muted-foreground text-xs max-lg:hidden">Drag along the horizon to level it</span>
-      <Hinted label="Reset">
+      <span className="shrink-0 px-1 text-muted-foreground text-xs max-lg:hidden">{t("Drag along the horizon to level it")}</span>
+      <Hinted label={t("Reset")}>
         <Button
-          aria-label="Reset straighten"
+          aria-label={t("Reset straighten")}
           onClick={() => setStraighten({ angle: 0, vertical: 0, horizontal: 0 })}
           size="icon-sm"
           variant="ghost"
@@ -142,7 +144,7 @@ export function StraightenBar() {
         </Button>
       </Hinted>
       <Button onClick={cancelStraighten} size="sm" variant="ghost">
-        <XIcon /> Cancel
+        <XIcon /> {t("Cancel")}
       </Button>
       <Button
         isLoading={busy}
@@ -156,7 +158,7 @@ export function StraightenBar() {
         }}
         size="sm"
       >
-        <CheckIcon /> Apply
+        <CheckIcon /> {t("Apply")}
       </Button>
     </div>
   );

@@ -3,6 +3,7 @@ import { loadHtmlImage } from "@/lib/image";
 import { getDoc, type ImageInfo, normRotation, updateDoc } from "@/state/document";
 import { getUi } from "@/state/ui";
 import { viewport } from "@/lib/viewport";
+import { t } from "@/lib/i18n";
 
 /**
  * Resample an image to width × height. Large reductions are done in halving
@@ -35,7 +36,7 @@ export async function resampleImage(info: ImageInfo, width: number, height: numb
 
   const type = info.type === "image/jpeg" ? "image/jpeg" : "image/png";
   const blob = await new Promise<Blob>((resolve, reject) =>
-    out.toBlob((b) => (b ? resolve(b) : reject(new Error("Resize failed"))), type, 0.95)
+    out.toBlob((b) => (b ? resolve(b) : reject(new Error(t("Resize failed")))), type, 0.95)
   );
   const src = URL.createObjectURL(blob);
   await loadHtmlImage(src);

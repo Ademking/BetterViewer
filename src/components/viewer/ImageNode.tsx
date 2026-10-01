@@ -43,6 +43,7 @@ export const ImageNode = memo(function ImageNode() {
       native.imageSmoothingEnabled = !(
         pixelated &&
         !stageRegistry.exporting &&
+        !stageRegistry.thumbnail &&
         viewport.cur.scale >= 3
       );
       native.imageSmoothingQuality = "high";

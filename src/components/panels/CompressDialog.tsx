@@ -11,6 +11,7 @@ import { baseName, downloadBlob, formatBytes } from "@/lib/image";
 import { cn } from "@/lib/utils";
 import { useDoc } from "@/state/document";
 import { useUi } from "@/state/ui";
+import { dims, useT } from "@/lib/i18n";
 
 const FORMATS: { value: ExportFormat; label: string }[] = [
   { value: "jpeg", label: "JPEG" },
@@ -58,6 +59,7 @@ function Segments<T extends string | number>({
 
 /** Before / after comparison with a draggable divider. */
 function Compare({ before, after, actualSize }: { before: string; after: string; actualSize: boolean }) {
+  const t = useT();
   const [split, setSplit] = useState(50);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -82,9 +84,9 @@ function Compare({ before, after, actualSize }: { before: string; after: string;
       onPointerMove={(e) => e.buttons === 1 && moveTo(e.clientX)}
       ref={ref}
     >
-      <img alt="Before" className={img} draggable={false} src={before} />
+      <img alt={t("Before")} className={img} draggable={false} src={before} />
       <img
-        alt="After"
+        alt={t("After")}
         className={img}
         draggable={false}
         src={after}
@@ -96,16 +98,17 @@ function Compare({ before, after, actualSize }: { before: string; after: string;
         </span>
       </div>
       <span className="pointer-events-none absolute top-2 left-2 rounded-md bg-black/60 px-1.5 py-0.5 font-medium text-[11px] text-white">
-        Before
+        {t("Before")}
       </span>
       <span className="pointer-events-none absolute top-2 right-2 rounded-md bg-black/60 px-1.5 py-0.5 font-medium text-[11px] text-white">
-        After
+        {t("After")}
       </span>
     </div>
   );
 }
 
 export function CompressDialog() {
+  const t = useT();
   const open = useUi((s) => s.panels.compress);
   const togglePanel = useUi((s) => s.togglePanel);
   const original = useDoc((s) => s.original);
@@ -131,7 +134,7 @@ export function CompressDialog() {
         setBase({ canvas, url });
       }, "image/png");
     } catch (err) {
-      toast.error({ title: "Couldn't prepare the image", description: (err as Error).message });
+      toast.error({ title: t("Couldn't prepare the image"), description: (err as Error).message });
     }
     return () => {
       if (url) URL.revokeObjectURL(url);
@@ -179,34 +182,34 @@ export function CompressDialog() {
     if (!result || !image) return;
     const ext = format === "jpeg" ? "jpg" : format;
     downloadBlob(result.blob, `${baseName(image.name)}-compressed.${ext}`);
-    toast.success({ title: "Compressed image saved", description: `${formatBytes(after)} ${ext.toUpperCase()}` });
+    toast.success({ title: t("Compressed image saved"), description: `${formatBytes(after)} ${ext.toUpperCase()}` });
   };
 
   return (
     <Dialog onOpenChange={(d) => togglePanel("compress", d.open)} open={open}>
       <DialogContent className="glass" size="lg">
         <DialogHeader
-          description="Make the file smaller. Drag the divider to compare quality."
-          title="Compress image"
+          description={t("Make the file smaller. Drag the divider to compare quality.")}
+          title={t("Compress image")}
         />
         <DialogBody className="flex flex-col gap-5">
           {base && result ? (
             <Compare actualSize={actualSize} after={result.url} before={base.url} />
           ) : (
             <div className="flex h-64 items-center justify-center rounded-xl border text-muted-foreground text-sm">
-              <Spinner className="me-2 size-4" /> Preparing preview…
+              <Spinner className="me-2 size-4" /> {t("Preparing preview…")}
             </div>
           )}
 
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-2 text-sm tabular-nums">
               <div className="flex flex-col">
-                <span className="text-[11px] text-muted-foreground">Original file</span>
+                <span className="text-[11px] text-muted-foreground">{t("Original file")}</span>
                 <span className="font-medium">{formatBytes(before)}</span>
               </div>
-              <ArrowRightIcon className="size-4 text-muted-foreground" />
+              <ArrowRightIcon className="size-4 text-muted-foreground rtl:rotate-180" />
               <div className="flex flex-col">
-                <span className="text-[11px] text-muted-foreground">Compressed</span>
+                <span className="text-[11px] text-muted-foreground">{t("Compressed")}</span>
                 <span className="flex items-center gap-1.5 font-medium">
                   {result ? formatBytes(after) : "-"}
                   {encoding && <Spinner className="size-3" />}
@@ -226,7 +229,7 @@ export function CompressDialog() {
             <Segments
               onChange={(v) => setActualSize(v === "actual")}
               options={[
-                { value: "fit", label: "Fit" },
+                { value: "fit", label: t("Fit") },
                 { value: "actual", label: "100%" },
               ]}
               value={actualSize ? "actual" : "fit"}
@@ -234,17 +237,17 @@ export function CompressDialog() {
           </div>
 
           <div className="flex flex-col gap-2">
-            <span className="font-medium text-sm">Format</span>
+            <span className="font-medium text-sm">{t("Format")}</span>
             <Segments onChange={setFormat} options={FORMATS} value={format} />
           </div>
 
           {lossless ? (
             <p className="text-muted-foreground text-xs">
-              PNG is lossless, so there's no quality setting. Reduce the size or pick JPEG / WebP for smaller files.
+              {t("PNG is lossless, so there's no quality setting. Reduce the size or pick JPEG / WebP for smaller files.")}
             </p>
           ) : (
             <LabeledSlider
-              label="Quality"
+              label={t("Quality")}
               max={100}
               min={1}
               onChange={setQuality}
@@ -256,9 +259,9 @@ export function CompressDialog() {
 
           <div className="flex flex-col gap-2">
             <div className="flex items-baseline justify-between">
-              <span className="font-medium text-sm">Size</span>
+              <span className="font-medium text-sm">{t("Size")}</span>
               <span className="text-muted-foreground text-xs tabular-nums">
-                {outW} × {outH} px
+                {dims(outW, outH)} px
               </span>
             </div>
             <Segments onChange={setScale} options={SCALES} value={scale} />
@@ -266,10 +269,10 @@ export function CompressDialog() {
         </DialogBody>
         <DialogFooter className="py-3">
           <Button onClick={() => togglePanel("compress", false)} size="sm" variant="ghost">
-            Cancel
+            {t("Cancel")}
           </Button>
           <Button disabled={!result || encoding} onClick={download} size="sm">
-            <DownloadIcon /> Download {result ? formatBytes(after) : ""}
+            <DownloadIcon /> {t("Download")} {result ? formatBytes(after) : ""}
           </Button>
         </DialogFooter>
       </DialogContent>

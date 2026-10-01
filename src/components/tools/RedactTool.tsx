@@ -8,6 +8,7 @@ import { Hinted, ToolbarDivider, ToolButton } from "@/components/tools/ToolButto
 import type { RedactAnnotation, RedactMode } from "@/lib/annotations";
 import { updateAnnotations } from "@/state/document";
 import { getUi, useUi } from "@/state/ui";
+import { t, tk, useT } from "@/lib/i18n";
 
 /** 3×3 mosaic shading from solid to faint, like a pixelated image. */
 const MOSAIC = [
@@ -47,15 +48,16 @@ export function PixelateIcon({ className, ...rest }: React.SVGProps<SVGSVGElemen
 }
 
 const MODES: { id: RedactMode; label: string; icon: React.ReactNode }[] = [
-  { id: "pixelate", label: "Pixelate", icon: <PixelateIcon /> },
-  { id: "blur", label: "Blur", icon: <DropletIcon /> },
+  { id: "pixelate", label: tk("Pixelate"), icon: <PixelateIcon /> },
+  { id: "blur", label: tk("Blur"), icon: <DropletIcon /> },
 ];
 
 export function RedactToolButton() {
+  const t = useT();
   const tool = useUi((s) => s.tool);
   const setTool = useUi((s) => s.setTool);
   return (
-    <ToolButton active={tool === "redact"} label="Blur / pixelate" onClick={() => setTool("redact")} shortcut="M">
+    <ToolButton active={tool === "redact"} label={t("Blur / pixelate")} onClick={() => setTool("redact")} shortcut="M">
       <PixelateIcon />
     </ToolButton>
   );
@@ -94,7 +96,7 @@ function ModeSwitch({ mode }: { mode: RedactMode }) {
         >
           <SegmentGroupItemText className="flex items-center gap-1.5">
             {m.icon}
-            {m.label}
+            {t(m.label)}
           </SegmentGroupItemText>
         </SegmentGroupItem>
       ))}
@@ -103,9 +105,10 @@ function ModeSwitch({ mode }: { mode: RedactMode }) {
 }
 
 function StrengthControl({ strength, mode }: { strength: number; mode: RedactMode }) {
+  const t = useT();
   const docUnit = useUi((s) => s.docUnit);
   const display = Math.max(2, Math.round(strength / docUnit));
-  const label = mode === "pixelate" ? "Block size" : "Blur amount";
+  const label = mode === "pixelate" ? t("Block size") : t("Blur amount");
   return (
     <Popover modal={false} positioning={{ placement: "top", gutter: 12 }}>
       <Hinted label={label}>
@@ -113,7 +116,7 @@ function StrengthControl({ strength, mode }: { strength: number; mode: RedactMod
           aria-label={`${label} ${display} px`}
           className="flex h-8 items-center gap-2 rounded-lg px-2 text-xs transition-colors hover:bg-accent data-[state=open]:bg-accent"
         >
-          <span className="font-medium text-muted-foreground">Strength</span>
+          <span className="font-medium text-muted-foreground">{t("Strength")}</span>
           <FixedValue unit="px" value={display} widest={88} />
         </PopoverTrigger>
       </Hinted>
@@ -134,6 +137,7 @@ function StrengthControl({ strength, mode }: { strength: number; mode: RedactMod
 
 /** Options while the Blur tool is active. */
 export function RedactOptions() {
+  const t = useT();
   const mode = useUi((s) => s.style.redactMode);
   const strength = useUi((s) => s.style.redactStrength);
   return (
@@ -142,7 +146,7 @@ export function RedactOptions() {
       <ToolbarDivider />
       <StrengthControl mode={mode} strength={strength} />
       <ToolbarDivider />
-      <span className="px-2 text-muted-foreground text-xs">Drag over the area to hide</span>
+      <span className="px-2 text-muted-foreground text-xs">{t("Drag over the area to hide")}</span>
     </>
   );
 }

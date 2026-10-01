@@ -23,6 +23,7 @@ import { EMOJI_FONT } from "@/lib/emoji";
 import { cn } from "@/lib/utils";
 import { updateDoc, useDoc } from "@/state/document";
 import { getUi, useUi } from "@/state/ui";
+import { useT } from "@/lib/i18n";
 
 /* ------------------------------------------------------------------ helpers */
 
@@ -150,6 +151,7 @@ interface RowProps {
 }
 
 function LayerRow({ a, index, count, selected, dropHint, onDragStart, onDragOverRow, onDrop, onDragEnd }: RowProps) {
+  const t = useT();
   const color = layerColor(a);
   return (
     <div
@@ -209,17 +211,17 @@ function LayerRow({ a, index, count, selected, dropHint, onDragStart, onDragOver
         />
       )}
       <span className="hidden items-center gap-0.5 group-hover/layer:flex">
-        <IconAction disabled={index === count - 1} label="Move up" onClick={() => moveLayer(a.id, index + 1)}>
+        <IconAction disabled={index === count - 1} label={t("Move up")} onClick={() => moveLayer(a.id, index + 1)}>
           <ArrowUpIcon />
         </IconAction>
-        <IconAction disabled={index === 0} label="Move down" onClick={() => moveLayer(a.id, index - 1)}>
+        <IconAction disabled={index === 0} label={t("Move down")} onClick={() => moveLayer(a.id, index - 1)}>
           <ArrowDownIcon />
         </IconAction>
-        <IconAction danger label="Delete layer" onClick={() => deleteLayer(a.id)}>
+        <IconAction danger label={t("Delete layer")} onClick={() => deleteLayer(a.id)}>
           <TrashIcon />
         </IconAction>
       </span>
-      <IconAction label={a.hidden ? "Show layer" : "Hide layer"} onClick={() => toggleHidden(a.id)}>
+      <IconAction label={a.hidden ? t("Show layer") : t("Hide layer")} onClick={() => toggleHidden(a.id)}>
         {a.hidden ? <EyeOffIcon /> : <EyeIcon />}
       </IconAction>
     </div>
@@ -232,6 +234,7 @@ function LayerRow({ a, index, count, selected, dropHint, onDragStart, onDragOver
 const NO_LAYERS: Annotation[] = [];
 
 export function LayersPanel() {
+  const t = useT();
   const open = useUi((s) => s.panels.layers);
   const togglePanel = useUi((s) => s.togglePanel);
   const selectedIds = useUi((s) => s.selectedIds);
@@ -266,9 +269,9 @@ export function LayersPanel() {
       minSize={{ width: 240, height: 200 }}
       onOpenChange={(o) => togglePanel("layers", o)}
       open={open}
-      title={`Layers${count ? ` · ${count}` : ""}`}
+      title={`${t("Layers")}${count ? ` · ${count}` : ""}`}
     >
-      <div className="flex flex-col gap-0.5" role="listbox" aria-label="Layers" aria-multiselectable>
+      <div className="flex flex-col gap-0.5" role="listbox" aria-label={t("Layers")} aria-multiselectable>
         {rows.map(({ a, index }) => (
           <LayerRow
             a={a}
@@ -290,15 +293,15 @@ export function LayersPanel() {
 
       {count === 0 && (
         <p className="px-2 py-4 text-center text-muted-foreground text-xs">
-          Drawings, shapes, text and inserted images will appear here.
+          {t("Drawings, shapes, text and inserted images will appear here.")}
         </p>
       )}
 
       {image && (
         <div className="mt-1 flex h-10 items-center gap-2 rounded-lg border border-dashed px-1.5 text-muted-foreground text-sm">
           <img alt="" className="checkerboard checker-sm size-7 shrink-0 rounded object-cover" src={image.src} />
-          <span className="min-w-0 flex-1 truncate">Image</span>
-          <span className="pe-1 text-[11px]">Base</span>
+          <span className="min-w-0 flex-1 truncate">{t("Image")}</span>
+          <span className="pe-1 text-[11px]">{t("Base")}</span>
         </div>
       )}
     </ScreenFloatingPanel>

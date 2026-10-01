@@ -15,6 +15,7 @@ import {
 } from "@/lib/warp-core";
 import { getDoc, type ImageInfo, updateDoc } from "@/state/document";
 import { getUi } from "@/state/ui";
+import { t } from "@/lib/i18n";
 
 export type { StraightenParams };
 
@@ -115,7 +116,7 @@ async function warpFull(info: ImageInfo, quad: Quad, type: string): Promise<Blob
         if (e.data.id !== id) return;
         w.removeEventListener("message", onMessage);
         if (e.data.blob) resolve(e.data.blob);
-        else reject(new Error(e.data.error ?? "Straighten failed"));
+        else reject(new Error(e.data.error ?? t("Straighten failed")));
       };
       w.addEventListener("message", onMessage);
       w.postMessage({ id, bitmap, quad, type }, [bitmap]);
@@ -130,7 +131,7 @@ async function warpFull(info: ImageInfo, quad: Quad, type: string): Promise<Blob
   const src = ctx.getImageData(0, 0, c.width, c.height);
   ctx.putImageData(new ImageData(warp(src, quad, c.width, c.height), c.width, c.height), 0, 0);
   return new Promise((resolve, reject) =>
-    c.toBlob((b) => (b ? resolve(b) : reject(new Error("Straighten failed"))), type, 0.95)
+    c.toBlob((b) => (b ? resolve(b) : reject(new Error(t("Straighten failed")))), type, 0.95)
   );
 }
 
@@ -168,11 +169,11 @@ export async function applyStraighten() {
     getUi().set({ tool: "select", straighten: null, levelLine: null });
     viewport.fit();
     const done = [
-      Math.abs(params.angle) >= 0.05 && `Rotated ${params.angle.toFixed(1)}°`,
-      (params.vertical || params.horizontal) && "perspective corrected",
+      Math.abs(params.angle) >= 0.05 && t("Rotated {angle}°", { angle: params.angle.toFixed(1) }),
+      (params.vertical || params.horizontal) && t("perspective corrected"),
     ].filter(Boolean);
-    toast.success({ title: "Image straightened", description: done.join(" · ") });
+    toast.success({ title: t("Image straightened"), description: done.join(" · ") });
   } catch (err) {
-    toast.error({ title: "Straighten failed", description: String((err as Error).message) });
+    toast.error({ title: t("Straighten failed"), description: String((err as Error).message) });
   }
 }

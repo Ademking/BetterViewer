@@ -31,6 +31,7 @@ import { useDoc } from "@/state/document";
 import { scanCurrentImage, useQr } from "@/state/qr";
 import { useUi } from "@/state/ui";
 import { ACCENT } from "@/components/viewer/SelectionTransformer";
+import { midSentence, useT } from "@/lib/i18n";
 
 const KIND_ICONS: Record<QrKind, React.ReactNode> = {
   url: <LinkIcon />,
@@ -93,13 +94,14 @@ export function QrHighlights() {
 }
 
 function QrResultCard({ code, index }: { code: QrCode; index: number }) {
+  const t = useT();
   const info = describeQr(code.content);
   const active = useQr((s) => s.active === index);
   const [copied, setCopied] = useState(false);
   const canOpen = info.href && isSafeHref(info.href);
 
   const copy = async () => {
-    await copyText(code.content, info.kind === "url" ? "link" : "QR content");
+    await copyText(code.content, info.kind === "url" ? t("link") : t("QR content"));
     setCopied(true);
     setTimeout(() => setCopied(false), 1400);
   };
@@ -117,15 +119,15 @@ function QrResultCard({ code, index }: { code: QrCode; index: number }) {
           {KIND_ICONS[info.kind]}
         </span>
         <div className="min-w-0 flex-1 font-medium text-sm">{info.label}</div>
-        <Hinted label="Locate on image">
-          <Button aria-label="Locate on image" onClick={() => locateQr(index)} size="icon-sm" variant="ghost">
+        <Hinted label={t("Locate on image")}>
+          <Button aria-label={t("Locate on image")} onClick={() => locateQr(index)} size="icon-sm" variant="ghost">
             <ScanSearchIcon />
           </Button>
         </Hinted>
       </div>
 
       <div className="max-h-40 overflow-auto rounded-lg bg-muted/60 px-2.5 py-2 font-mono text-xs break-all whitespace-pre-wrap select-text">
-        {code.content || <span className="text-muted-foreground">(empty)</span>}
+        {code.content || <span className="text-muted-foreground">({t("empty")})</span>}
       </div>
 
       {info.details && info.details.length > 0 && (
@@ -138,9 +140,9 @@ function QrResultCard({ code, index }: { code: QrCode; index: number }) {
                   {v}
                 </span>
                 <button
-                  aria-label={`Copy ${k}`}
+                  aria-label={t("Copy {item}", { item: midSentence(k) })}
                   className="shrink-0 rounded p-0.5 text-muted-foreground hover:bg-accent hover:text-foreground"
-                  onClick={() => copyText(v, k.toLowerCase())}
+                  onClick={() => copyText(v, midSentence(k))}
                   type="button"
                 >
                   <CopyIcon className="size-3" />
@@ -153,7 +155,7 @@ function QrResultCard({ code, index }: { code: QrCode; index: number }) {
 
       <div className="flex gap-2">
         <Button className="flex-1" onClick={copy} size="sm" variant="outline">
-          {copied ? <CheckIcon /> : <CopyIcon />} {copied ? "Copied" : "Copy"}
+          {copied ? <CheckIcon /> : <CopyIcon />} {copied ? t("Copied") : t("Copy")}
         </Button>
         {canOpen && (
           <Button
@@ -162,7 +164,7 @@ function QrResultCard({ code, index }: { code: QrCode; index: number }) {
             size="sm"
           >
             <ExternalLinkIcon />
-            {info.kind === "url" ? "Open link" : info.kind === "geo" ? "Open map" : "Open"}
+            {info.kind === "url" ? "Open link" : info.kind === "geo" ? t("Open map") : t("Open")}
           </Button>
         )}
       </div>
@@ -171,6 +173,7 @@ function QrResultCard({ code, index }: { code: QrCode; index: number }) {
 }
 
 export function QrPanel() {
+  const t = useT();
   const open = useUi((s) => s.panels.qr);
   const togglePanel = useUi((s) => s.togglePanel);
   const status = useQr((s) => s.status);
@@ -188,9 +191,9 @@ export function QrPanel() {
         <>
           <span className="self-center text-muted-foreground text-xs">
             {scanning
-              ? "Scanning…"
+              ? t("Scanning…")
               : status === "done" && !stale
-                ? `${codes.length} code${codes.length === 1 ? "" : "s"} found`
+                ? t("{count} codes found", { count: codes.length })
                 : ""}
           </span>
           <Button
@@ -199,7 +202,7 @@ export function QrPanel() {
             size="sm"
             variant="ghost"
           >
-            <RefreshCwIcon /> {status === "idle" || stale ? "Scan" : "Rescan"}
+            <RefreshCwIcon /> {status === "idle" || stale ? t("Scan") : t("Rescan")}
           </Button>
         </>
       }
@@ -212,21 +215,21 @@ export function QrPanel() {
         if (!o) useQr.setState({ active: null });
       }}
       open={open}
-      title="QR codes"
+      title={t("QR codes")}
     >
       {scanning && (
         <div className="flex flex-col items-center gap-3 py-10 text-muted-foreground text-sm">
           <Spinner className="size-6" />
-          Looking for QR codes…
+          {t("Looking for QR codes…")}
         </div>
       )}
 
       {!scanning && (status === "idle" || stale) && (
         <div className="flex flex-col items-center gap-3 py-8 text-center text-muted-foreground text-sm">
           <QrCodeIcon className="size-8 opacity-60" />
-          Scan this image for QR codes.
+          {t("Scan this image for QR codes.")}
           <Button onClick={() => scanCurrentImage({ reveal: true, force: true })} size="sm">
-            <ScanSearchIcon /> Scan image
+            <ScanSearchIcon /> {t("Scan image")}
           </Button>
         </div>
       )}
@@ -240,9 +243,9 @@ export function QrPanel() {
       {!scanning && !stale && status === "done" && codes.length === 0 && (
         <div className="flex flex-col items-center gap-2 py-8 text-center">
           <QrCodeIcon className="size-8 text-muted-foreground opacity-60" />
-          <div className="font-medium text-sm">No QR code found</div>
+          <div className="font-medium text-sm">{t("No QR code found")}</div>
           <p className="max-w-60 text-muted-foreground text-xs">
-            If there is one, try cropping closer to it or undoing filters, then rescan.
+            {t("If there is one, try cropping closer to it or undoing filters, then rescan.")}
           </p>
         </div>
       )}

@@ -9,6 +9,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { useT } from "@/lib/i18n";
 
 interface ConfirmRequest {
   title: string;
@@ -27,6 +28,7 @@ export const confirmAction = (request: ConfirmRequest) =>
   useConfirmStore.setState({ request });
 
 export function ConfirmDialog() {
+  const t = useT();
   const request = useConfirmStore((s) => s.request);
   const close = () => useConfirmStore.setState({ request: null });
   return (
@@ -37,7 +39,7 @@ export function ConfirmDialog() {
           <AlertDialogDescription>{request?.description}</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel size="sm">Cancel</AlertDialogCancel>
+          <AlertDialogCancel size="sm">{t("Cancel")}</AlertDialogCancel>
           <AlertDialogAction
             onClick={() => {
               request?.onConfirm();

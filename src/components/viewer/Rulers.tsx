@@ -7,6 +7,7 @@ import { displaySize, useDoc } from "@/state/document";
 import { useDraft } from "@/state/draft";
 import { clearGuides, type Guide, useMeasure } from "@/state/measure";
 import { useSettings } from "@/state/settings";
+import { useT } from "@/lib/i18n";
 
 export const RULER = 20;
 const GUIDE = "#22d3ee";
@@ -158,6 +159,7 @@ function dragGuide(
 
 /** Top and left rulers (displayed-image px) and the guides dragged out of them. */
 export const Rulers = memo(function Rulers() {
+  const t = useT();
   const show = useSettings((s) => s.showRulers);
   const origin = useDisplayOrigin();
   const guides = useMeasure((s) => s.guides);
@@ -197,7 +199,7 @@ export const Rulers = memo(function Rulers() {
             onPointerEnter={() => setHoverGuide(g.id)}
             onPointerLeave={() => setHoverGuide(null)}
             style={g.axis === "h" ? { top: p } : { left: p }}
-            title="Drag to move · drop on the ruler to remove"
+            title={t("Drag to move · drop on the ruler to remove")}
           >
             <div
               className={cn("absolute", g.axis === "h" ? "inset-x-0 top-[3px] h-px" : "inset-y-0 left-[3px] w-px")}
@@ -220,7 +222,7 @@ export const Rulers = memo(function Rulers() {
         className="pointer-events-auto absolute top-0 left-[20px] cursor-row-resize border-b bg-background/85 backdrop-blur-sm"
         data-board-overlay
         onPointerDown={start("h")}
-        title="Drag down to add a guide"
+        title={t("Drag down to add a guide")}
       >
         <RulerCanvas axis="h" origin={origin} pointer={pointer ? pointer.x : null} />
       </div>
@@ -228,17 +230,17 @@ export const Rulers = memo(function Rulers() {
         className="pointer-events-auto absolute top-[20px] left-0 cursor-col-resize border-r bg-background/85 backdrop-blur-sm"
         data-board-overlay
         onPointerDown={start("v")}
-        title="Drag right to add a guide"
+        title={t("Drag right to add a guide")}
       >
         <RulerCanvas axis="v" origin={origin} pointer={pointer ? pointer.y : null} />
       </div>
       <div className="pointer-events-auto absolute top-0 left-0 flex size-[20px] items-center justify-center border-r border-b bg-background/85 backdrop-blur-sm" data-board-overlay>
         {guides.length > 0 && (
           <button
-            aria-label="Remove all guides"
+            aria-label={t("Remove all guides")}
             className="flex size-4 items-center justify-center rounded text-muted-foreground hover:bg-accent hover:text-foreground"
             onClick={clearGuides}
-            title="Remove all guides"
+            title={t("Remove all guides")}
             type="button"
           >
             <XIcon className="size-3" />

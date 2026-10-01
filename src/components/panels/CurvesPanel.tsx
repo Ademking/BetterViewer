@@ -33,6 +33,7 @@ import { LevelsEditor } from "@/components/panels/LevelsEditor";
 import { cn } from "@/lib/utils";
 import { updateDoc, useDoc } from "@/state/document";
 import { useUi } from "@/state/ui";
+import { useT } from "@/lib/i18n";
 
 /* ------------------------------------------------------------------ data */
 
@@ -75,6 +76,7 @@ function useFrameValue<T>(value: T) {
 /* ------------------------------------------------------------------ histogram */
 
 function HistogramView({ hist }: { hist: Histogram | null }) {
+  const t = useT();
   const [mode, setMode] = useState<"rgb" | "luma">("rgb");
   const H = 90;
   const stats = hist ? histogramStats(hist) : null;
@@ -84,7 +86,7 @@ function HistogramView({ hist }: { hist: Histogram | null }) {
   return (
     <section className="flex flex-col gap-2">
       <div className="flex items-center justify-between">
-        <span className="font-medium text-[11px] text-muted-foreground uppercase tracking-wide">Histogram</span>
+        <span className="font-medium text-[11px] text-muted-foreground uppercase tracking-wide">{t("Histogram")}</span>
         <SegmentGroup
           className="gap-0.5 rounded-md bg-muted/60 p-0.5 [&>[data-part=indicator]]:bg-foreground/12"
           onValueChange={(d) => d.value && setMode(d.value as "rgb" | "luma")}
@@ -92,7 +94,7 @@ function HistogramView({ hist }: { hist: Histogram | null }) {
         >
           {[
             { v: "rgb", l: "RGB" },
-            { v: "luma", l: "Luminance" },
+            { v: "luma", l: t("Luminance") },
           ].map((o) => (
             <SegmentGroupItem
               className="rounded px-1.5 py-0.5 font-medium text-[10.5px] text-muted-foreground data-[state=checked]:text-foreground"
@@ -119,21 +121,21 @@ function HistogramView({ hist }: { hist: Histogram | null }) {
         </svg>
         {!hist && (
           <div className="absolute inset-0 flex items-center justify-center text-muted-foreground text-xs">
-            Reading image…
+            {t("Reading image…")}
           </div>
         )}
       </div>
       {stats && (
         <div className="grid grid-cols-3 gap-2 text-[11px]">
           {[
-            ["Shadows", pct(stats.shadowsClipped), stats.shadowsClipped > 0.01],
-            ["Mean", Math.round(stats.mean).toString(), false],
-            ["Highlights", pct(stats.highlightsClipped), stats.highlightsClipped > 0.01],
-          ].map(([label, value, warn]) => (
+            [t("Shadows"), pct(stats.shadowsClipped), stats.shadowsClipped > 0.01, t("Pixels clipped to pure black")],
+            [t("Mean"), Math.round(stats.mean).toString(), false, t("Average brightness (0–255)")],
+            [t("Highlights"), pct(stats.highlightsClipped), stats.highlightsClipped > 0.01, t("Pixels clipped to pure white")],
+          ].map(([label, value, warn, hint]) => (
             <div
               className="flex flex-col rounded-md bg-muted/50 px-2 py-1"
               key={String(label)}
-              title={label === "Mean" ? "Average brightness (0–255)" : `Pixels clipped to pure ${label === "Shadows" ? "black" : "white"}`}
+              title={String(hint)}
             >
               <span className="text-muted-foreground">{label}</span>
               <span className={cn("font-medium tabular-nums", warn && "text-warning-foreground")}>{value}</span>
@@ -158,6 +160,7 @@ function CurveEditor({
   points: CurvePoint[];
   inputHist: Uint32Array | null;
 }) {
+  const t = useT();
   const svgRef = useRef<SVGSVGElement>(null);
   const [active, setActive] = useState<number | null>(null);
   const [hover, setHover] = useState<number | null>(null);
@@ -303,7 +306,7 @@ function CurveEditor({
         {/* Points as HTML so they stay round at any panel size */}
         {points.map(([x, y], i) => (
           <span
-            aria-label={`Point ${x}, ${y}`}
+            aria-label={t("Point {x}, {y}", { x, y })}
             className={cn(
               "absolute size-3 -translate-x-1/2 translate-y-1/2 cursor-grab rounded-full border-2 bg-neutral-900 transition-transform active:cursor-grabbing",
               (active === i || hover === i) && "scale-125",
@@ -327,7 +330,7 @@ function CurveEditor({
             aria-valuemax={255}
             aria-valuemin={0}
             aria-valuenow={y}
-            aria-valuetext={`Input ${x}, output ${y}`}
+            aria-valuetext={t("Input {x}, output {y}", { x, y })}
           />
         ))}
       </div>
@@ -335,11 +338,11 @@ function CurveEditor({
         <span>
           {readout ? (
             <>
-              Input <span className="font-medium text-foreground">{readout[0]}</span> → Output{" "}
+              {t("Input")} <span className="font-medium text-foreground">{readout[0]}</span> → {t("Output")}{" "}
               <span className="font-medium text-foreground">{readout[1]}</span>
             </>
           ) : (
-            "Click to add · double-click or drag off to remove"
+            t("Click to add · double-click or drag off to remove")
           )}
         </span>
       </div>
@@ -350,6 +353,7 @@ function CurveEditor({
 /* ------------------------------------------------------------------ panel */
 
 export function CurvesPanel() {
+  const t = useT();
   const open = useUi((s) => s.panels.curves);
   const togglePanel = useUi((s) => s.togglePanel);
   const compare = useUi((s) => s.compareOriginal);
@@ -378,7 +382,7 @@ export function CurvesPanel() {
       bodyClassName="gap-4"
       footer={
         <>
-          <Hinted label="Hold to compare with the original">
+          <Hinted label={t("Hold to compare with the original")}>
             <Button
               className={cn(compare && "bg-accent")}
               disabled={pristine}
@@ -388,7 +392,7 @@ export function CurvesPanel() {
               size="sm"
               variant="outline"
             >
-              <EyeIcon /> Compare
+              <EyeIcon /> {t("Compare")}
             </Button>
           </Hinted>
           <Button
@@ -397,7 +401,7 @@ export function CurvesPanel() {
             size="sm"
             variant="ghost"
           >
-            <RotateCcwIcon /> Reset all
+            <RotateCcwIcon /> {t("Reset all")}
           </Button>
         </>
       }
@@ -407,11 +411,11 @@ export function CurvesPanel() {
       minSize={{ width: 280, height: 320 }}
       onOpenChange={(o) => togglePanel("curves", o)}
       open={open}
-      title="Histogram"
+      title={t("Histogram")}
     >
       {!canvasFilterSupported && (
         <p className="rounded-lg bg-warning/10 p-2 text-warning-foreground text-xs">
-          This browser can't apply canvas filters; some adjustments won't be visible.
+          {t("This browser can't apply canvas filters; some adjustments won't be visible.")}
         </p>
       )}
 
@@ -423,8 +427,8 @@ export function CurvesPanel() {
         value={mode}
       >
         {[
-          { v: "curves", l: "Curves", edited: !isIdentityCurves(curves) },
-          { v: "levels", l: "Levels", edited: !isIdentityLevels(levels) },
+          { v: "curves", l: t("Curves"), edited: !isIdentityCurves(curves) },
+          { v: "levels", l: t("Levels"), edited: !isIdentityLevels(levels) },
         ].map((o) => (
           <SegmentGroupItem
             className="flex h-7 items-center justify-center rounded-md font-medium text-muted-foreground text-xs data-[state=checked]:text-foreground"
@@ -444,12 +448,12 @@ export function CurvesPanel() {
       ) : (
         <section className="flex flex-col gap-2">
           <div className="flex items-center justify-between gap-2">
-            <span className="font-medium text-[11px] text-muted-foreground uppercase tracking-wide">Channel</span>
+            <span className="font-medium text-[11px] text-muted-foreground uppercase tracking-wide">{t("Channel")}</span>
             <div className="flex items-center gap-1">
               <Menu positioning={{ placement: "bottom-end", gutter: 6 }}>
                 <MenuTrigger asChild>
                   <Button className="h-6 px-2 text-xs" size="xs" variant="ghost">
-                    Presets
+                    {t("Presets")}
                   </Button>
                 </MenuTrigger>
                 <MenuContent className="w-max min-w-44">
@@ -462,14 +466,14 @@ export function CurvesPanel() {
                       }}
                       value={p.name}
                     >
-                      {p.name}
+                      {t(p.name)}
                     </MenuItem>
                   ))}
                 </MenuContent>
               </Menu>
-              <Hinted label={`Reset ${CHANNELS.find((c) => c.id === channel)!.label}`}>
+              <Hinted label={t("Reset {channel}", { channel: t(CHANNELS.find((c) => c.id === channel)!.label) })}>
                 <Button
-                  aria-label="Reset channel"
+                  aria-label={t("Reset channel")}
                   className="size-6"
                   disabled={isLinear(points) && points.length === 2}
                   onClick={() => setChannelPoints(channel, IDENTITY_CURVES[channel], "curves-reset")}
@@ -497,7 +501,7 @@ export function CurvesPanel() {
                 >
                   <SegmentGroupItemText className="flex items-center gap-1.5">
                     <span className="size-2 rounded-full" style={{ background: c.color }} />
-                    {c.label}
+                    {t(c.label)}
                     {edited && <span className="size-1 rounded-full bg-brand" />}
                   </SegmentGroupItemText>
                 </SegmentGroupItem>

@@ -36,6 +36,7 @@ import { viewport } from "@/lib/viewport";
 import { getDoc, updateAnnotations } from "@/state/document";
 import { getSettings, useSettings } from "@/state/settings";
 import { getUi, useUi } from "@/state/ui";
+import { t, tk, useT } from "@/lib/i18n";
 
 const COLUMNS = 8;
 const MAX_RECENTS = 24;
@@ -101,7 +102,7 @@ function useEmojiGroups() {
     let cancelled = false;
     loadEmojiGroups().then(
       (g) => !cancelled && setGroups(g),
-      (err: Error) => toast.error({ title: "Couldn't load emojis", description: err.message })
+      (err: Error) => toast.error({ title: t("Couldn't load emojis"), description: err.message })
     );
     return () => {
       cancelled = true;
@@ -117,15 +118,17 @@ interface Section {
 }
 
 function SkinTonePicker() {
+  const t = useT();
+  const tr = t;
   const tone = useSettings((s) => s.emojiSkinTone);
   const set = useSettings((s) => s.set);
   const [open, setOpen] = useState(false);
   const current = SKIN_TONES[tone] ?? SKIN_TONES[0];
   if (!open) {
     return (
-      <Hinted label="Skin tone">
+      <Hinted label={t("Skin tone")}>
         <button
-          aria-label={`Skin tone: ${current.label}`}
+          aria-label={`${t("Skin tone")}: ${t(current.label)}`}
           className="flex size-7 shrink-0 items-center justify-center rounded-md transition-colors hover:bg-accent"
           onClick={() => setOpen(true)}
           type="button"
@@ -140,7 +143,7 @@ function SkinTonePicker() {
       {SKIN_TONES.map((t) => (
         <button
           aria-checked={t.tone === tone}
-          aria-label={t.label}
+          aria-label={tr(t.label)}
           className={cn(
             "flex size-6 items-center justify-center rounded transition-colors hover:bg-accent",
             t.tone === tone && "bg-accent"
@@ -151,7 +154,7 @@ function SkinTonePicker() {
             setOpen(false);
           }}
           role="radio"
-          title={t.label}
+          title={tr(t.label)}
           type="button"
         >
           <span className="size-3.5 rounded-full border border-black/15" style={{ background: t.swatch }} />
@@ -167,11 +170,12 @@ function SkinTonePicker() {
  */
 export function EmojiPicker({
   onPick,
-  hint = "Shift-click to add several",
+  hint,
 }: {
   onPick: (emoji: string, label: string, keepOpen: boolean) => void;
   hint?: string;
 }) {
+  const t = useT();
   const groups = useEmojiGroups();
   const tone = useSettings((s) => s.emojiSkinTone);
   const recents = useSettings((s) => s.recentEmojis);
@@ -194,14 +198,14 @@ export function EmojiPicker({
 
   const sections = useMemo<Section[]>(() => {
     if (!groups) return [];
-    if (query.trim()) return [{ id: "results", label: "Results", items: searchEmojis(groups, query) }];
+    if (query.trim()) return [{ id: "results", label: tk("Results"), items: searchEmojis(groups, query) }];
     const recent: EmojiItem[] = recents.map((e) => {
       const base = byEmoji.get(e);
       // Keep the exact variant that was used.
       return base ? { ...base, emoji: e, skins: undefined } : { emoji: e, label: "", search: "" };
     });
     return [
-      ...(recent.length ? [{ id: "recent", label: "Recently used", items: recent }] : []),
+      ...(recent.length ? [{ id: "recent", label: tk("Recently used"), items: recent }] : []),
       ...groups.map((g) => ({ id: g.id, label: g.label, items: g.emojis })),
     ];
   }, [groups, query, recents, byEmoji]);
@@ -274,7 +278,7 @@ export function EmojiPicker({
       <div className="flex items-center gap-2 border-b py-1 pr-1.5 pl-3">
         <SearchIcon className="size-4 shrink-0 text-muted-foreground" />
         <input
-          aria-label="Search emojis"
+          aria-label={t("Search emojis")}
           autoFocus
           className="h-9 w-full min-w-0 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
           onChange={(e) => {
@@ -283,12 +287,12 @@ export function EmojiPicker({
             viewportEl()?.scrollTo({ top: 0 });
           }}
           onKeyDown={onKeyDown}
-          placeholder="Search emojis…"
+          placeholder={t("Search emojis…")}
           value={query}
         />
         {query && (
           <button
-            aria-label="Clear search"
+            aria-label={t("Clear search")}
             className="flex size-6 shrink-0 items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground [&_svg]:size-3.5"
             onClick={() => setQuery("")}
             type="button"
@@ -302,9 +306,9 @@ export function EmojiPicker({
       {!query.trim() && groups && (
         <div className="flex items-center justify-between gap-0.5 border-b px-1.5 py-1" role="tablist">
           {sections.map((s) => (
-            <Hinted key={s.id} label={s.label}>
+            <Hinted key={s.id} label={t(s.label)}>
               <button
-                aria-label={s.label}
+                aria-label={t(s.label)}
                 aria-selected={activeSection === s.id}
                 className={cn(
                   "flex size-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground [&_svg]:size-4",
@@ -331,13 +335,13 @@ export function EmojiPicker({
             </div>
           )}
           {groups && flat.length === 0 && (
-            <div className="px-3 py-10 text-center text-muted-foreground text-sm">No emojis found.</div>
+            <div className="px-3 py-10 text-center text-muted-foreground text-sm">{t("No emojis found.")}</div>
           )}
           {sections.map((s) =>
             s.items.length === 0 ? null : (
               <div data-section={s.id} key={s.id} role="group">
                 <div className="sticky top-0 z-10 bg-popover/95 px-1.5 pt-2 pb-1 font-medium text-[11px] text-muted-foreground backdrop-blur-sm">
-                  {s.label}
+                  {t(s.label)}
                 </div>
                 <div className="grid grid-cols-8 gap-0.5" style={{ contentVisibility: "auto" }}>
                   {s.items.map((item) => {
@@ -384,7 +388,7 @@ export function EmojiPicker({
             </span>
           </>
         ) : (
-          <span className="flex-1 truncate text-muted-foreground text-xs">{hint}</span>
+          <span className="flex-1 truncate text-muted-foreground text-xs">{hint ?? t("Shift-click to add several")}</span>
         )}
       </div>
     </div>
@@ -394,6 +398,7 @@ export function EmojiPicker({
 /* ------------------------------------------------------------------ toolbar */
 
 export function EmojiToolButton() {
+  const t = useT();
   const open = useUi((s) => s.emojiPickerOpen);
   const set = useUi((s) => s.set);
   return (
@@ -406,7 +411,7 @@ export function EmojiToolButton() {
       unmountOnExit
     >
       <PopoverTrigger asChild>
-        <ToolButton active={open} label="Emoji">
+        <ToolButton active={open} label={t("Emoji")}>
           <SmileIcon />
         </ToolButton>
       </PopoverTrigger>
@@ -425,6 +430,7 @@ export function EmojiToolButton() {
 /* ------------------------------------------------------------------ selection */
 
 export function EmojiControls({ targets }: { targets: EmojiAnnotation[] }) {
+  const t = useT();
   const first = targets[0];
   const docUnit = useUi((s) => s.docUnit);
   const size = Math.max(8, Math.round(first.size / docUnit));
@@ -447,9 +453,9 @@ export function EmojiControls({ targets }: { targets: EmojiAnnotation[] }) {
   return (
     <>
       <Popover modal={false} onOpenChange={(d) => setReplacing(d.open)} open={replacing} positioning={{ placement: "top", gutter: 12 }}>
-        <Hinted label="Replace emoji">
+        <Hinted label={t("Replace emoji")}>
           <PopoverTrigger
-            aria-label="Replace emoji"
+            aria-label={t("Replace emoji")}
             className="flex h-8 items-center gap-1.5 rounded-lg px-2 text-xs transition-colors hover:bg-accent data-[state=open]:bg-accent [&_svg]:size-3.5"
           >
             <span className="text-lg leading-none" style={{ fontFamily: EMOJI_FONT }}>
@@ -461,7 +467,7 @@ export function EmojiControls({ targets }: { targets: EmojiAnnotation[] }) {
         <PopoverContent className="w-auto overflow-hidden p-0">
           {replacing && (
             <EmojiPicker
-              hint="Pick an emoji to swap it in"
+              hint={t("Pick an emoji to swap it in")}
               onPick={(emoji, label) => {
                 replaceSelected(emoji, label);
                 setReplacing(false);
@@ -471,32 +477,32 @@ export function EmojiControls({ targets }: { targets: EmojiAnnotation[] }) {
         </PopoverContent>
       </Popover>
       <Popover modal={false} positioning={{ placement: "top", gutter: 12 }}>
-        <Hinted label="Size">
+        <Hinted label={t("Size")}>
           <PopoverTrigger
-            aria-label={`Size ${size} px`}
+            aria-label={`${t("Size")} ${size} px`}
             className="flex h-8 items-center gap-2 rounded-lg px-2 text-xs transition-colors hover:bg-accent data-[state=open]:bg-accent"
           >
-            <span className="font-medium text-muted-foreground">Size</span>
+            <span className="font-medium text-muted-foreground">{t("Size")}</span>
             <FixedValue unit="px" value={size} widest={888} />
           </PopoverTrigger>
         </Hinted>
         <PopoverContent className="w-60 p-4">
-          <LabeledSlider label="Size" max={600} min={12} onChange={setSize} step={1} suffix="px" value={Math.min(600, size)} />
+          <LabeledSlider label={t("Size")} max={600} min={12} onChange={setSize} step={1} suffix="px" value={Math.min(600, size)} />
         </PopoverContent>
       </Popover>
       <Popover modal={false} positioning={{ placement: "top", gutter: 12 }}>
-        <Hinted label="Opacity">
+        <Hinted label={t("Opacity")}>
           <PopoverTrigger
-            aria-label={`Opacity ${opacity}%`}
+            aria-label={`${t("Opacity")} ${opacity}%`}
             className="flex h-8 items-center gap-2 rounded-lg px-2 text-xs transition-colors hover:bg-accent data-[state=open]:bg-accent"
           >
-            <span className="font-medium text-muted-foreground">Opacity</span>
+            <span className="font-medium text-muted-foreground">{t("Opacity")}</span>
             <FixedValue unit="%" value={opacity} widest={888} />
           </PopoverTrigger>
         </Hinted>
         <PopoverContent className="w-60 p-4">
           <LabeledSlider
-            label="Opacity"
+            label={t("Opacity")}
             max={100}
             min={5}
             onChange={(v) => setOpacity(v / 100)}

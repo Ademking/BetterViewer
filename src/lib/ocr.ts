@@ -5,6 +5,7 @@ import type { Annotation } from "@/lib/annotations";
 import { getDoc } from "@/state/document";
 import { isExtension, vendorUrl } from "@/lib/platform";
 import { getSettings } from "@/state/settings";
+import { currentLanguage, t, tk } from "@/lib/i18n";
 
 export const OCR_LANGUAGES: { value: string; label: string; hint?: string }[] = [
   { value: "eng", label: "English" },
@@ -21,6 +22,20 @@ export const OCR_LANGUAGES: { value: string; label: string; hint?: string }[] = 
   { value: "chi_sim", label: "Chinese", hint: "简体" },
   { value: "jpn", label: "Japanese", hint: "日本語" },
 ];
+
+const OCR_TO_BCP47: Record<string, string> = {
+  eng: "en", fra: "fr", ara: "ar", spa: "es", deu: "de", ita: "it", por: "pt", tur: "tr", rus: "ru", chi_sim: "zh-Hans", jpn: "ja",
+};
+
+/** OCR_LANGUAGES with names in the interface language (the native name as hint). */
+export function ocrLanguageOptions(): { value: string; label: string; hint?: string }[] {
+  const names = new Intl.DisplayNames([currentLanguage()], { type: "language" });
+  const name = (code: string) => names.of(OCR_TO_BCP47[code] ?? code) ?? code;
+  return OCR_LANGUAGES.map((o) => {
+    const label = o.value.split("+").map(name).join(" + ");
+    return { ...o, label, hint: o.hint && o.hint !== label ? o.hint : undefined };
+  });
+}
 
 export interface OcrLine {
   text: string;
@@ -62,17 +77,17 @@ let worker: Tesseract.Worker | null = null;
 let workerLang = "";
 
 const STEP_LABELS: Record<string, string> = {
-  "loading tesseract core": "Loading OCR engine",
-  "initializing tesseract": "Starting OCR engine",
-  "loading language traineddata": "Downloading language data",
-  "initializing api": "Preparing",
-  "recognizing text": "Reading text",
+  "loading tesseract core": tk("Loading OCR engine"),
+  "initializing tesseract": tk("Starting OCR engine"),
+  "loading language traineddata": tk("Downloading language data"),
+  "initializing api": tk("Preparing"),
+  "recognizing text": tk("Reading text"),
 };
 
 const onLog = (m: Tesseract.LoggerMessage) => {
   if (useOcr.getState().status !== "running") return;
   useOcr.setState({
-    step: STEP_LABELS[m.status] ?? m.status,
+    step: STEP_LABELS[m.status] ? t(STEP_LABELS[m.status]) : m.status,
     progress: typeof m.progress === "number" ? m.progress : 0,
   });
 };
@@ -161,7 +176,7 @@ export async function runOcr(lang = getSettings().ocrLang) {
     });
   } catch (err) {
     if (useOcr.getState().src !== src) return;
-    useOcr.setState({ status: "error", error: (err as Error).message || "Text recognition failed." });
+    useOcr.setState({ status: "error", error: (err as Error).message || t("Text recognition failed.") });
   }
 }
 

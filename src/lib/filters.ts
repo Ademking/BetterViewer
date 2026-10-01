@@ -1,3 +1,4 @@
+import { tk } from "@/lib/i18n";
 export interface Filters {
   brightness: number; // -100..100
   contrast: number; // -100..100
@@ -50,31 +51,31 @@ export interface FilterSpec {
 export const FILTER_GROUPS: FilterGroup[] = ["Light", "Color", "Detail", "Effects"];
 
 export const FILTER_SPECS: FilterSpec[] = [
-  { key: "brightness", group: "Light", label: "Brightness", min: -100, max: 100, step: 1, unit: "" },
-  { key: "contrast", group: "Light", label: "Contrast", min: -100, max: 100, step: 1, unit: "" },
-  { key: "temperature", group: "Color", label: "Temperature", min: -100, max: 100, step: 1, unit: "" },
-  { key: "tint", group: "Color", label: "Tint", min: -100, max: 100, step: 1, unit: "" },
-  { key: "vibrance", group: "Color", label: "Vibrance", min: -100, max: 100, step: 1, unit: "" },
-  { key: "saturation", group: "Color", label: "Saturation", min: -100, max: 100, step: 1, unit: "" },
-  { key: "hue", group: "Color", label: "Hue", min: -180, max: 180, step: 1, unit: "°" },
-  { key: "sharpen", group: "Detail", label: "Sharpen", min: 0, max: 100, step: 1, unit: "" },
-  { key: "noise", group: "Detail", label: "Noise reduction", min: 0, max: 100, step: 1, unit: "" },
-  { key: "blur", group: "Detail", label: "Blur", min: 0, max: 40, step: 0.5, unit: "px" },
-  { key: "vignette", group: "Effects", label: "Vignette", min: -100, max: 100, step: 1, unit: "" },
-  { key: "grayscale", group: "Effects", label: "Grayscale", min: 0, max: 100, step: 1, unit: "%" },
-  { key: "sepia", group: "Effects", label: "Sepia", min: 0, max: 100, step: 1, unit: "%" },
-  { key: "invert", group: "Effects", label: "Invert", min: 0, max: 100, step: 1, unit: "%" },
+  { key: "brightness", group: tk("Light"), label: tk("Brightness"), min: -100, max: 100, step: 1, unit: "" },
+  { key: "contrast", group: tk("Light"), label: tk("Contrast"), min: -100, max: 100, step: 1, unit: "" },
+  { key: "temperature", group: tk("Color"), label: tk("Temperature"), min: -100, max: 100, step: 1, unit: "" },
+  { key: "tint", group: tk("Color"), label: tk("Tint"), min: -100, max: 100, step: 1, unit: "" },
+  { key: "vibrance", group: tk("Color"), label: tk("Vibrance"), min: -100, max: 100, step: 1, unit: "" },
+  { key: "saturation", group: tk("Color"), label: tk("Saturation"), min: -100, max: 100, step: 1, unit: "" },
+  { key: "hue", group: tk("Color"), label: tk("Hue"), min: -180, max: 180, step: 1, unit: "°" },
+  { key: "sharpen", group: tk("Detail"), label: tk("Sharpen"), min: 0, max: 100, step: 1, unit: "" },
+  { key: "noise", group: tk("Detail"), label: tk("Noise reduction"), min: 0, max: 100, step: 1, unit: "" },
+  { key: "blur", group: tk("Detail"), label: tk("Blur"), min: 0, max: 40, step: 0.5, unit: "px" },
+  { key: "vignette", group: tk("Effects"), label: tk("Vignette"), min: -100, max: 100, step: 1, unit: "" },
+  { key: "grayscale", group: tk("Effects"), label: tk("Grayscale"), min: 0, max: 100, step: 1, unit: "%" },
+  { key: "sepia", group: tk("Effects"), label: tk("Sepia"), min: 0, max: 100, step: 1, unit: "%" },
+  { key: "invert", group: tk("Effects"), label: tk("Invert"), min: 0, max: 100, step: 1, unit: "%" },
 ];
 
 export const FILTER_PRESETS: { name: string; filters: Partial<Filters> }[] = [
-  { name: "Original", filters: {} },
-  { name: "Vivid", filters: { saturation: 45, contrast: 12, brightness: 4 } },
-  { name: "Warm", filters: { sepia: 22, saturation: 18, hue: -8, brightness: 4 } },
-  { name: "Cool", filters: { hue: 14, saturation: -8, contrast: 6, brightness: 2 } },
-  { name: "Fade", filters: { contrast: -24, brightness: 10, saturation: -20 } },
-  { name: "Mono", filters: { grayscale: 100, contrast: 8 } },
-  { name: "Noir", filters: { grayscale: 100, contrast: 45, brightness: -10 } },
-  { name: "Vintage", filters: { sepia: 55, contrast: -8, saturation: -10, brightness: 6 } },
+  { name: tk("Original"), filters: {} },
+  { name: tk("Vivid"), filters: { saturation: 45, contrast: 12, brightness: 4 } },
+  { name: tk("Warm"), filters: { sepia: 22, saturation: 18, hue: -8, brightness: 4 } },
+  { name: tk("Cool"), filters: { hue: 14, saturation: -8, contrast: 6, brightness: 2 } },
+  { name: tk("Fade"), filters: { contrast: -24, brightness: 10, saturation: -20 } },
+  { name: tk("Mono"), filters: { grayscale: 100, contrast: 8 } },
+  { name: tk("Noir"), filters: { grayscale: 100, contrast: 45, brightness: -10 } },
+  { name: tk("Vintage"), filters: { sepia: 55, contrast: -8, saturation: -10, brightness: 6 } },
 ];
 
 export const isDefaultFilters = (f: Filters) =>

@@ -4,6 +4,7 @@ import { baseName } from "@/lib/image";
 import { getUsableProvider } from "@/lib/upload";
 import { getDoc, hasEdits, useDoc } from "@/state/document";
 import { getUi } from "@/state/ui";
+import { t } from "@/lib/i18n";
 
 /**
  * External sites that take an image by URL. The image is uploaded as a
@@ -81,9 +82,9 @@ export async function openExternally(id: ExternalTargetId) {
   const unavailable = provider.unavailableReason();
   if (unavailable) {
     toast.error({
-      title: `Can't open in ${target.name}`,
+      title: t("Can't open in {app}", { app: target.name }),
       description: unavailable,
-      action: { label: "Settings", onClick: () => getUi().togglePanel("settings", true) },
+      action: { label: t("Settings"), onClick: () => getUi().togglePanel("settings", true) },
     });
     return;
   }
@@ -98,8 +99,8 @@ export async function openExternally(id: ExternalTargetId) {
   busy = true;
   const toastId = toast.create({
     type: "loading",
-    title: `Opening in ${target.name}…`,
-    description: `Uploading a temporary copy to ${provider.label} (deleted after 10 minutes).`,
+    title: t("Opening in {app}…", { app: target.name }),
+    description: t("Uploading a temporary copy to {service} (deleted after 10 minutes).", { service: provider.label }),
     duration: Number.POSITIVE_INFINITY,
     closable: false,
   });
@@ -122,8 +123,8 @@ export async function openExternally(id: ExternalTargetId) {
       tab.location.replace(url);
       toast.update(toastId, {
         type: "success",
-        title: `Opened in ${target.name}`,
-        description: "Check the new tab.",
+        title: t("Opened in {app}", { app: target.name }),
+        description: t("Check the new tab."),
         duration: 4000,
         closable: true,
       });
@@ -131,18 +132,18 @@ export async function openExternally(id: ExternalTargetId) {
       // Popup blocked or closed: let the user open it from a click.
       toast.update(toastId, {
         type: "info",
-        title: `Image ready for ${target.name}`,
-        description: "Your browser blocked the new tab.",
+        title: t("Image ready for {app}", { app: target.name }),
+        description: t("Your browser blocked the new tab."),
         duration: 20000,
         closable: true,
-        action: { label: "Open", onClick: () => window.open(url, "_blank", "noopener,noreferrer") },
+        action: { label: t("Open"), onClick: () => window.open(url, "_blank", "noopener,noreferrer") },
       });
     }
   } catch (err) {
     if (tab && !tab.closed) tab.close();
     toast.update(toastId, {
       type: "error",
-      title: `Couldn't open in ${target.name}`,
+      title: t("Couldn't open in {app}", { app: target.name }),
       description: (err as Error).message,
       duration: 6000,
       closable: true,

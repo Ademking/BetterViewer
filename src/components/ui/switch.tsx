@@ -45,6 +45,7 @@ export const Switch = (props: React.ComponentProps<typeof ArkSwitch.Root>) => {
             "pointer-events-none",
             "transition-transform",
             "data-[state=checked]:translate-x-[calc(var(--thumb-size)-4px)]",
+            "rtl:data-[state=checked]:-translate-x-[calc(var(--thumb-size)-4px)]",
             "dark:data-[state=checked]:bg-primary-foreground",
             "data-[state=unchecked]:translate-x-0",
             "dark:data-[state=unchecked]:bg-foreground",

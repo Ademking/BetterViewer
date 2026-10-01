@@ -14,9 +14,11 @@ import { isDefaultFilters } from "@/lib/filters";
 import { cn } from "@/lib/utils";
 import { normRotation, useDoc } from "@/state/document";
 import { useUi } from "@/state/ui";
+import { dims, midSentence, t, useT } from "@/lib/i18n";
 
 /** Top-left file chip; toggles the floating image info panel. */
 export function InfoBar() {
+  const t = useT();
   const image = useDoc((s) => s.doc?.image);
   const open = useUi((s) => s.panels.info);
   const togglePanel = useUi((s) => s.togglePanel);
@@ -39,11 +41,11 @@ export function InfoBar() {
           </span>
           <span className="truncate font-medium">{image.name}</span>
           <span className="shrink-0 text-muted-foreground tabular-nums max-sm:hidden">
-            {image.width} × {image.height}
+            {dims(image.width, image.height)}
           </span>
         </button>
       </HintTrigger>
-      {!open && <HintContent>Image info</HintContent>}
+      {!open && <HintContent>{t("Image info")}</HintContent>}
     </Hint>
   );
 }
@@ -69,6 +71,7 @@ function CopyButton({
   className?: string;
   children?: React.ReactNode;
 }) {
+  const t = useT();
   const [copied, setCopied] = useState(false);
   useEffect(() => {
     if (!copied) return;
@@ -88,7 +91,7 @@ function CopyButton({
           await writeClipboardText(text);
           setCopied(true);
         } catch {
-          toast.error({ title: "Couldn't copy", description: "This page doesn't allow copying." });
+          toast.error({ title: t("Couldn't copy"), description: t("This page doesn't allow copying.") });
         }
       }}
       title={label}
@@ -113,7 +116,7 @@ function useCopied(text: string, label: string) {
       await writeClipboardText(text);
       setCopied(true);
     } catch {
-      toast.error({ title: `Couldn't copy ${label}`, description: "This page doesn't allow copying." });
+      toast.error({ title: t("Couldn't copy {item}", { item: label }), description: t("This page doesn't allow copying.") });
     }
   };
   return { copied, copy };
@@ -121,14 +124,15 @@ function useCopied(text: string, label: string) {
 
 /** A label/value line; click anywhere on it to copy the value. */
 function InfoRow({ row, mono }: { row: Row; mono?: boolean }) {
+  const t = useT();
   const [k, v] = row;
-  const { copied, copy } = useCopied(v, k.toLowerCase());
+  const { copied, copy } = useCopied(v, mono ? k : midSentence(k));
   return (
     <button
-      aria-label={`Copy ${k} (${v})`}
+      aria-label={`${t("Copy {item}", { item: mono ? k : midSentence(k) })} (${v})`}
       className="group/row -mx-1.5 flex min-w-0 items-center gap-1.5 rounded-md px-1.5 py-0.5 text-left text-xs outline-none transition-colors hover:bg-accent/70 focus-visible:bg-accent/70"
       onClick={copy}
-      title={`${v}\n(click to copy)`}
+      title={`${v}\n(${t("click to copy")})`}
       type="button"
     >
       <span className={cn("shrink-0 text-muted-foreground", mono && "font-mono text-[11px]")}>{k}</span>
@@ -157,6 +161,7 @@ function InfoRows({ rows, mono }: { rows: Row[]; mono?: boolean }) {
 }
 
 function SectionTitle({ children, icon, copy }: { children: React.ReactNode; icon?: React.ReactNode; copy?: string }) {
+  const t = useT();
   return (
     <h3 className="group/title flex items-center gap-1.5 font-medium text-[11px] text-muted-foreground uppercase tracking-wide">
       {icon}
@@ -164,7 +169,7 @@ function SectionTitle({ children, icon, copy }: { children: React.ReactNode; ico
       {copy && (
         <CopyButton
           className="size-4 opacity-0 focus-visible:opacity-100 group-hover/title:opacity-100"
-          label={`Copy ${String(children).toLowerCase()} section`}
+          label={t("Copy the {section} section", { section: midSentence(String(children)) })}
           text={copy}
         />
       )}
@@ -200,16 +205,17 @@ function useExif(src: string | undefined) {
 
 /** Camera metadata read from the original file with exif-js. */
 function ExifBlock({ data, loading, type }: { data: ExifData | null; loading: boolean; type: string }) {
+  const t = useT();
   if (loading) {
     return (
       <div className="flex items-center gap-2 text-muted-foreground text-xs">
-        <Spinner className="size-3.5" /> Reading metadata…
+        <Spinner className="size-3.5" /> {t("Reading metadata…")}
       </div>
     );
   }
 
   if (!data) {
-    return <InfoSection rows={[["EXIF", exifUnavailable(type)]]} title="Metadata" />;
+    return <InfoSection rows={[["EXIF", exifUnavailable(type)]]} title={t("Metadata")} />;
   }
 
   return (
@@ -218,7 +224,7 @@ function ExifBlock({ data, loading, type }: { data: ExifData | null; loading: bo
         s.title === "Location" && data.gps ? (
           <section className="flex flex-col gap-1.5" key={s.title}>
             <SectionTitle copy={s.rows.map(lineText).join("\n")} icon={<MapPinIcon className="size-3" />}>
-              Location
+              {t("Location")}
             </SectionTitle>
             <InfoRows rows={s.rows} />
             <Button
@@ -232,10 +238,10 @@ function ExifBlock({ data, loading, type }: { data: ExifData | null; loading: bo
               size="sm"
               variant="outline"
             >
-              <ExternalLinkIcon /> Open map
+              <ExternalLinkIcon /> {t("Open map")}
             </Button>
             <p className="text-[11px] text-muted-foreground leading-snug">
-              This photo records where it was taken. Exports and uploads from BetterViewer don't include it.
+              {t("This photo records where it was taken. Exports and uploads from BetterViewer don't include it.")}
             </p>
           </section>
         ) : (
@@ -249,7 +255,7 @@ function ExifBlock({ data, loading, type }: { data: ExifData | null; loading: bo
               All EXIF tags ({data.all.length})
               <CollapsibleIndicator className="[&_svg]:size-3.5" />
             </CollapsibleTrigger>
-            <CopyButton label="Copy all EXIF tags" text={data.all.map(lineText).join("\n")} />
+            <CopyButton label={t("Copy all EXIF tags")} text={data.all.map(lineText).join("\n")} />
           </div>
           <CollapsibleContent className="pt-1.5">
             <InfoRows mono rows={data.all} />
@@ -261,19 +267,21 @@ function ExifBlock({ data, loading, type }: { data: ExifData | null; loading: bo
 }
 
 const exifUnavailable = (type: string) =>
-  /jpe?g/i.test(type) ? "None found" : "Not available for this format";
+  /jpe?g/i.test(type) ? t("None found") : t("Not available for this format");
 
 function CopyAllButton({ text }: { text: string }) {
-  const { copied, copy } = useCopied(text, "image info");
+  const t = useT();
+  const { copied, copy } = useCopied(text, t("image info"));
   return (
     <Button className="w-full" onClick={copy} size="sm" variant="outline">
-      {copied ? <CheckIcon /> : <CopyIcon />} {copied ? "Copied" : "Copy all info"}
+      {copied ? <CheckIcon /> : <CopyIcon />} {copied ? t("Copied") : t("Copy all info")}
     </Button>
   );
 }
 
 /** Floating, draggable panel with details about the current image. */
 export function ImageInfoPanel() {
+  const t = useT();
   const doc = useDoc((s) => s.doc);
   const original = useDoc((s) => s.original);
   const edits = useDoc((s) => s.past.length);
@@ -287,35 +295,35 @@ export function ImageInfoPanel() {
 
   const sections: Section[] = [
     {
-      title: "File",
+      title: t("File"),
       rows: [
-        ["Name", original.name],
-        ["Type", (original.type.split("/")[1] ?? original.type).toUpperCase()],
-        ["File size", formatBytes(original.size)],
-        ...(original.sourceUrl ? ([["Source", original.sourceUrl]] as Row[]) : []),
+        [t("Name"), original.name],
+        [t("Type"), (original.type.split("/")[1] ?? original.type).toUpperCase()],
+        [t("File size"), formatBytes(original.size)],
+        ...(original.sourceUrl ? ([[t("Source"), original.sourceUrl]] as Row[]) : []),
       ],
     },
     {
-      title: "Dimensions",
+      title: t("Dimensions"),
       rows: [
-        ["Original", `${original.width} × ${original.height} px`],
-        ["Current", `${image.width} × ${image.height} px`],
-        ["Megapixels", `${((image.width * image.height) / 1e6).toFixed(2)} MP`],
-        ["Aspect ratio", aspectLabel(image.width, image.height)],
+        [t("Original"), `${dims(original.width, original.height)} px`],
+        [t("Current"), `${dims(image.width, image.height)} px`],
+        [t("Megapixels"), `${((image.width * image.height) / 1e6).toFixed(2)} MP`],
+        [t("Aspect ratio"), aspectLabel(image.width, image.height)],
       ],
     },
     {
-      title: "Edits",
+      title: t("Edits"),
       rows: [
-        ["Rotation", `${r}°`],
-        ["Flip", [doc.flipX && "Horizontal", doc.flipY && "Vertical"].filter(Boolean).join(", ") || "None"],
-        ["Cropped", image.width === original.width && image.height === original.height ? "No" : "Yes"],
-        ["Background", image.backgroundRemoved ? "Removed" : "Original"],
-        ["Filters", isDefaultFilters(doc.filters) ? "None" : "Adjusted"],
-        ["Curves", doc.curves ? "Adjusted" : "None"],
-        ["Levels", doc.levels ? "Adjusted" : "None"],
-        ["Annotations", String(doc.annotations.length)],
-        ["History", `${edits} step${edits === 1 ? "" : "s"}`],
+        [t("Rotation"), `${r}°`],
+        [t("Flip"), [doc.flipX && t("Horizontal"), doc.flipY && t("Vertical")].filter(Boolean).join(", ") || t("None")],
+        [t("Cropped"), image.width === original.width && image.height === original.height ? t("No") : t("Yes")],
+        [t("Background"), image.backgroundRemoved ? t("Removed") : t("Original")],
+        [t("Filters"), isDefaultFilters(doc.filters) ? t("None") : t("Adjusted")],
+        [t("Curves"), doc.curves ? t("Adjusted") : t("None")],
+        [t("Levels"), doc.levels ? t("Adjusted") : t("None")],
+        [t("Annotations"), String(doc.annotations.length)],
+        [t("History"), t("{count} steps", { count: edits })],
       ],
     },
   ];
@@ -324,7 +332,7 @@ export function ImageInfoPanel() {
     ? []
     : exif.data
       ? exif.data.sections
-      : [{ title: "Metadata", rows: [["EXIF", exifUnavailable(original.type)]] }];
+      : [{ title: t("Metadata"), rows: [["EXIF", exifUnavailable(original.type)]] }];
   const allText = sectionsToText("Image info", [...sections, ...exifSections]);
 
   return (
@@ -337,7 +345,7 @@ export function ImageInfoPanel() {
       minSize={{ width: 260, height: 200 }}
       onOpenChange={(o) => togglePanel("info", o)}
       open={open}
-      title="Image info"
+      title={t("Image info")}
     >
       <div className="checkerboard flex h-32 shrink-0 items-center justify-center overflow-hidden rounded-lg border">
         <img

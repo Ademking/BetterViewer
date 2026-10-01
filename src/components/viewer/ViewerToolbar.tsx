@@ -5,6 +5,7 @@ import {
   LayersIcon,
   CheckIcon,
   EyeIcon,
+  MapIcon,
   RulerIcon,
   SaveAllIcon,
   FolderOpenIcon,
@@ -67,6 +68,7 @@ import { RedactToolButton } from "@/components/tools/RedactTool";
 import { SpotlightToolButton } from "@/components/tools/SpotlightTool";
 import { viewOriginal } from "@/lib/openUrl";
 import { MeasureToolButton, toggleRulers } from "@/components/tools/MeasureTool";
+import { toggleNavigator } from "@/components/viewer/Navigator";
 import { TextToolButton } from "@/components/tools/TextTool";
 import { EmojiToolButton } from "@/components/tools/EmojiTool";
 import { MOD, ToolbarDivider, ToolButton } from "@/components/tools/ToolButton";
@@ -93,8 +95,10 @@ import { type BoardBackground, type SaveFormat, useSettings } from "@/state/sett
 import { hasEdits, useDoc } from "@/state/document";
 import { scanCurrentImage } from "@/state/qr";
 import { useUi } from "@/state/ui";
+import { useT } from "@/lib/i18n";
 
 export function ViewerToolbar() {
+  const t = useT();
   const tool = useUi((s) => s.tool);
   const setTool = useUi((s) => s.setTool);
   const adjustOpen = useUi((s) => s.panels.adjust);
@@ -108,13 +112,13 @@ export function ViewerToolbar() {
     <div
       className="glass flex max-w-[calc(100vw-1.5rem)] items-center gap-0.5 overflow-x-auto rounded-2xl border p-1 shadow-[0_10px_40px_-10px_rgba(0,0,0,0.6)] [scrollbar-width:none]"
       role="toolbar"
-      aria-label="Tools"
+      aria-label={t("Tools")}
     >
-      <ToolButton active={tool === "select"} label="Select" onClick={() => setTool("select")} shortcut="V">
+      <ToolButton active={tool === "select"} label={t("Select")} onClick={() => setTool("select")} shortcut="V">
         <MousePointer2Icon />
       </ToolButton>
       <div className="flex max-sm:hidden">
-        <ToolButton active={tool === "pan"} label="Pan" onClick={() => setTool("pan")} shortcut="H">
+        <ToolButton active={tool === "pan"} label={t("Pan")} onClick={() => setTool("pan")} shortcut="H">
           <HandIcon />
         </ToolButton>
       </div>
@@ -130,12 +134,12 @@ export function ViewerToolbar() {
 
       <ToolbarDivider />
 
-      <ToolButton active={tool === "crop"} label="Crop" onClick={startCrop} shortcut="C">
+      <ToolButton active={tool === "crop"} label={t("Crop")} onClick={startCrop} shortcut="C">
         <CropIcon />
       </ToolButton>
       <ToolButton
         active={adjustOpen}
-        label="Adjustments"
+        label={t("Adjustments")}
         onClick={() => togglePanel("adjust")}
         shortcut="F"
       >
@@ -149,7 +153,7 @@ export function ViewerToolbar() {
       <div className="flex max-md:hidden">
         <ToolButton
           active={layersOpen}
-          label="Layers"
+          label={t("Layers")}
           onClick={() => togglePanel("layers")}
           shortcut="Shift L"
         >
@@ -172,10 +176,10 @@ export function ViewerToolbar() {
 
       <ToolbarDivider className="max-md:hidden" />
       <div className="flex items-center gap-0.5 max-md:hidden">
-        <ToolButton disabled={!canUndo} label="Undo" onClick={undo} shortcut={`${MOD} Z`}>
+        <ToolButton disabled={!canUndo} label={t("Undo")} onClick={undo} shortcut={`${MOD} Z`}>
           <Undo2Icon />
         </ToolButton>
-        <ToolButton disabled={!canRedo} label="Redo" onClick={redo} shortcut={`${MOD} Shift Z`}>
+        <ToolButton disabled={!canRedo} label={t("Redo")} onClick={redo} shortcut={`${MOD} Shift Z`}>
           <Redo2Icon />
         </ToolButton>
       </div>
@@ -192,11 +196,13 @@ const SAVE_LABEL: Record<SaveFormat, string> = { png: "PNG", jpeg: "JPEG", webp:
 const SUB = { placement: "left-start", gutter: 4 } as const;
 
 function MoreMenu({ canUndo, canRedo }: { canUndo: boolean; canRedo: boolean }) {
+  const t = useT();
   const sourceUrl = useDoc((s) => s.original?.sourceUrl);
   const board = useSettings((s) => s.boardBackground);
   const set = useSettings((s) => s.set);
   const saveFormat = useSettings((s) => s.saveFormat);
   const rulers = useSettings((s) => s.showRulers);
+  const navigatorShown = useSettings((s) => s.showNavigator);
   const togglePanel = useUi((s) => s.togglePanel);
   const dirty = useDoc((s) => s.past.length > 0);
   const edited = useDoc(hasEdits);
@@ -204,38 +210,38 @@ function MoreMenu({ canUndo, canRedo }: { canUndo: boolean; canRedo: boolean }) 
   return (
     <Menu positioning={{ placement: "top-end", gutter: 14 }}>
       <MenuTrigger asChild>
-        <ToolButton label="More">
+        <ToolButton label={t("More")}>
           <EllipsisIcon />
         </ToolButton>
       </MenuTrigger>
       <MenuContent className="w-max min-w-60">
         <MenuItem onSelect={() => togglePanel("command", true)} value="command">
-          <CommandIcon /> Quick launch…
+          <CommandIcon /> {t("Quick launch…")}
           <MenuShortcut>{MOD} K</MenuShortcut>
         </MenuItem>
         <MenuSeparator />
 
         <MenuSub positioning={SUB}>
           <MenuSubTrigger>
-            <FolderOpenIcon /> Open
+            <FolderOpenIcon /> {t("Open")}
           </MenuSubTrigger>
           <MenuSubContent className="w-max min-w-56">
             <MenuItem onSelect={openFilePicker} value="open">
-              <ImageUpIcon /> Open image…
+              <ImageUpIcon /> {t("Open image…")}
               <MenuShortcut>{MOD} O</MenuShortcut>
             </MenuItem>
             <MenuItem onSelect={insertImagePicker} value="insert">
-              <ImagePlusIcon /> Insert image on top…
+              <ImagePlusIcon /> {t("Insert image on top…")}
             </MenuItem>
             <MenuItem onSelect={pasteFromClipboard} value="paste">
-              <ClipboardPasteIcon /> Paste image
+              <ClipboardPasteIcon /> {t("Paste image")}
               <MenuShortcut>{MOD} V</MenuShortcut>
             </MenuItem>
             {sourceUrl && (
               <>
                 <MenuSeparator />
                 <MenuItem onSelect={() => viewOriginal(sourceUrl)} value="view-original">
-                  <ExternalLinkIcon /> View original
+                  <ExternalLinkIcon /> {t("View original")}
                 </MenuItem>
               </>
             )}
@@ -243,68 +249,68 @@ function MoreMenu({ canUndo, canRedo }: { canUndo: boolean; canRedo: boolean }) 
         </MenuSub>
         <MenuSub positioning={SUB}>
           <MenuSubTrigger>
-            <DownloadIcon /> Save
+            <DownloadIcon /> {t("Save")}
           </MenuSubTrigger>
           <MenuSubContent className="w-max min-w-56">
             {/* The Save format setting, like {MOD} S. */}
             <MenuItem onSelect={() => exportImage()} value="save">
-              <DownloadIcon /> Save as {SAVE_LABEL[saveFormat]}
+              <DownloadIcon /> {t("Save as {format}", { format: SAVE_LABEL[saveFormat] })}
               <MenuShortcut>{MOD} S</MenuShortcut>
             </MenuItem>
             <MenuSeparator />
-            <MenuGroup heading="Other formats">
+            <MenuGroup heading={t("Other formats")}>
               {(Object.keys(SAVE_LABEL) as (keyof typeof SAVE_LABEL)[])
                 .filter((f) => f !== saveFormat)
                 .map((f) => (
                   <MenuItem key={f} onSelect={() => exportImage(f)} value={`save-${f}`}>
-                    <SaveAllIcon /> Save as {SAVE_LABEL[f]}
+                    <SaveAllIcon /> {t("Save as {format}", { format: SAVE_LABEL[f] })}
                   </MenuItem>
                 ))}
               <MenuItem onSelect={saveOriginalImage} value="save-original">
-                <FileImageIcon /> Original file
+                <FileImageIcon /> {t("Original file")}
               </MenuItem>
             </MenuGroup>
             <MenuSeparator />
             <MenuItem onSelect={() => togglePanel("compress", true)} value="compress">
-              <FileDownIcon /> Compress &amp; save…
+              <FileDownIcon /> {t("Compress & save…")}
             </MenuItem>
           </MenuSubContent>
         </MenuSub>
         <MenuItem onSelect={copyImageToClipboard} value="copy">
-          <CopyIcon /> Copy image
+          <CopyIcon /> {t("Copy image")}
           <MenuShortcut>{MOD} Shift C</MenuShortcut>
         </MenuItem>
         <MenuSeparator />
 
         <MenuSub positioning={SUB}>
           <MenuSubTrigger>
-            <WandSparklesIcon /> Image tools
+            <WandSparklesIcon /> {t("Image tools")}
           </MenuSubTrigger>
           <MenuSubContent className="w-max min-w-56">
             <MenuItem onSelect={() => void removeBackground()} value="remove-bg">
-              <EraserIcon /> Remove background
+              <EraserIcon /> {t("Remove background")}
             </MenuItem>
             <MenuItem onSelect={openOcr} value="ocr">
-              <ScanTextIcon /> Extract text (OCR)
+              <ScanTextIcon /> {t("Extract text (OCR)")}
             </MenuItem>
             <MenuItem onSelect={() => scanCurrentImage({ reveal: true })} value="qr">
-              <QrCodeIcon /> Scan QR codes
+              <QrCodeIcon /> {t("Scan QR codes")}
               <MenuShortcut>Q</MenuShortcut>
             </MenuItem>
             <MenuSeparator />
             <MenuItem onSelect={() => togglePanel("curves", true)} value="curves">
-              <ChartSplineIcon /> Histogram
+              <ChartSplineIcon /> {t("Histogram")}
               <MenuShortcut>Shift C</MenuShortcut>
             </MenuItem>
             <MenuItem onSelect={() => togglePanel("info", true)} value="info">
-              <InfoIcon /> Image info
+              <InfoIcon /> {t("Image info")}
             </MenuItem>
           </MenuSubContent>
         </MenuSub>
 
         <MenuSub positioning={SUB}>
           <MenuSubTrigger>
-            <ScanSearchIcon /> Search image
+            <ScanSearchIcon /> {t("Search image")}
           </MenuSubTrigger>
           <MenuSubContent className="w-max min-w-52">
             {SEARCH_ENGINES.map((e) => (
@@ -316,36 +322,40 @@ function MoreMenu({ canUndo, canRedo }: { canUndo: boolean; canRedo: boolean }) 
         </MenuSub>
         <MenuSub positioning={SUB}>
           <MenuSubTrigger>
-            <Share2Icon /> Share
+            <Share2Icon /> {t("Share")}
           </MenuSubTrigger>
           <MenuSubContent className="w-max min-w-56">
             <MenuItem onSelect={() => togglePanel("upload", true)} value="upload">
-              <CloudUploadIcon /> Upload &amp; get link…
+              <CloudUploadIcon /> {t("Upload & get link…")}
             </MenuItem>
             <MenuItem onSelect={openInPhotopea} value="photopea">
-              <SquareArrowOutUpRightIcon /> Open in Photopea
+              <SquareArrowOutUpRightIcon /> {t("Open in Photopea")}
             </MenuItem>
           </MenuSubContent>
         </MenuSub>
         <MenuSub positioning={SUB}>
           <MenuSubTrigger>
-            <EyeIcon /> View
+            <EyeIcon /> {t("View")}
           </MenuSubTrigger>
           <MenuSubContent className="w-max min-w-56">
             <MenuItem onSelect={() => togglePanel("layers", true)} value="layers">
-              <LayersIcon /> Layers
+              <LayersIcon /> {t("Layers")}
               <MenuShortcut>Shift L</MenuShortcut>
             </MenuItem>
             <MenuItem onSelect={() => togglePanel("history", true)} value="history">
-              <HistoryIcon /> History
+              <HistoryIcon /> {t("History")}
             </MenuItem>
             <MenuItem closeOnSelect={false} onSelect={toggleRulers} value="rulers">
-              <RulerIcon /> Rulers &amp; guides
+              <RulerIcon /> {t("Rulers & guides")}
               {rulers ? <CheckIcon className="ms-auto text-brand" /> : <MenuShortcut>Shift U</MenuShortcut>}
+            </MenuItem>
+            <MenuItem closeOnSelect={false} onSelect={toggleNavigator} value="navigator">
+              <MapIcon /> {t("Navigator")}
+              {navigatorShown ? <CheckIcon className="ms-auto text-brand" /> : <MenuShortcut>Shift N</MenuShortcut>}
             </MenuItem>
             <MenuSeparator />
             <MenuRadioGroup
-              heading="Board background"
+              heading={t("Board background")}
               onValueChange={(d) => set("boardBackground", d.value as BoardBackground)}
               value={board}
             >
@@ -356,7 +366,7 @@ function MoreMenu({ canUndo, canRedo }: { canUndo: boolean; canRedo: boolean }) 
                       className="checker-sm size-3.5 rounded-sm border border-white/20"
                       mode={o.value}
                     />
-                    {o.label}
+                    {t(o.label)}
                   </span>
                 </MenuRadioItem>
               ))}
@@ -368,24 +378,24 @@ function MoreMenu({ canUndo, canRedo }: { canUndo: boolean; canRedo: boolean }) 
         <div className="md:hidden">
           <MenuSub positioning={SUB}>
             <MenuSubTrigger>
-              <SquarePenIcon /> Edit
+              <SquarePenIcon /> {t("Edit")}
             </MenuSubTrigger>
             <MenuSubContent className="w-max min-w-52">
               <MenuItem closeOnSelect={false} disabled={!canUndo} onSelect={undo} value="undo">
-                <Undo2Icon /> Undo
+                <Undo2Icon /> {t("Undo")}
               </MenuItem>
               <MenuItem closeOnSelect={false} disabled={!canRedo} onSelect={redo} value="redo">
-                <Redo2Icon /> Redo
+                <Redo2Icon /> {t("Redo")}
               </MenuItem>
               <MenuSeparator />
               <MenuItem closeOnSelect={false} onSelect={() => rotate(-1)} value="rotate-l">
-                <RotateCcwIcon /> Rotate left
+                <RotateCcwIcon /> {t("Rotate left")}
               </MenuItem>
               <MenuItem closeOnSelect={false} onSelect={() => rotate(1)} value="rotate-r">
-                <RotateCwIcon /> Rotate right
+                <RotateCwIcon /> {t("Rotate right")}
               </MenuItem>
               <MenuItem closeOnSelect={false} onSelect={flipHorizontal} value="flip">
-                <MirrorRectangularIcon /> Flip horizontal
+                <MirrorRectangularIcon /> {t("Flip horizontal")}
               </MenuItem>
             </MenuSubContent>
           </MenuSub>
@@ -393,20 +403,20 @@ function MoreMenu({ canUndo, canRedo }: { canUndo: boolean; canRedo: boolean }) 
 
         <MenuSeparator />
         <MenuItem onSelect={() => togglePanel("settings", true)} value="settings">
-          <Settings2Icon /> Settings
+          <Settings2Icon /> {t("Settings")}
           <MenuShortcut>{MOD} ,</MenuShortcut>
         </MenuItem>
         <MenuSub positioning={SUB}>
           <MenuSubTrigger>
-            <CircleHelpIcon /> Help
+            <CircleHelpIcon /> {t("Help")}
           </MenuSubTrigger>
           <MenuSubContent className="w-max min-w-56">
             <MenuItem onSelect={() => togglePanel("shortcuts", true)} value="shortcuts">
-              <KeyboardIcon /> Keyboard shortcuts
+              <KeyboardIcon /> {t("Keyboard shortcuts")}
               <MenuShortcut>?</MenuShortcut>
             </MenuItem>
             <MenuItem onSelect={() => togglePanel("about", true)} value="about">
-              <BadgeInfoIcon /> About BetterViewer
+              <BadgeInfoIcon /> {t("About BetterViewer")}
             </MenuItem>
           </MenuSubContent>
         </MenuSub>
@@ -415,10 +425,9 @@ function MoreMenu({ canUndo, canRedo }: { canUndo: boolean; canRedo: boolean }) 
           disabled={!edited}
           onSelect={() =>
             confirmAction({
-              title: "Reset all edits?",
-              description:
-                "Crops, rotation, filters and annotations will be removed. You can still undo this.",
-              confirmLabel: "Reset",
+              title: t("Reset all edits?"),
+              description: t("Crops, rotation, filters and annotations will be removed. You can still undo this."),
+              confirmLabel: t("Reset"),
               destructive: true,
               onConfirm: () => useDoc.getState().resetAll(),
             })
@@ -426,7 +435,7 @@ function MoreMenu({ canUndo, canRedo }: { canUndo: boolean; canRedo: boolean }) 
           value="reset"
           variant="destructive"
         >
-          <ImageIcon /> Reset all edits
+          <ImageIcon /> {t("Reset all edits")}
         </MenuItem>
         <MenuItem
           onSelect={() => {
@@ -435,9 +444,9 @@ function MoreMenu({ canUndo, canRedo }: { canUndo: boolean; canRedo: boolean }) 
               return;
             }
             confirmAction({
-              title: "Close this image?",
-              description: "Your edits haven't been exported and will be lost.",
-              confirmLabel: "Close image",
+              title: t("Close this image?"),
+              description: t("Your edits haven't been exported and will be lost."),
+              confirmLabel: t("Close image"),
               destructive: true,
               onConfirm: closeImage,
             });
@@ -445,7 +454,7 @@ function MoreMenu({ canUndo, canRedo }: { canUndo: boolean; canRedo: boolean }) 
           value="close"
           variant="destructive"
         >
-          <XIcon /> Close image
+          <XIcon /> {t("Close image")}
         </MenuItem>
       </MenuContent>
     </Menu>

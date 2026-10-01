@@ -1,0 +1,29 @@
+{
+  "extDescription": {
+    "message": "Расширение браузера для более удобного просмотра изображений"
+  },
+  "menuOpenImage": {
+    "message": "Открыть изображение в BetterViewer"
+  },
+  "menuGallery": {
+    "message": "Все изображения страницы в виде галереи"
+  },
+  "menuScreenshot": {
+    "message": "Снимок этой страницы"
+  },
+  "popupOpen": {
+    "message": "Открыть BetterViewer"
+  },
+  "popupGallery": {
+    "message": "Изображения на странице"
+  },
+  "popupSettings": {
+    "message": "Настройки"
+  },
+  "popupShortcuts": {
+    "message": "Сочетания клавиш"
+  },
+  "popupAbout": {
+    "message": "О BetterViewer"
+  }
+}

@@ -7,19 +7,21 @@ import { Hinted, ToolbarDivider, ToolButton } from "@/components/tools/ToolButto
 import type { SpotlightAnnotation } from "@/lib/annotations";
 import { updateAnnotations } from "@/state/document";
 import { getUi, useUi } from "@/state/ui";
+import { t, tk, useT } from "@/lib/i18n";
 
 type Shape = SpotlightAnnotation["shape"];
 
 const SHAPES: { id: Shape; label: string; icon: React.ReactNode }[] = [
-  { id: "ellipse", label: "Ellipse", icon: <CircleIcon /> },
-  { id: "rect", label: "Rectangle", icon: <SquareIcon /> },
+  { id: "ellipse", label: tk("Ellipse"), icon: <CircleIcon /> },
+  { id: "rect", label: tk("Rectangle"), icon: <SquareIcon /> },
 ];
 
 export function SpotlightToolButton() {
+  const t = useT();
   const tool = useUi((s) => s.tool);
   const setTool = useUi((s) => s.setTool);
   return (
-    <ToolButton active={tool === "spotlight"} label="Spotlight" onClick={() => setTool("spotlight")} shortcut="G">
+    <ToolButton active={tool === "spotlight"} label={t("Spotlight")} onClick={() => setTool("spotlight")} shortcut="G">
       <SpotlightIcon />
     </ToolButton>
   );
@@ -55,7 +57,7 @@ function ShapeSwitch({ shape }: { shape: Shape }) {
         >
           <SegmentGroupItemText className="flex items-center gap-1.5">
             {s.icon}
-            {s.label}
+            {t(s.label)}
           </SegmentGroupItemText>
         </SegmentGroupItem>
       ))}
@@ -95,20 +97,21 @@ function PercentControl({
 }
 
 function SpotlightSettings({ shape, dim, feather }: { shape: Shape; dim: number; feather: number }) {
+  const t = useT();
   return (
     <>
       <ShapeSwitch shape={shape} />
       <ToolbarDivider />
       <PercentControl
-        hint="How dark the rest of the image gets"
-        label="Dim"
+        hint={t("How dark the rest of the image gets")}
+        label={t("Dim")}
         max={95}
         onChange={(v) => setSpotlight({ dim: v / 100 })}
         value={Math.round(dim * 100)}
       />
       <PercentControl
-        hint="Soft edge"
-        label="Soften"
+        hint={t("Soft edge")}
+        label={t("Soften")}
         max={50}
         onChange={(v) => setSpotlight({ feather: v / 100 })}
         value={Math.round(feather * 100)}
@@ -119,12 +122,13 @@ function SpotlightSettings({ shape, dim, feather }: { shape: Shape; dim: number;
 
 /** Options while the Spotlight tool is active. */
 export function SpotlightOptions() {
+  const t = useT();
   const style = useUi((s) => s.style);
   return (
     <>
       <SpotlightSettings dim={style.spotlightDim} feather={style.spotlightFeather} shape={style.spotlightShape} />
       <ToolbarDivider />
-      <span className="px-2 text-muted-foreground text-xs">Drag over what should stand out</span>
+      <span className="px-2 text-muted-foreground text-xs">{t("Drag over what should stand out")}</span>
     </>
   );
 }

@@ -24,7 +24,8 @@
     "preview": "vite preview",
     "postinstall": "patch-package",
     "emoji-data": "node scripts/build-emoji-data.mjs",
-    "build:ext": "vite build --mode extension && node scripts/build-extension.mjs"
+    "build:ext": "vite build --mode extension && node scripts/build-extension.mjs",
+    "i18n": "node scripts/i18n.mjs"
   },
   "manifest": {
     "browser_specific_settings": {

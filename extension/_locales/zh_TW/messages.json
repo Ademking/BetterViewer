@@ -1,0 +1,29 @@
+{
+  "extDescription": {
+    "message": "讓瀏覽器看圖體驗更好的擴充功能"
+  },
+  "menuOpenImage": {
+    "message": "在 BetterViewer 中開啟此圖片"
+  },
+  "menuGallery": {
+    "message": "以圖庫方式瀏覽頁面所有圖片"
+  },
+  "menuScreenshot": {
+    "message": "擷取此頁面"
+  },
+  "popupOpen": {
+    "message": "開啟 BetterViewer"
+  },
+  "popupGallery": {
+    "message": "瀏覽頁面圖片"
+  },
+  "popupSettings": {
+    "message": "設定"
+  },
+  "popupShortcuts": {
+    "message": "鍵盤快速鍵"
+  },
+  "popupAbout": {
+    "message": "關於 BetterViewer"
+  }
+}

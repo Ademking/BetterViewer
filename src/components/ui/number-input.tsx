@@ -1,5 +1,6 @@
 "use client";
 
+import { t } from "@/lib/i18n";
 import {
   NumberInput as ArkNumberInput,
   useNumberInputContext,
@@ -84,7 +85,7 @@ export const NumberInputDecrement = (
       data-slot="number-field-decrement"
       {...rest}
     >
-      <Button aria-label="Decrement" variant="ghost">
+      <Button aria-label={t("Decrement")} variant="ghost">
         <MinusIcon aria-hidden />
       </Button>
     </ArkNumberInput.DecrementTrigger>
@@ -112,7 +113,7 @@ export const NumberInputIncrement = (
       data-slot="number-field-increment"
       {...rest}
     >
-      <Button aria-label="Increment" variant="ghost">
+      <Button aria-label={t("Increment")} variant="ghost">
         <PlusIcon aria-hidden />
       </Button>
     </ArkNumberInput.IncrementTrigger>

@@ -18,6 +18,7 @@ import { autoEnhance } from "@/lib/autoEnhance";
 import { cn } from "@/lib/utils";
 import { updateDoc, useDoc } from "@/state/document";
 import { useUi } from "@/state/ui";
+import { midSentence, useT } from "@/lib/i18n";
 
 const setFilter = (key: FilterKey, value: number) =>
   updateDoc((d) => ({ ...d, filters: { ...d.filters, [key]: value } }), {
@@ -25,6 +26,7 @@ const setFilter = (key: FilterKey, value: number) =>
   });
 
 export function FilterPanel() {
+  const t = useT();
   const open = useUi((s) => s.panels.adjust);
   const togglePanel = useUi((s) => s.togglePanel);
   const filters = useDoc((s) => s.doc?.filters ?? DEFAULT_FILTERS);
@@ -41,7 +43,7 @@ export function FilterPanel() {
       bodyClassName="gap-5"
       footer={
         <>
-          <Hinted label="Hold to compare with the original">
+          <Hinted label={t("Hold to compare with the original")}>
             <Button
               className={cn(compare && "bg-accent")}
               disabled={pristine}
@@ -51,7 +53,7 @@ export function FilterPanel() {
               size="sm"
               variant="outline"
             >
-              <EyeIcon /> Compare
+              <EyeIcon /> {t("Compare")}
             </Button>
           </Hinted>
           <Button
@@ -60,7 +62,7 @@ export function FilterPanel() {
             size="sm"
             variant="ghost"
           >
-            <RotateCcwIcon /> Reset all
+            <RotateCcwIcon /> {t("Reset all")}
           </Button>
         </>
       }
@@ -70,14 +72,15 @@ export function FilterPanel() {
       minSize={{ width: 280, height: 240 }}
       onOpenChange={(o) => togglePanel("adjust", o)}
       open={open}
-      title="Adjustments"
+      title={t("Adjustments")}
     >
       {!canvasFilterSupported && (
         <p className="rounded-lg bg-warning/10 p-2 text-warning-foreground text-xs">
           This browser can't apply canvas filters; adjustments won't be visible.
         </p>
       )}
-      <div className="grid grid-cols-2 gap-2">
+      {/* Side by side, each on its own line when a translation is too long. */}
+      <div className="flex flex-wrap gap-2 *:grow *:basis-0">
         <Button
           isLoading={enhancing}
           onClick={async () => {
@@ -90,17 +93,17 @@ export function FilterPanel() {
           }}
           size="sm"
         >
-          <WandSparklesIcon /> Auto enhance
+          <WandSparklesIcon /> {t("Auto enhance")}
         </Button>
-        <Hinted label="Curves, levels and histogram" shortcut="Shift C">
-          <Button onClick={() => togglePanel("curves", true)} size="sm" variant="outline">
-            <ChartSplineIcon /> Levels & curves
+        <Hinted label={t("Curves, levels and histogram")} shortcut="Shift C">
+          <Button className="w-full" onClick={() => togglePanel("curves", true)} size="sm" variant="outline">
+            <ChartSplineIcon /> {t("Levels & curves")}
           </Button>
         </Hinted>
       </div>
       <div className="flex flex-col gap-2">
         <span className="font-medium text-muted-foreground text-xs uppercase tracking-wide">
-          Presets
+          {t("Presets")}
         </span>
         <div className="grid grid-cols-4 gap-x-2 gap-y-2.5">
           {FILTER_PRESETS.map((p) => {
@@ -137,7 +140,7 @@ export function FilterPanel() {
                     activePreset ? "text-foreground" : "text-muted-foreground"
                   )}
                 >
-                  {p.name}
+                  {t(p.name)}
                 </span>
               </button>
             );
@@ -147,11 +150,11 @@ export function FilterPanel() {
 
       {FILTER_GROUPS.map((group) => (
         <div className="flex flex-col gap-4" key={group}>
-          <span className="-mb-1 font-medium text-muted-foreground text-xs uppercase tracking-wide">{group}</span>
+          <span className="-mb-1 font-medium text-muted-foreground text-xs uppercase tracking-wide">{t(group)}</span>
           {FILTER_SPECS.filter((s) => s.group === group).map((spec) => (
             <div className="group/row relative" key={spec.key}>
               <LabeledSlider
-                label={spec.label}
+                label={t(spec.label)}
                 max={spec.max}
                 min={spec.min}
                 onChange={(v) => setFilter(spec.key, v)}
@@ -161,7 +164,7 @@ export function FilterPanel() {
               />
               {(filters[spec.key] ?? DEFAULT_FILTERS[spec.key]) !== DEFAULT_FILTERS[spec.key] && (
                 <button
-                  aria-label={`Reset ${spec.label}`}
+                  aria-label={t("Reset {name}", { name: midSentence(t(spec.label)) })}
                   className="absolute top-0 right-12 rounded px-1 text-[10px] text-muted-foreground opacity-0 transition-opacity hover:text-foreground group-hover/row:opacity-100"
                   onClick={() => setFilter(spec.key, DEFAULT_FILTERS[spec.key])}
                   type="button"

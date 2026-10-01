@@ -18,6 +18,7 @@ import type React from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
+import { t } from "@/lib/i18n";
 
 export const useToast = useToastContext;
 
@@ -151,7 +152,7 @@ export const ToastItem = (props: ToastItemProps) => {
       {!isExplicitClosable && (
         <ArkToast.CloseTrigger asChild data-slot="toast-close-trigger">
           <Button
-            aria-label="Close"
+            aria-label={t("Close")}
             className="-mt-0.5 shrink-0 opacity-64 hover:opacity-100"
             size="icon-xs"
             variant="ghost"

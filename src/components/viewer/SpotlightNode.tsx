@@ -35,7 +35,7 @@ export const SpotlightNode = memo(function SpotlightNode({
 
   const sceneFunc = useCallback(
     (ctx: Konva.Context) => {
-      if (!showOutline || stageRegistry.exporting) return;
+      if (!showOutline || stageRegistry.exporting || stageRegistry.thumbnail) return;
       const c = native(ctx);
       const m = c.getTransform();
       const px = 1 / Math.sqrt(Math.abs(m.a * m.d - m.b * m.c));
