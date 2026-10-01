@@ -152,6 +152,10 @@ runs in your browser, including OCR, background removal and QR scanning.
 
 (**⌘** instead of Ctrl on macOS)
 
+Letter shortcuts work with any keyboard layout. On a layout that types other
+letters (Russian, Greek, Arabic…), press the key where the letter sits on an
+English keyboard: the R key rotates whether it types R or К.
+
 ### Privacy
 
 Images are processed on your device: adjustments, OCR, background removal,
@@ -226,6 +230,23 @@ none). For local development you can also set `VITE_IMGBB_API_KEY` in
 bundle, so don't ship a build with a private key.
 
 # Changelog
+
+## [3.0.4] - 2026-10-01
+
+- **16 languages**: the interface is translated into 简体中文, 繁體中文, हिन्दी,
+  Español, Français, العربية (right to left), Português, Русский, Bahasa
+  Indonesia, Deutsch, 日本語, Türkçe, 한국어, Tiếng Việt and Italiano. It follows
+  the browser's language; change it in Settings → Appearance → Language.
+- **Navigator** (Shift N): an overview of the image with the visible part
+  outlined; click or drag it to move around, scroll over it to zoom. It stays
+  on screen until you turn it off, and long images get a taller strip that
+  scrolls along with the view.
+- Letter shortcuts (R to rotate, V, H, T, Ctrl+K, Ctrl+Z…) now work on
+  non-Latin keyboard layouts such as Russian, Greek or Arabic.
+- Right to left: floating panels open on the correct side and follow the
+  pointer when dragged; the image info hint is centred.
+- No more sideways scrollbar in the Adjustments panel or the language list
+  with long translations.
 
 ## [3.0.3] - 2026-09-30
 
