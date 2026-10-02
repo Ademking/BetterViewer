@@ -11,6 +11,20 @@ export interface ViewState {
 export const MIN_SCALE = 0.02;
 export const MAX_SCALE = 64;
 export const ZOOM_STEP = 1.25;
+/** Wheel zoom per pixel scrolled (a mouse wheel notch is about 100px). */
+export const WHEEL_ZOOM = 0.0018;
+/** Alt, or Ctrl / ⌘ with Shift, + wheel zooms this many times faster. */
+export const FAST_ZOOM = 3;
+
+/** One step of the zoom buttons and keys, at the Zoom speed setting. */
+export const zoomStep = () => ZOOM_STEP ** getSettings().zoomSpeed;
+
+/** Zoom for a wheel movement of `dy` pixels, at the Zoom speed setting (faster with `fast`). */
+export const wheelZoom = (dy: number, fast = false) =>
+  Math.exp(-dy * WHEEL_ZOOM * getSettings().zoomSpeed * (fast ? FAST_ZOOM : 1));
+
+/** Holding Alt, or Ctrl / ⌘ with Shift, while scrolling zooms faster. */
+export const isFastZoom = (e: WheelEvent) => e.altKey || ((e.ctrlKey || e.metaKey) && e.shiftKey);
 
 interface ViewStore extends ViewState {
   width: number;

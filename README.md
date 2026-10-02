@@ -141,7 +141,7 @@ runs in your browser, including OCR, background removal and QR scanning.
 | Counter             | N             | Toggle interface    | Tab               | Quick launch      | Ctrl K                |
 | Blur / pixelate     | M             | Rulers & guides     | Shift U           | Open / paste      | Ctrl O / Ctrl V       |
 | Text                | T             | Navigator           | Shift N           | Save / copy       | Ctrl S / Ctrl Shift C |
-| Color picker        | I             |                     |                   | Settings          | Ctrl ,                |
+| Color picker        | I             | Zoom faster         | Alt + wheel       | Settings          | Ctrl ,                |
 | Crop                | C             |                     |                   | Shortcuts list    | ?                     |
 | Adjustments         | F             |                     |                   | Cancel / deselect | Esc                   |
 | Levels & curves     | Shift C       |                     |                   |                   |                       |
@@ -152,14 +152,18 @@ runs in your browser, including OCR, background removal and QR scanning.
 
 (**⌘** instead of Ctrl on macOS)
 
+Holding **Alt** (or **Ctrl Shift**) while scrolling zooms 3× faster. How far
+the wheel, the zoom buttons and the zoom keys zoom is set in Settings → Viewer
+→ Zoom speed.
+
 Letter shortcuts work with any keyboard layout. On a layout that types other
 letters (Russian, Greek, Arabic…), press the key where the letter sits on an
 English keyboard: the R key rotates whether it types R or К.
 
-Every shortcut above (except Space, Esc, Del, the arrows and Ctrl V) can be
-changed: open the shortcuts list (**?**, or Settings → Viewer → Keyboard
-shortcuts), click a shortcut and press the new keys. Esc cancels, Backspace
-removes it.
+Every shortcut above (except Space, Esc, Del, the arrows, Ctrl V and the
+wheel) can be changed: open the shortcuts list (**?**, or Settings → Viewer →
+Keyboard shortcuts), click a shortcut and press the new keys. Esc cancels,
+Backspace removes it.
 
 ### Privacy
 
@@ -246,6 +250,11 @@ bundle, so don't ship a build with a private key.
   Ctrl+Shift+K console…) now reach the browser instead of running the Ctrl
   shortcut.
 - New shortcuts: Bring forward (}) and Send backward ({).
+- **Zoom speed** setting (Settings → Viewer): how far each wheel notch, the
+  zoom buttons and the zoom keys zoom, from 0.25× to 3×. Trackpad pinch still
+  follows your fingers.
+- **Faster zoom**: hold Alt, or Ctrl Shift, while scrolling to zoom 3× faster
+  (also over the navigator).
 
 ## [3.0.4] - 2026-10-01
 

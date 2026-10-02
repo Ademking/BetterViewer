@@ -22,7 +22,7 @@ import {
 import { closeOverlay, isOverlay } from "@/lib/overlay";
 import { writeClipboardImage, writeClipboardText } from "@/lib/clipboard";
 import { stageRegistry } from "@/lib/stageRegistry";
-import { viewport, ZOOM_STEP } from "@/lib/viewport";
+import { viewport, zoomStep } from "@/lib/viewport";
 import { displaySize, getDoc, updateAnnotations, updateDoc, useDoc, type ImageInfo } from "@/state/document";
 import { getSettings, type SaveFormat } from "@/state/settings";
 import { getUi, useUi } from "@/state/ui";
@@ -416,8 +416,8 @@ export async function copyImageToClipboard() {
 
 /* ------------------------------------------------------------------ View */
 
-export const zoomIn = () => viewport.zoomBy(ZOOM_STEP);
-export const zoomOut = () => viewport.zoomBy(1 / ZOOM_STEP);
+export const zoomIn = () => viewport.zoomBy(zoomStep());
+export const zoomOut = () => viewport.zoomBy(1 / zoomStep());
 export const zoomFit = () => viewport.fit();
 export const zoomActual = () => viewport.actualSize();
 

@@ -17,7 +17,7 @@ import {
 } from "@/lib/annotations";
 import { sampleImageColor } from "@/lib/colors";
 import { screenToLocal, stageRegistry } from "@/lib/stageRegistry";
-import { viewport } from "@/lib/viewport";
+import { isFastZoom, viewport, WHEEL_ZOOM, wheelZoom } from "@/lib/viewport";
 import { getDoc, updateDoc } from "@/state/document";
 import { useDraft } from "@/state/draft";
 import { getSettings } from "@/state/settings";
@@ -131,18 +131,27 @@ export function useCanvasInteractions(containerRef: RefObject<HTMLDivElement | n
       const dx = e.deltaX * unit;
       const dy = e.deltaY * unit;
       const p = local(e);
-      const { wheelBehavior } = getSettings();
+      const { wheelBehavior, zoomSpeed } = getSettings();
+      // Shift turns a mouse wheel sideways in some browsers.
+      const sideways = e.shiftKey && dy === 0;
       const trackpadLike =
-        e.deltaMode === 0 && (dx !== 0 || (!Number.isInteger(e.deltaY) && Math.abs(dy) < 40));
+        e.deltaMode === 0 &&
+        ((dx !== 0 && !sideways) || (!Number.isInteger(e.deltaY) && Math.abs(dy) < 40));
 
+      if (isFastZoom(e)) {
+        viewport.zoomBy(wheelZoom(sideways ? dx : dy, true), p, !trackpadLike && viewport.smooth);
+        return;
+      }
       if (e.ctrlKey || e.metaKey) {
-        // Trackpad pinch (ctrl+wheel) → continuous, un-animated zoom.
-        const factor = Math.exp(-dy * (trackpadLike || Math.abs(dy) < 20 ? 0.012 : 0.0018));
-        viewport.zoomBy(factor, p, !trackpadLike && Math.abs(dy) >= 20 && viewport.smooth);
+        // Trackpad pinch (ctrl+wheel) → continuous, un-animated zoom that
+        // follows the fingers, so Zoom speed only applies to mouse wheels.
+        const fine = trackpadLike || Math.abs(dy) < 20;
+        const factor = Math.exp(-dy * (fine ? 0.012 : WHEEL_ZOOM) * (trackpadLike ? 1 : zoomSpeed));
+        viewport.zoomBy(factor, p, !fine && viewport.smooth);
         return;
       }
       if (wheelBehavior === "zoom" && !trackpadLike && !e.shiftKey) {
-        viewport.zoomBy(Math.exp(-dy * 0.0018), p);
+        viewport.zoomBy(wheelZoom(dy), p);
         return;
       }
       if (e.shiftKey && dx === 0) viewport.panBy(-dy, 0);
