@@ -29,6 +29,8 @@ export interface Settings {
   // Viewer
   defaultZoom: DefaultZoom;
   wheelBehavior: WheelBehavior;
+  /** Multiplies how far the wheel, zoom buttons and zoom keys zoom (1 = default). */
+  zoomSpeed: number;
   panOnEmptyDrag: boolean;
   smoothAnimations: boolean;
   pixelatedZoom: boolean;
@@ -65,6 +67,7 @@ export const DEFAULT_SETTINGS: Settings = {
   showNavigator: true,
   defaultZoom: "shrink",
   wheelBehavior: "zoom",
+  zoomSpeed: 1,
   panOnEmptyDrag: true,
   smoothAnimations: true,
   pixelatedZoom: true,

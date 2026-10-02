@@ -3,7 +3,7 @@ import { memo, useEffect, useRef } from "react";
 import { ToolButton } from "@/components/tools/ToolButton";
 import { renderDocumentThumbnail, zoomFit } from "@/lib/actions";
 import { stageRegistry } from "@/lib/stageRegistry";
-import { useView, viewport } from "@/lib/viewport";
+import { isFastZoom, useView, viewport, wheelZoom } from "@/lib/viewport";
 import { cn } from "@/lib/utils";
 import { displaySize, useDoc } from "@/state/document";
 import { useSettings } from "@/state/settings";
@@ -142,7 +142,9 @@ function NavigatorBox({ width, height, k, max, renderSide, view, zoom }: BoxProp
     const onWheel = (e: WheelEvent) => {
       e.preventDefault();
       const unit = e.deltaMode === 1 ? 33 : e.deltaMode === 2 ? 400 : 1;
-      viewport.zoomBy(Math.exp(-e.deltaY * unit * 0.0018));
+      // Shift turns a mouse wheel sideways in some browsers.
+      const delta = e.shiftKey && e.deltaY === 0 ? e.deltaX : e.deltaY;
+      viewport.zoomBy(wheelZoom(delta * unit, isFastZoom(e)));
     };
     el.addEventListener("wheel", onWheel, { passive: false });
     return () => el.removeEventListener("wheel", onWheel);

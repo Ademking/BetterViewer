@@ -27,7 +27,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/components/ui/toast";
 import { ColorField } from "@/components/tools/ColorField";
 import { LabeledSlider } from "@/components/tools/StyleControls";
-import { MOD } from "@/components/tools/ToolButton";
+import { ALT, MOD } from "@/components/tools/ToolButton";
+import { FAST_ZOOM } from "@/lib/viewport";
 import { cn } from "@/lib/utils";
 import { LANGUAGES, resolveLanguage, tk, useT } from "@/lib/i18n";
 import { LanguagePicker } from "@/components/tools/LanguagePicker";
@@ -285,6 +286,7 @@ export function SettingsPanel() {
   const open = useUi((s) => s.panels.settings);
   const togglePanel = useUi((s) => s.togglePanel);
   const defaultColor = useSettings((s) => s.defaultColor);
+  const zoomSpeed = useSettings((s) => s.zoomSpeed);
   const defaultStrokeWidth = useSettings((s) => s.defaultStrokeWidth);
   const gridSize = useSettings((s) => s.gridSize);
   const snap = useSettings((s) => s.snapToGrid);
@@ -386,6 +388,21 @@ export function SettingsPanel() {
                     { value: "zoom", label: t("Zoom") },
                     { value: "scroll", label: t("Scroll") },
                   ]}
+                />
+              </Row>
+              <Row
+                description={t("How far each wheel notch, zoom button and zoom key zooms. Hold {alt} or {mod} Shift while scrolling to zoom {times}× faster.", { alt: ALT, mod: MOD, times: FAST_ZOOM })}
+                stacked
+                title={t("Zoom speed")}
+              >
+                <LabeledSlider
+                  label={t("Speed")}
+                  max={3}
+                  min={0.25}
+                  onChange={(v) => set("zoomSpeed", v)}
+                  step={0.25}
+                  suffix="×"
+                  value={zoomSpeed}
                 />
               </Row>
               <Row
