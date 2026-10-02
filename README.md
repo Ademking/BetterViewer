@@ -242,6 +242,13 @@ bundle, so don't ship a build with a private key.
 
 # Changelog
 
+## [Unreleased]
+
+- **Chrome incognito**: images opened in incognito windows now open in
+  BetterViewer instead of Chrome's "This page has been blocked"
+  (ERR_BLOCKED_BY_CLIENT) page, and the right-click menu items show up there
+  too. Settings changed in incognito last until the incognito windows close.
+
 ## [3.1.0] - 2026-10-02
 
 - **Customizable keyboard shortcuts**: click any shortcut in the shortcuts
