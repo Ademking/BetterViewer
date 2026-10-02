@@ -8,7 +8,7 @@ export function TextToolButton() {
   const tool = useUi((s) => s.tool);
   const setTool = useUi((s) => s.setTool);
   return (
-    <ToolButton active={tool === "text"} label={t("Text")} onClick={() => setTool("text")} shortcut="T">
+    <ToolButton active={tool === "text"} label={t("Text")} onClick={() => setTool("text")} command="text">
       <TypeIcon />
     </ToolButton>
   );

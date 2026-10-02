@@ -11,6 +11,7 @@ import {
 import { CounterOptions, ShapeStyleControls } from "@/components/tools/StyleControls";
 import { Hinted, ToolbarDivider, ToolButton } from "@/components/tools/ToolButton";
 import { isLineKind, SHAPE_GROUPS, SHAPE_LABELS, type ShapeKind, shapeOutline } from "@/lib/annotations";
+import { type ShortcutId, useShortcutText } from "@/lib/shortcuts";
 import { cn } from "@/lib/utils";
 import { useUi } from "@/state/ui";
 import { useT } from "@/lib/i18n";
@@ -92,12 +93,12 @@ export const SHAPE_ICONS = Object.fromEntries(
   (Object.keys(SHAPE_LABELS) as ShapeKind[]).map((k) => [k, <ShapeGlyph key={k} kind={k} />])
 ) as Record<ShapeKind, React.ReactNode>;
 
-const SHORTCUTS: Partial<Record<ShapeKind, string>> = {
-  rect: "S",
-  ellipse: "O",
-  line: "L",
-  arrow: "A",
-  counter: "N",
+const SHORTCUTS: Partial<Record<ShapeKind, ShortcutId>> = {
+  rect: "rectangle",
+  ellipse: "ellipse",
+  line: "line",
+  arrow: "arrow",
+  counter: "counter",
 };
 
 const ALL_KINDS = SHAPE_GROUPS.flatMap((g) => g.kinds);
@@ -107,13 +108,15 @@ function ShapeGridContent() {
   const tool = useUi((s) => s.tool);
   const kind = useUi((s) => s.shapeKind);
   const setShapeKind = useUi((s) => s.setShapeKind);
+  const keys = useShortcutText();
 
   return (
     <MenuContent className="w-auto">
       <div className="grid grid-cols-8 gap-0.5">
         {ALL_KINDS.map((k) => {
           const active = tool === "shape" && kind === k;
-          const hint = SHORTCUTS[k] ? `${SHAPE_LABELS[k]} (${SHORTCUTS[k]})` : SHAPE_LABELS[k];
+          const shortcut = SHORTCUTS[k] && keys(SHORTCUTS[k]);
+          const hint = shortcut ? `${SHAPE_LABELS[k]} (${shortcut})` : SHAPE_LABELS[k];
           return (
             <MenuItem
               aria-label={SHAPE_LABELS[k]}
@@ -143,7 +146,7 @@ export function ShapeToolButton() {
   return (
     <Menu positioning={{ placement: "top", gutter: 14 }}>
       <MenuTrigger asChild>
-        <ToolButton active={tool === "shape"} label={t("Shapes")} shortcut="S">
+        <ToolButton active={tool === "shape"} command="rectangle" label={t("Shapes")}>
           {SHAPE_ICONS[kind]}
         </ToolButton>
       </MenuTrigger>

@@ -23,7 +23,7 @@ export function DrawToolButton() {
       active={tool === "draw"}
       label={t("Draw")}
       onClick={() => setDrawMode(mode)}
-      shortcut="P"
+      command="pen"
     >
       {current.icon}
     </ToolButton>

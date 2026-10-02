@@ -27,6 +27,20 @@ export const extensionApi: ExtensionApi | null = isExtension
     null)
   : null;
 
+const platform =
+  typeof navigator === "undefined"
+    ? ""
+    : ((navigator as Navigator & { userAgentData?: { platform?: string } }).userAgentData?.platform ??
+      navigator.platform ??
+      "");
+
+/** Apple platforms (macOS, iPadOS, iOS) label keys differently. */
+export const isMac = /mac|iphone|ipad|ipod/i.test(platform);
+/** The command key: ⌘ on Apple platforms, Ctrl elsewhere. */
+export const MOD = isMac ? "⌘" : "Ctrl";
+/** Alt is called Option on Apple keyboards. */
+export const ALT = isMac ? "Option" : "Alt";
+
 /** Absolute URL of a file bundled under /vendor in the extension build. */
 export const vendorUrl = (path: string) => new URL(`/vendor/${path}`, location.origin).href;
 

@@ -57,7 +57,7 @@ export function RedactToolButton() {
   const tool = useUi((s) => s.tool);
   const setTool = useUi((s) => s.setTool);
   return (
-    <ToolButton active={tool === "redact"} label={t("Blur / pixelate")} onClick={() => setTool("redact")} shortcut="M">
+    <ToolButton active={tool === "redact"} label={t("Blur / pixelate")} onClick={() => setTool("redact")} command="redact">
       <PixelateIcon />
     </ToolButton>
   );

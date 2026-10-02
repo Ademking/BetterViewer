@@ -2,33 +2,26 @@ import type React from "react";
 import { Button, type ButtonProps } from "@/components/ui/button";
 import { Kbd } from "@/components/ui/kbd";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { type ShortcutId, useShortcutText } from "@/lib/shortcuts";
 import { cn } from "@/lib/utils";
 import { useSettings } from "@/state/settings";
 
-const platform =
-  typeof navigator === "undefined"
-    ? ""
-    : ((navigator as Navigator & { userAgentData?: { platform?: string } }).userAgentData?.platform ??
-      navigator.platform ??
-      "");
-
-/** Apple platforms (macOS, iPadOS, iOS) label keys differently. */
-export const isMac = /mac|iphone|ipad|ipod/i.test(platform);
-/** The command key: ⌘ on Apple platforms, Ctrl elsewhere. */
-export const MOD = isMac ? "⌘" : "Ctrl";
-/** Alt is called Option on Apple keyboards. */
-export const ALT = isMac ? "Option" : "Alt";
+export { ALT, isMac, MOD } from "@/lib/platform";
 
 interface HintedProps {
   label: string;
+  /** Keys shown next to the label: fixed text, or a customizable command's keys. */
   shortcut?: string;
+  command?: ShortcutId;
   children: React.ReactElement;
   side?: "top" | "bottom" | "left" | "right";
 }
 
 /** Wraps a trigger with a Shark tooltip (respects the "Show hints" setting). */
-export function Hinted({ label, shortcut, children, side = "top" }: HintedProps) {
+export function Hinted({ label, shortcut: fixed, command, children, side = "top" }: HintedProps) {
   const show = useSettings((s) => s.showHints);
+  const keys = useShortcutText();
+  const shortcut = command ? keys(command) : fixed;
   if (!show) return children;
   return (
     <Tooltip openDelay={350} positioning={{ placement: side, gutter: 10 }}>
@@ -48,6 +41,7 @@ export function Hinted({ label, shortcut, children, side = "top" }: HintedProps)
 interface ToolButtonProps extends ButtonProps {
   label: string;
   shortcut?: string;
+  command?: ShortcutId;
   active?: boolean;
   side?: HintedProps["side"];
 }
@@ -63,6 +57,7 @@ export const toolButtonClass = cn(
 export function ToolButton({
   label,
   shortcut,
+  command,
   active,
   side,
   className,
@@ -70,7 +65,7 @@ export function ToolButton({
   ...rest
 }: ToolButtonProps) {
   return (
-    <Hinted label={label} shortcut={shortcut} side={side}>
+    <Hinted command={command} label={label} shortcut={shortcut} side={side}>
       <Button
         aria-label={label}
         aria-pressed={active}

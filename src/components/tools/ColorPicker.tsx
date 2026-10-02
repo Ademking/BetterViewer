@@ -34,7 +34,7 @@ export function ColorPickerTool() {
       active={open || picking}
       label={t("Color picker")}
       onClick={() => (open ? closeColorPicker() : openColorPicker())}
-      shortcut="I"
+      command="colorPicker"
     >
       <PipetteIcon />
     </ToolButton>
