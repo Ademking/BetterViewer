@@ -21,7 +21,7 @@ export function MeasureToolButton() {
   const tool = useUi((s) => s.tool);
   const setTool = useUi((s) => s.setTool);
   return (
-    <ToolButton active={tool === "measure"} label={t("Measure")} onClick={() => setTool("measure")} shortcut="U">
+    <ToolButton active={tool === "measure"} label={t("Measure")} onClick={() => setTool("measure")} command="measure">
       <RulerDimensionLineIcon />
     </ToolButton>
   );
@@ -64,7 +64,7 @@ export function MeasureOptions() {
         ))}
       </SegmentGroup>
       <ToolbarDivider />
-      <Hinted label={t("Rulers & guides")} shortcut="Shift U">
+      <Hinted label={t("Rulers & guides")} command="rulers">
         <Toggle aria-label={t("Rulers")} onPressedChange={toggleRulers} pressed={rulers} size="md">
           <RulerIcon />
         </Toggle>

@@ -82,7 +82,7 @@ import { openColorPicker } from "@/components/tools/ColorPicker";
 import { startCrop } from "@/components/tools/CropTool";
 import { PixelateIcon } from "@/components/tools/RedactTool";
 import { SHAPE_ICONS } from "@/components/tools/ShapeTool";
-import { ALT, MOD } from "@/components/tools/ToolButton";
+import { MOD } from "@/components/tools/ToolButton";
 import {
   closeImage,
   copyImageToClipboard,
@@ -117,6 +117,7 @@ import { updateDoc, useDoc } from "@/state/document";
 import { getSettings, type BoardBackground, type ThemeMode } from "@/state/settings";
 import { scanCurrentImage } from "@/state/qr";
 import { getUi, useUi } from "@/state/ui";
+import { type ShortcutId, shortcutText } from "@/lib/shortcuts";
 import { t, tk, useT } from "@/lib/i18n";
 
 interface PaletteCommand {
@@ -143,19 +144,20 @@ function buildCommands(): PaletteCommand[] {
   const ui = getUi();
   const settings = getSettings();
   const hasSelection = ui.selectedIds.length > 0;
+  const keys = (id: ShortcutId) => shortcutText(id, settings.shortcuts);
   const cmds: PaletteCommand[] = [];
   const add = (group: string, c: Omit<PaletteCommand, "group">, when = true) => {
     if (when) cmds.push({ ...c, group: t(group) });
   };
 
   // File
-  add(tk("File"), { value: "open", label: t("Open image…"), icon: <ImageUpIcon />, shortcut: `${MOD} O`, keywords: "file load browse", run: openFilePicker });
+  add(tk("File"), { value: "open", label: t("Open image…"), icon: <ImageUpIcon />, shortcut: keys("openImage"), keywords: "file load browse", run: openFilePicker });
   add(tk("File"), { value: "insert-image", label: t("Insert image on top…"), icon: <ImagePlusIcon />, keywords: "add picture layer overlay logo watermark sticker", run: insertImagePicker }, !!useDoc.getState().doc);
   add(tk("File"), { value: "paste", label: t("Paste image from clipboard"), icon: <ClipboardPasteIcon />, shortcut: `${MOD} V`, run: () => void pasteFromClipboard() });
   add(tk("File"), { value: "sample", label: t("Open sample image"), icon: <SparklesIcon />, keywords: "demo example", run: () => void openSample() });
   // Save follows the Save format setting, like {MOD} S.
   const SAVE_LABEL = { png: "PNG", jpeg: "JPEG", webp: "WebP" } as const;
-  add(tk("File"), { value: "save", label: t("Save as {format}", { format: SAVE_LABEL[settings.saveFormat] }), icon: <DownloadIcon />, shortcut: `${MOD} S`, keywords: "export download", run: () => void exportImage() }, hasDoc);
+  add(tk("File"), { value: "save", label: t("Save as {format}", { format: SAVE_LABEL[settings.saveFormat] }), icon: <DownloadIcon />, shortcut: keys("save"), keywords: "export download", run: () => void exportImage() }, hasDoc);
   for (const f of ["png", "jpeg", "webp"] as const) {
     if (f === settings.saveFormat) continue;
     add(tk("File"), { value: `save-${f}`, label: t("Save as {format}", { format: SAVE_LABEL[f] }), icon: <DownloadIcon />, keywords: `export download${f === "jpeg" ? " jpg" : ""}`, run: () => void exportImage(f) }, hasDoc);
@@ -167,7 +169,7 @@ function buildCommands(): PaletteCommand[] {
     add(tk("File"), { value: `search-${e.id}`, label: t("Search on {engine}", { engine: e.name }), icon: <ImageUpscaleIcon />, keywords: "reverse image search source find similar", run: () => void searchImage(e.id) }, hasDoc);
   }
   add(tk("File"), { value: "compress", label: t("Compress & save…"), icon: <FileDownIcon />, keywords: "reduce file size quality optimize jpeg webp smaller", run: () => ui.togglePanel("compress", true) }, hasDoc);
-  add(tk("File"), { value: "copy-image", label: t("Copy image to clipboard"), icon: <CopyIcon />, shortcut: `${MOD} Shift C`, keywords: "modified edited", run: () => void copyImageToClipboard() }, hasDoc);
+  add(tk("File"), { value: "copy-image", label: t("Copy image to clipboard"), icon: <CopyIcon />, shortcut: keys("copyImage"), keywords: "modified edited", run: () => void copyImageToClipboard() }, hasDoc);
   add(tk("File"), { value: "copy-original", label: t("Copy original image"), icon: <CopyIcon />, keywords: "clipboard unedited source", run: () => void copyOriginalImage() }, hasDoc);
   add(tk("File"), {
     value: "close",
@@ -189,19 +191,19 @@ function buildCommands(): PaletteCommand[] {
     // Tools
     // After the palette has closed, so its focus restore doesn't dismiss the popover.
     add(tk("Tools"), { value: "tool-emoji", label: t("Insert emoji…"), icon: <SmileIcon />, keywords: "emoji sticker smiley face icon reaction", run: () => setTimeout(() => ui.set({ emojiPickerOpen: true }), 150) });
-    add(tk("Tools"), { value: "tool-select", label: t("Select"), icon: <MousePointer2Icon />, shortcut: "V", keywords: "move pointer", run: () => ui.setTool("select") });
-    add(tk("Tools"), { value: "tool-pan", label: t("Pan"), icon: <HandIcon />, shortcut: "H", keywords: "hand move", run: () => ui.setTool("pan") });
-    add(tk("Tools"), { value: "tool-pen", label: t("Draw with pen"), icon: <PencilIcon />, shortcut: "P", keywords: "freehand brush", run: () => ui.setDrawMode("pen") });
-    add(tk("Tools"), { value: "tool-highlighter", label: t("Highlighter"), icon: <HighlighterIcon />, shortcut: "Shift P", keywords: "marker draw", run: () => ui.setDrawMode("highlighter") });
-    add(tk("Tools"), { value: "tool-eraser", label: t("Eraser"), icon: <EraserIcon />, shortcut: "E", keywords: "erase remove strokes", run: () => ui.setDrawMode("eraser") });
-    add(tk("Tools"), { value: "tool-text", label: t("Add text"), icon: <TypeIcon />, shortcut: "T", keywords: "type label caption", run: () => ui.setTool("text") });
+    add(tk("Tools"), { value: "tool-select", label: t("Select"), icon: <MousePointer2Icon />, shortcut: keys("select"), keywords: "move pointer", run: () => ui.setTool("select") });
+    add(tk("Tools"), { value: "tool-pan", label: t("Pan"), icon: <HandIcon />, shortcut: keys("pan"), keywords: "hand move", run: () => ui.setTool("pan") });
+    add(tk("Tools"), { value: "tool-pen", label: t("Draw with pen"), icon: <PencilIcon />, shortcut: keys("pen"), keywords: "freehand brush", run: () => ui.setDrawMode("pen") });
+    add(tk("Tools"), { value: "tool-highlighter", label: t("Highlighter"), icon: <HighlighterIcon />, shortcut: keys("highlighter"), keywords: "marker draw", run: () => ui.setDrawMode("highlighter") });
+    add(tk("Tools"), { value: "tool-eraser", label: t("Eraser"), icon: <EraserIcon />, shortcut: keys("eraser"), keywords: "erase remove strokes", run: () => ui.setDrawMode("eraser") });
+    add(tk("Tools"), { value: "tool-text", label: t("Add text"), icon: <TypeIcon />, shortcut: keys("text"), keywords: "type label caption", run: () => ui.setTool("text") });
     add(tk("Tools"), { value: "straighten", label: t("Straighten…"), icon: <Axis3dIcon />, keywords: "straighten level horizon tilt rotate angle perspective keystone skew fix", run: startStraighten });
-    add(tk("Tools"), { value: "tool-measure", label: t("Measure distance / angle"), icon: <RulerDimensionLineIcon />, shortcut: "U", keywords: "measure ruler distance length angle protractor pixels", run: () => ui.setTool("measure") });
-    add(tk("Tools"), { value: "rulers", label: t("Show / hide rulers & guides"), icon: <RulerIcon />, shortcut: "Shift U", keywords: "rulers guides grid align", run: toggleRulers });
-    add(tk("Tools"), { value: "tool-spotlight", label: t("Spotlight an area"), icon: <SpotlightIcon />, shortcut: "G", keywords: "focus highlight dim darken emphasize attention", run: () => ui.setTool("spotlight") });
-    add(tk("Tools"), { value: "tool-redact", label: t("Blur / pixelate an area"), icon: <PixelateIcon />, shortcut: "M", keywords: "blur pixelate hide censor redact mosaic privacy face plate", run: () => ui.setTool("redact") });
-    add(tk("Tools"), { value: "tool-crop", label: t("Crop"), icon: <CropIcon />, shortcut: "C", keywords: "trim cut aspect", run: startCrop });
-    add(tk("Tools"), { value: "tool-eyedropper", label: t("Pick color from image"), icon: <PipetteIcon />, shortcut: "I", keywords: "eyedropper sample", run: openColorPicker });
+    add(tk("Tools"), { value: "tool-measure", label: t("Measure distance / angle"), icon: <RulerDimensionLineIcon />, shortcut: keys("measure"), keywords: "measure ruler distance length angle protractor pixels", run: () => ui.setTool("measure") });
+    add(tk("Tools"), { value: "rulers", label: t("Show / hide rulers & guides"), icon: <RulerIcon />, shortcut: keys("rulers"), keywords: "rulers guides grid align", run: toggleRulers });
+    add(tk("Tools"), { value: "tool-spotlight", label: t("Spotlight an area"), icon: <SpotlightIcon />, shortcut: keys("spotlight"), keywords: "focus highlight dim darken emphasize attention", run: () => ui.setTool("spotlight") });
+    add(tk("Tools"), { value: "tool-redact", label: t("Blur / pixelate an area"), icon: <PixelateIcon />, shortcut: keys("redact"), keywords: "blur pixelate hide censor redact mosaic privacy face plate", run: () => ui.setTool("redact") });
+    add(tk("Tools"), { value: "tool-crop", label: t("Crop"), icon: <CropIcon />, shortcut: keys("crop"), keywords: "trim cut aspect", run: startCrop });
+    add(tk("Tools"), { value: "tool-eyedropper", label: t("Pick color from image"), icon: <PipetteIcon />, shortcut: keys("colorPicker"), keywords: "eyedropper sample", run: openColorPicker });
 
     // Shapes
     for (const group of SHAPE_GROUPS) {
@@ -217,16 +219,16 @@ function buildCommands(): PaletteCommand[] {
     }
 
     // View
-    add(tk("View"), { value: "zoom-in", label: t("Zoom in"), icon: <PlusIcon />, shortcut: `${MOD} +`, run: zoomIn });
-    add(tk("View"), { value: "zoom-out", label: t("Zoom out"), icon: <MinusIcon />, shortcut: `${MOD} −`, run: zoomOut });
-    add(tk("View"), { value: "zoom-fit", label: t("Fit to screen"), icon: <MaximizeIcon />, shortcut: "0", keywords: "zoom", run: zoomFit });
-    add(tk("View"), { value: "zoom-actual", label: t("Actual size (100%)"), icon: <ScanIcon />, shortcut: "1", keywords: "zoom 1:1", run: zoomActual });
-    add(tk("View"), { value: "zoom-selection", label: t("Zoom to selection"), icon: <SquareDashedMousePointerIcon />, shortcut: "2", run: zoomToSelection }, hasSelection);
+    add(tk("View"), { value: "zoom-in", label: t("Zoom in"), icon: <PlusIcon />, shortcut: keys("zoomIn"), run: zoomIn });
+    add(tk("View"), { value: "zoom-out", label: t("Zoom out"), icon: <MinusIcon />, shortcut: keys("zoomOut"), run: zoomOut });
+    add(tk("View"), { value: "zoom-fit", label: t("Fit to screen"), icon: <MaximizeIcon />, shortcut: keys("zoomFit"), keywords: "zoom", run: zoomFit });
+    add(tk("View"), { value: "zoom-actual", label: t("Actual size (100%)"), icon: <ScanIcon />, shortcut: keys("zoomActual"), keywords: "zoom 1:1", run: zoomActual });
+    add(tk("View"), { value: "zoom-selection", label: t("Zoom to selection"), icon: <SquareDashedMousePointerIcon />, shortcut: keys("zoomSelection"), run: zoomToSelection }, hasSelection);
     add(tk("View"), {
       value: "toggle-toolbar",
       label: settings.showToolbar ? t("Hide toolbar") : t("Show toolbar"),
       icon: <PanelBottomIcon />,
-      shortcut: "Tab",
+      shortcut: keys("toggleInterface"),
       keywords: "interface chrome",
       run: () => settings.set("showToolbar", !getSettings().showToolbar),
     });
@@ -234,25 +236,25 @@ function buildCommands(): PaletteCommand[] {
       value: "toggle-navigator",
       label: settings.showNavigator ? t("Hide navigator") : t("Show navigator"),
       icon: <MapIcon />,
-      shortcut: "Shift N",
+      shortcut: keys("navigator"),
       keywords: "minimap overview thumbnail map pan position",
       run: toggleNavigator,
     });
 
     // Transform
-    add(tk("Transform"), { value: "resize", label: t("Resize image…"), icon: <ScalingIcon />, shortcut: `${MOD} ${ALT} I`, keywords: "scale dimensions width height smaller bigger pixels", run: () => ui.togglePanel("resize", true) });
-    add(tk("Transform"), { value: "rotate-right", label: t("Rotate right"), icon: <RotateCwIcon />, shortcut: "R", keywords: "clockwise 90", run: () => rotate(1) });
-    add(tk("Transform"), { value: "rotate-left", label: t("Rotate left"), icon: <RotateCcwIcon />, shortcut: "Shift R", keywords: "counterclockwise 90", run: () => rotate(-1) });
-    add(tk("Transform"), { value: "flip-h", label: t("Flip horizontal"), icon: <MirrorRectangularIcon />, shortcut: "Shift H", keywords: "mirror", run: flipHorizontal });
-    add(tk("Transform"), { value: "flip-v", label: t("Flip vertical"), icon: <MirrorRectangularIcon className="rotate-90" />, shortcut: "Shift V", keywords: "mirror", run: flipVertical });
+    add(tk("Transform"), { value: "resize", label: t("Resize image…"), icon: <ScalingIcon />, shortcut: keys("resize"), keywords: "scale dimensions width height smaller bigger pixels", run: () => ui.togglePanel("resize", true) });
+    add(tk("Transform"), { value: "rotate-right", label: t("Rotate right"), icon: <RotateCwIcon />, shortcut: keys("rotateRight"), keywords: "clockwise 90", run: () => rotate(1) });
+    add(tk("Transform"), { value: "rotate-left", label: t("Rotate left"), icon: <RotateCcwIcon />, shortcut: keys("rotateLeft"), keywords: "counterclockwise 90", run: () => rotate(-1) });
+    add(tk("Transform"), { value: "flip-h", label: t("Flip horizontal"), icon: <MirrorRectangularIcon />, shortcut: keys("flipHorizontal"), keywords: "mirror", run: flipHorizontal });
+    add(tk("Transform"), { value: "flip-v", label: t("Flip vertical"), icon: <MirrorRectangularIcon className="rotate-90" />, shortcut: keys("flipVertical"), keywords: "mirror", run: flipVertical });
 
     // Edit
-    add(tk("Edit"), { value: "undo", label: t("Undo"), icon: <Undo2Icon />, shortcut: `${MOD} Z`, run: undo }, past.length > 0);
-    add(tk("Edit"), { value: "redo", label: t("Redo"), icon: <Redo2Icon />, shortcut: `${MOD} Shift Z`, run: redo }, future.length > 0);
-    add(tk("Edit"), { value: "select-all", label: t("Select all annotations"), icon: <SquareDashedMousePointerIcon />, shortcut: `${MOD} A`, run: selectAll });
-    add(tk("Edit"), { value: "duplicate", label: t("Duplicate selection"), icon: <CopyPlusIcon />, shortcut: `${MOD} D`, run: duplicateSelected }, hasSelection);
-    add(tk("Edit"), { value: "front", label: t("Bring to front"), icon: <ArrowUpToLineIcon />, shortcut: "]", keywords: "order arrange", run: () => reorderSelected("front") }, hasSelection);
-    add(tk("Edit"), { value: "back", label: t("Send to back"), icon: <ArrowDownToLineIcon />, shortcut: "[", keywords: "order arrange", run: () => reorderSelected("back") }, hasSelection);
+    add(tk("Edit"), { value: "undo", label: t("Undo"), icon: <Undo2Icon />, shortcut: keys("undo"), run: undo }, past.length > 0);
+    add(tk("Edit"), { value: "redo", label: t("Redo"), icon: <Redo2Icon />, shortcut: keys("redo"), run: redo }, future.length > 0);
+    add(tk("Edit"), { value: "select-all", label: t("Select all annotations"), icon: <SquareDashedMousePointerIcon />, shortcut: keys("selectAll"), run: selectAll });
+    add(tk("Edit"), { value: "duplicate", label: t("Duplicate selection"), icon: <CopyPlusIcon />, shortcut: keys("duplicate"), run: duplicateSelected }, hasSelection);
+    add(tk("Edit"), { value: "front", label: t("Bring to front"), icon: <ArrowUpToLineIcon />, shortcut: keys("bringToFront"), keywords: "order arrange", run: () => reorderSelected("front") }, hasSelection);
+    add(tk("Edit"), { value: "back", label: t("Send to back"), icon: <ArrowDownToLineIcon />, shortcut: keys("sendToBack"), keywords: "order arrange", run: () => reorderSelected("back") }, hasSelection);
     add(tk("Edit"), { value: "delete", label: t("Delete selection"), icon: <TrashIcon />, shortcut: "Del", keywords: "remove", run: () => void deleteSelected() }, hasSelection);
     add(tk("Edit"), {
       value: "reset",
@@ -281,21 +283,21 @@ function buildCommands(): PaletteCommand[] {
     }
 
     // Panels
-    add(tk("Panels"), { value: "panel-adjust", label: t("Adjustments"), icon: <SlidersHorizontalIcon />, shortcut: "F", keywords: "filters brightness contrast saturation", run: () => ui.togglePanel("adjust", true) });
+    add(tk("Panels"), { value: "panel-adjust", label: t("Adjustments"), icon: <SlidersHorizontalIcon />, shortcut: keys("adjust"), keywords: "filters brightness contrast saturation", run: () => ui.togglePanel("adjust", true) });
     add(tk("Panels"), { value: "panel-color", label: t("Color panel"), icon: <PaletteIcon />, keywords: "color picker hex rgb", run: () => ui.togglePanel("color", true) });
     add(tk("Panels"), { value: "ocr", label: t("Extract text (OCR)"), icon: <ScanTextIcon />, keywords: "ocr read text copy recognize scan words", run: openOcr });
     add(tk("Edit"), { value: "remove-bg", label: t("Remove background"), icon: <EraserIcon />, keywords: "cutout transparent subject isolate erase background ai", run: () => void removeBackground() });
-    add(tk("Panels"), { value: "panel-qr", label: t("Scan for QR codes"), icon: <QrCodeIcon />, shortcut: "Q", keywords: "qrcode barcode scan read decode link", run: () => void scanCurrentImage({ reveal: true }) });
+    add(tk("Panels"), { value: "panel-qr", label: t("Scan for QR codes"), icon: <QrCodeIcon />, shortcut: keys("scanQr"), keywords: "qrcode barcode scan read decode link", run: () => void scanCurrentImage({ reveal: true }) });
     add(tk("Panels"), { value: "auto-enhance", label: t("Auto enhance"), icon: <WandSparklesIcon />, keywords: "auto fix improve levels white balance magic", run: () => void autoEnhance() });
-    add(tk("Panels"), { value: "panel-curves", label: t("Histogram"), icon: <ChartSplineIcon />, shortcut: "Shift C", keywords: "curves tone levels contrast exposure histogram rgb channels", run: () => ui.togglePanel("curves", true) });
+    add(tk("Panels"), { value: "panel-curves", label: t("Histogram"), icon: <ChartSplineIcon />, shortcut: keys("curves"), keywords: "curves tone levels contrast exposure histogram rgb channels", run: () => ui.togglePanel("curves", true) });
     add(tk("Panels"), { value: "panel-history", label: t("History"), icon: <HistoryIcon />, keywords: "undo redo steps changes edits back", run: () => ui.togglePanel("history", true) });
-    add(tk("Panels"), { value: "panel-layers", label: t("Layers"), icon: <LayersIcon />, shortcut: "Shift L", keywords: "objects order arrange stack hide show delete", run: () => ui.togglePanel("layers", true) });
+    add(tk("Panels"), { value: "panel-layers", label: t("Layers"), icon: <LayersIcon />, shortcut: keys("layers"), keywords: "objects order arrange stack hide show delete", run: () => ui.togglePanel("layers", true) });
     add(tk("Panels"), { value: "panel-info", label: t("Image info"), icon: <InfoIcon />, keywords: "details size dimensions metadata", run: () => ui.togglePanel("info", true) });
   }
 
-  add(tk("Panels"), { value: "panel-settings", label: t("Settings"), icon: <Settings2Icon />, shortcut: `${MOD} ,`, keywords: "preferences options", run: () => ui.togglePanel("settings", true) });
+  add(tk("Panels"), { value: "panel-settings", label: t("Settings"), icon: <Settings2Icon />, shortcut: keys("settings"), keywords: "preferences options", run: () => ui.togglePanel("settings", true) });
   add(tk("Panels"), { value: "panel-about", label: t("About BetterViewer"), icon: <BadgeInfoIcon />, keywords: "version github star credits author help", run: () => ui.togglePanel("about", true) });
-  add(tk("Panels"), { value: "panel-shortcuts", label: t("Keyboard shortcuts"), icon: <KeyboardIcon />, shortcut: "?", keywords: "keys help", run: () => ui.togglePanel("shortcuts", true) });
+  add(tk("Panels"), { value: "panel-shortcuts", label: t("Keyboard shortcuts"), icon: <KeyboardIcon />, shortcut: keys("shortcuts"), keywords: "keys help", run: () => ui.togglePanel("shortcuts", true) });
 
   // Appearance
   for (const [mode, label] of Object.entries(BOARD_LABELS) as [BoardBackground, string][]) {

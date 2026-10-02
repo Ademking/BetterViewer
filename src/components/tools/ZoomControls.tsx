@@ -4,8 +4,9 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { SegmentGroup, SegmentGroupItem, SegmentGroupItemText } from "@/components/ui/segment-group";
 import { Separator } from "@/components/ui/separator";
 import { Slider } from "@/components/ui/slider";
-import { Hinted, MOD, ToolButton } from "@/components/tools/ToolButton";
+import { Hinted, ToolButton } from "@/components/tools/ToolButton";
 import { zoomActual, zoomFit, zoomIn, zoomOut, zoomToSelection } from "@/lib/actions";
+import { type ShortcutId, useShortcutText } from "@/lib/shortcuts";
 import { MAX_SCALE, MIN_SCALE, useView, viewport } from "@/lib/viewport";
 import { cn } from "@/lib/utils";
 import { useUi } from "@/state/ui";
@@ -27,7 +28,7 @@ export function ZoomControls({ compact = false }: { compact?: boolean }) {
   return (
     <div className="flex items-center gap-0.5">
       {!compact && (
-        <ToolButton label={t("Zoom out")} onClick={zoomOut} shortcut={`${MOD} −`}>
+        <ToolButton label={t("Zoom out")} onClick={zoomOut} command="zoomOut">
           <MinusIcon />
         </ToolButton>
       )}
@@ -73,25 +74,25 @@ export function ZoomControls({ compact = false }: { compact?: boolean }) {
           </SegmentGroup>
           <Separator />
           <div className="grid gap-0.5">
-            <ZoomRow icon={<MaximizeIcon />} label={t("Fit to screen")} onClick={zoomFit} shortcut="0" />
-            <ZoomRow icon={<span className="font-semibold text-[10px]">1:1</span>} label={t("Actual size (100%)")} onClick={zoomActual} shortcut="1" />
+            <ZoomRow icon={<MaximizeIcon />} label={t("Fit to screen")} command="zoomFit" onClick={zoomFit} />
+            <ZoomRow icon={<span className="font-semibold text-[10px]">1:1</span>} label={t("Actual size (100%)")} command="zoomActual" onClick={zoomActual} />
             <ZoomRow
               disabled={!hasSelection}
               icon={<ScanIcon />}
               label={t("Zoom to selection")}
               onClick={zoomToSelection}
-              shortcut="2"
+              command="zoomSelection"
             />
           </div>
         </PopoverContent>
       </Popover>
       {!compact && (
-        <ToolButton label={t("Zoom in")} onClick={zoomIn} shortcut={`${MOD} +`}>
+        <ToolButton label={t("Zoom in")} onClick={zoomIn} command="zoomIn">
           <PlusIcon />
         </ToolButton>
       )}
       {!compact && (
-        <ToolButton label={t("Fit to screen")} onClick={zoomFit} shortcut="0">
+        <ToolButton label={t("Fit to screen")} command="zoomFit" onClick={zoomFit}>
           <MaximizeIcon />
         </ToolButton>
       )}
@@ -102,16 +103,17 @@ export function ZoomControls({ compact = false }: { compact?: boolean }) {
 function ZoomRow({
   icon,
   label,
-  shortcut,
+  command,
   onClick,
   disabled,
 }: {
   icon: React.ReactNode;
   label: string;
-  shortcut: string;
+  command: ShortcutId;
   onClick: () => void;
   disabled?: boolean;
 }) {
+  const shortcut = useShortcutText()(command);
   return (
     <button
       className="flex items-center gap-2.5 rounded-md px-2 py-1.5 text-left text-sm hover:bg-accent disabled:pointer-events-none disabled:opacity-50 [&_svg]:size-4"
@@ -121,7 +123,7 @@ function ZoomRow({
     >
       <span className="flex size-4 items-center justify-center text-muted-foreground">{icon}</span>
       <span className="flex-1">{label}</span>
-      <Kbd>{shortcut}</Kbd>
+      {shortcut && <Kbd>{shortcut}</Kbd>}
     </button>
   );
 }

@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import type { ShortcutOverrides } from "@/lib/shortcuts";
 
 export type BoardBackground = "blur" | "black" | "white" | "grid";
 export type ThemeMode = "dark" | "light" | "system";
@@ -41,6 +42,8 @@ export interface Settings {
   returnToSelect: boolean;
   incomingImage: IncomingImageAction;
   saveFormat: SaveFormat;
+  /** Keyboard shortcuts changed from the defaults (src/lib/shortcuts.ts). */
+  shortcuts: ShortcutOverrides;
   /** Emoji picker: last used (newest first) and skin tone (0 = default). */
   recentEmojis: string[];
   emojiSkinTone: number;
@@ -74,6 +77,7 @@ export const DEFAULT_SETTINGS: Settings = {
   returnToSelect: true,
   incomingImage: "ask",
   saveFormat: "png",
+  shortcuts: {},
   recentEmojis: [],
   emojiSkinTone: 0,
   uploadProvider: "kappa",

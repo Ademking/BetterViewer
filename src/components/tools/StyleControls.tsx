@@ -27,7 +27,7 @@ import { Toggle } from "@/components/ui/toggle";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { ColorField } from "@/components/tools/ColorField";
 import { FontPicker } from "@/components/tools/FontPicker";
-import { Hinted, MOD, ToolbarDivider, ToolButton } from "@/components/tools/ToolButton";
+import { Hinted, ToolbarDivider, ToolButton } from "@/components/tools/ToolButton";
 import {
   applyColor,
   applyFill,
@@ -644,13 +644,13 @@ export function SelectionActions() {
   const t = useT();
   return (
     <>
-      <ToolButton label={t("Duplicate")} onClick={duplicateSelected} shortcut={`${MOD} D`}>
+      <ToolButton label={t("Duplicate")} onClick={duplicateSelected} command="duplicate">
         <CopyPlusIcon />
       </ToolButton>
-      <ToolButton label={t("Bring to front")} onClick={() => reorderSelected("front")} shortcut="]">
+      <ToolButton label={t("Bring to front")} command="bringToFront" onClick={() => reorderSelected("front")}>
         <ArrowUpToLineIcon />
       </ToolButton>
-      <ToolButton label={t("Send to back")} onClick={() => reorderSelected("back")} shortcut="[">
+      <ToolButton label={t("Send to back")} command="sendToBack" onClick={() => reorderSelected("back")}>
         <ArrowDownToLineIcon />
       </ToolButton>
       <ToolButton

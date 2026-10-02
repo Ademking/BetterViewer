@@ -95,6 +95,7 @@ import { type BoardBackground, type SaveFormat, useSettings } from "@/state/sett
 import { hasEdits, useDoc } from "@/state/document";
 import { scanCurrentImage } from "@/state/qr";
 import { useUi } from "@/state/ui";
+import { useShortcutText } from "@/lib/shortcuts";
 import { useT } from "@/lib/i18n";
 
 export function ViewerToolbar() {
@@ -114,11 +115,11 @@ export function ViewerToolbar() {
       role="toolbar"
       aria-label={t("Tools")}
     >
-      <ToolButton active={tool === "select"} label={t("Select")} onClick={() => setTool("select")} shortcut="V">
+      <ToolButton active={tool === "select"} label={t("Select")} onClick={() => setTool("select")} command="select">
         <MousePointer2Icon />
       </ToolButton>
       <div className="flex max-sm:hidden">
-        <ToolButton active={tool === "pan"} label={t("Pan")} onClick={() => setTool("pan")} shortcut="H">
+        <ToolButton active={tool === "pan"} label={t("Pan")} onClick={() => setTool("pan")} command="pan">
           <HandIcon />
         </ToolButton>
       </div>
@@ -134,14 +135,14 @@ export function ViewerToolbar() {
 
       <ToolbarDivider />
 
-      <ToolButton active={tool === "crop"} label={t("Crop")} onClick={startCrop} shortcut="C">
+      <ToolButton active={tool === "crop"} label={t("Crop")} command="crop" onClick={startCrop}>
         <CropIcon />
       </ToolButton>
       <ToolButton
         active={adjustOpen}
         label={t("Adjustments")}
         onClick={() => togglePanel("adjust")}
-        shortcut="F"
+        command="adjust"
       >
         <SlidersHorizontalIcon />
         {filtersActive && !adjustOpen && (
@@ -155,7 +156,7 @@ export function ViewerToolbar() {
           active={layersOpen}
           label={t("Layers")}
           onClick={() => togglePanel("layers")}
-          shortcut="Shift L"
+          command="layers"
         >
           <LayersIcon />
         </ToolButton>
@@ -176,10 +177,10 @@ export function ViewerToolbar() {
 
       <ToolbarDivider className="max-md:hidden" />
       <div className="flex items-center gap-0.5 max-md:hidden">
-        <ToolButton disabled={!canUndo} label={t("Undo")} onClick={undo} shortcut={`${MOD} Z`}>
+        <ToolButton disabled={!canUndo} label={t("Undo")} onClick={undo} command="undo">
           <Undo2Icon />
         </ToolButton>
-        <ToolButton disabled={!canRedo} label={t("Redo")} onClick={redo} shortcut={`${MOD} Shift Z`}>
+        <ToolButton disabled={!canRedo} label={t("Redo")} onClick={redo} command="redo">
           <Redo2Icon />
         </ToolButton>
       </div>
@@ -197,6 +198,7 @@ const SUB = { placement: "left-start", gutter: 4 } as const;
 
 function MoreMenu({ canUndo, canRedo }: { canUndo: boolean; canRedo: boolean }) {
   const t = useT();
+  const keys = useShortcutText();
   const sourceUrl = useDoc((s) => s.original?.sourceUrl);
   const board = useSettings((s) => s.boardBackground);
   const set = useSettings((s) => s.set);
@@ -217,7 +219,7 @@ function MoreMenu({ canUndo, canRedo }: { canUndo: boolean; canRedo: boolean }) 
       <MenuContent className="w-max min-w-60">
         <MenuItem onSelect={() => togglePanel("command", true)} value="command">
           <CommandIcon /> {t("Quick launch…")}
-          <MenuShortcut>{MOD} K</MenuShortcut>
+          <MenuShortcut>{keys("commandPalette")}</MenuShortcut>
         </MenuItem>
         <MenuSeparator />
 
@@ -228,7 +230,7 @@ function MoreMenu({ canUndo, canRedo }: { canUndo: boolean; canRedo: boolean }) 
           <MenuSubContent className="w-max min-w-56">
             <MenuItem onSelect={openFilePicker} value="open">
               <ImageUpIcon /> {t("Open image…")}
-              <MenuShortcut>{MOD} O</MenuShortcut>
+              <MenuShortcut>{keys("openImage")}</MenuShortcut>
             </MenuItem>
             <MenuItem onSelect={insertImagePicker} value="insert">
               <ImagePlusIcon /> {t("Insert image on top…")}
@@ -255,7 +257,7 @@ function MoreMenu({ canUndo, canRedo }: { canUndo: boolean; canRedo: boolean }) 
             {/* The Save format setting, like {MOD} S. */}
             <MenuItem onSelect={() => exportImage()} value="save">
               <DownloadIcon /> {t("Save as {format}", { format: SAVE_LABEL[saveFormat] })}
-              <MenuShortcut>{MOD} S</MenuShortcut>
+              <MenuShortcut>{keys("save")}</MenuShortcut>
             </MenuItem>
             <MenuSeparator />
             <MenuGroup heading={t("Other formats")}>
@@ -278,7 +280,7 @@ function MoreMenu({ canUndo, canRedo }: { canUndo: boolean; canRedo: boolean }) 
         </MenuSub>
         <MenuItem onSelect={copyImageToClipboard} value="copy">
           <CopyIcon /> {t("Copy image")}
-          <MenuShortcut>{MOD} Shift C</MenuShortcut>
+          <MenuShortcut>{keys("copyImage")}</MenuShortcut>
         </MenuItem>
         <MenuSeparator />
 
@@ -295,12 +297,12 @@ function MoreMenu({ canUndo, canRedo }: { canUndo: boolean; canRedo: boolean }) 
             </MenuItem>
             <MenuItem onSelect={() => scanCurrentImage({ reveal: true })} value="qr">
               <QrCodeIcon /> {t("Scan QR codes")}
-              <MenuShortcut>Q</MenuShortcut>
+              <MenuShortcut>{keys("scanQr")}</MenuShortcut>
             </MenuItem>
             <MenuSeparator />
             <MenuItem onSelect={() => togglePanel("curves", true)} value="curves">
               <ChartSplineIcon /> {t("Histogram")}
-              <MenuShortcut>Shift C</MenuShortcut>
+              <MenuShortcut>{keys("curves")}</MenuShortcut>
             </MenuItem>
             <MenuItem onSelect={() => togglePanel("info", true)} value="info">
               <InfoIcon /> {t("Image info")}
@@ -340,18 +342,18 @@ function MoreMenu({ canUndo, canRedo }: { canUndo: boolean; canRedo: boolean }) 
           <MenuSubContent className="w-max min-w-56">
             <MenuItem onSelect={() => togglePanel("layers", true)} value="layers">
               <LayersIcon /> {t("Layers")}
-              <MenuShortcut>Shift L</MenuShortcut>
+              <MenuShortcut>{keys("layers")}</MenuShortcut>
             </MenuItem>
             <MenuItem onSelect={() => togglePanel("history", true)} value="history">
               <HistoryIcon /> {t("History")}
             </MenuItem>
             <MenuItem closeOnSelect={false} onSelect={toggleRulers} value="rulers">
               <RulerIcon /> {t("Rulers & guides")}
-              {rulers ? <CheckIcon className="ms-auto text-brand" /> : <MenuShortcut>Shift U</MenuShortcut>}
+              {rulers ? <CheckIcon className="ms-auto text-brand" /> : <MenuShortcut>{keys("rulers")}</MenuShortcut>}
             </MenuItem>
             <MenuItem closeOnSelect={false} onSelect={toggleNavigator} value="navigator">
               <MapIcon /> {t("Navigator")}
-              {navigatorShown ? <CheckIcon className="ms-auto text-brand" /> : <MenuShortcut>Shift N</MenuShortcut>}
+              {navigatorShown ? <CheckIcon className="ms-auto text-brand" /> : <MenuShortcut>{keys("navigator")}</MenuShortcut>}
             </MenuItem>
             <MenuSeparator />
             <MenuRadioGroup
@@ -404,7 +406,7 @@ function MoreMenu({ canUndo, canRedo }: { canUndo: boolean; canRedo: boolean }) 
         <MenuSeparator />
         <MenuItem onSelect={() => togglePanel("settings", true)} value="settings">
           <Settings2Icon /> {t("Settings")}
-          <MenuShortcut>{MOD} ,</MenuShortcut>
+          <MenuShortcut>{keys("settings")}</MenuShortcut>
         </MenuItem>
         <MenuSub positioning={SUB}>
           <MenuSubTrigger>
@@ -413,7 +415,7 @@ function MoreMenu({ canUndo, canRedo }: { canUndo: boolean; canRedo: boolean }) 
           <MenuSubContent className="w-max min-w-56">
             <MenuItem onSelect={() => togglePanel("shortcuts", true)} value="shortcuts">
               <KeyboardIcon /> {t("Keyboard shortcuts")}
-              <MenuShortcut>?</MenuShortcut>
+              <MenuShortcut>{keys("shortcuts")}</MenuShortcut>
             </MenuItem>
             <MenuItem onSelect={() => togglePanel("about", true)} value="about">
               <BadgeInfoIcon /> {t("About BetterViewer")}

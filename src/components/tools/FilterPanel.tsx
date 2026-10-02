@@ -95,7 +95,7 @@ export function FilterPanel() {
         >
           <WandSparklesIcon /> {t("Auto enhance")}
         </Button>
-        <Hinted label={t("Curves, levels and histogram")} shortcut="Shift C">
+        <Hinted label={t("Curves, levels and histogram")} command="curves">
           <Button className="w-full" onClick={() => togglePanel("curves", true)} size="sm" variant="outline">
             <ChartSplineIcon /> {t("Levels & curves")}
           </Button>

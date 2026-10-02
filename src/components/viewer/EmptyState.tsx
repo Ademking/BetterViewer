@@ -6,6 +6,8 @@ import { Kbd, KbdGroup } from "@/components/ui/kbd";
 import { Spinner } from "@/components/ui/spinner";
 import { MOD } from "@/components/tools/ToolButton";
 import { openFilePicker, openSample, pasteFromClipboard } from "@/lib/actions";
+import { comboParts, shortcutKeys } from "@/lib/shortcuts";
+import { useSettings } from "@/state/settings";
 import { useUi } from "@/state/ui";
 import { useT } from "@/lib/i18n";
 import { withSlots } from "@/lib/i18n-react";
@@ -70,6 +72,9 @@ function GetTheExtension() {
 
 export function EmptyState() {
   const t = useT();
+  const overrides = useSettings((s) => s.shortcuts);
+  const paletteKeys = shortcutKeys("commandPalette", overrides)[0];
+  const openKeys = shortcutKeys("openImage", overrides)[0];
   const loading = useUi((s) => s.loading);
 
   return (
@@ -165,22 +170,26 @@ export function EmptyState() {
             </Button>
           </div>
 
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-1.5 text-muted-foreground text-xs">
-            {withSlots(t("Press {palette} for every command, or {open} to open a file"), {
-              palette: (
-                <KbdGroup>
-                  <Kbd>{MOD}</Kbd>
-                  <Kbd>K</Kbd>
-                </KbdGroup>
-              ),
-              open: (
-                <KbdGroup>
-                  <Kbd>{MOD}</Kbd>
-                  <Kbd>O</Kbd>
-                </KbdGroup>
-              ),
-            })}
-          </div>
+          {paletteKeys && openKeys && (
+            <div className="mt-6 flex flex-wrap items-center justify-center gap-1.5 text-muted-foreground text-xs">
+              {withSlots(t("Press {palette} for every command, or {open} to open a file"), {
+                palette: (
+                  <KbdGroup>
+                    {comboParts(paletteKeys).map((k) => (
+                      <Kbd key={k}>{k}</Kbd>
+                    ))}
+                  </KbdGroup>
+                ),
+                open: (
+                  <KbdGroup>
+                    {comboParts(openKeys).map((k) => (
+                      <Kbd key={k}>{k}</Kbd>
+                    ))}
+                  </KbdGroup>
+                ),
+              })}
+            </div>
+          )}
 
           {!isExtension && <GetTheExtension />}
         </div>

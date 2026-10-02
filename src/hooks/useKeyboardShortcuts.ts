@@ -32,6 +32,7 @@ import { getDoc } from "@/state/document";
 import { scanCurrentImage } from "@/state/qr";
 import { getUi, useUi } from "@/state/ui";
 import { getSettings, useSettings } from "@/state/settings";
+import { comboFromEvent, findShortcut, SHORTCUT_BY_ID, type ShortcutId } from "@/lib/shortcuts";
 
 const isTyping = (t: EventTarget | null) => {
   const el = t as HTMLElement | null;
@@ -50,16 +51,61 @@ const overlayOpen = () =>
     '[data-scope="dialog"][data-part="content"][data-state="open"], [data-scope="menu"][data-part="content"][data-state="open"], [data-scope="popover"][data-part="content"][data-state="open"]'
   );
 
-/**
- * The key a shortcut matches, lowercased. Letters come from the layout, so
- * AZERTY's A and QWERTZ's Z are still A and Z; a layout that types other
- * letters (Cyrillic, Greek, Arabic…) uses the key's US-layout letter instead.
- */
-const shortcutKey = (e: KeyboardEvent) => {
-  const key = e.key.toLowerCase();
-  if (key.length === 1 && /\p{L}/u.test(key) && !/[a-z]/.test(key) && e.code.startsWith("Key"))
-    return e.code.slice(3).toLowerCase();
-  return key;
+/** What each customizable shortcut does (keys and names: src/lib/shortcuts.ts). */
+const RUN: Record<ShortcutId, () => void> = {
+  select: () => getUi().setTool("select"),
+  pan: () => getUi().setTool("pan"),
+  pen: () => getUi().setDrawMode("pen"),
+  highlighter: () => getUi().setDrawMode("highlighter"),
+  eraser: () => getUi().setDrawMode("eraser"),
+  rectangle: () => getUi().setShapeKind("rect"),
+  ellipse: () => getUi().setShapeKind("ellipse"),
+  line: () => getUi().setShapeKind("line"),
+  arrow: () => getUi().setShapeKind("arrow"),
+  counter: () => getUi().setShapeKind("counter"),
+  redact: () => getUi().setTool("redact"),
+  spotlight: () => getUi().setTool("spotlight"),
+  measure: () => getUi().setTool("measure"),
+  rulers: toggleRulers,
+  text: () => getUi().setTool("text"),
+  colorPicker: openColorPicker,
+  crop: startCrop,
+  adjust: () => getUi().togglePanel("adjust"),
+  curves: () => getUi().togglePanel("curves"),
+  layers: () => getUi().togglePanel("layers"),
+  scanQr: () => void scanCurrentImage({ reveal: true }),
+
+  zoomIn,
+  zoomOut,
+  zoomFit,
+  zoomActual,
+  zoomSelection: zoomToSelection,
+  rotateRight: () => rotate(1),
+  rotateLeft: () => rotate(-1),
+  flipHorizontal,
+  flipVertical,
+  resize: () => getUi().togglePanel("resize", true),
+  navigator: toggleNavigator,
+  toggleInterface: () => {
+    const s = getSettings();
+    s.set("showToolbar", !s.showToolbar);
+  },
+
+  undo,
+  redo,
+  duplicate: duplicateSelected,
+  selectAll,
+  bringToFront: () => reorderSelected("front"),
+  sendToBack: () => reorderSelected("back"),
+  bringForward: () => reorderSelected("forward"),
+  sendBackward: () => reorderSelected("backward"),
+
+  commandPalette: () => getUi().togglePanel("command"),
+  openImage: openFilePicker,
+  save: () => void exportImage(),
+  copyImage: () => void copyImageToClipboard(),
+  settings: () => getUi().togglePanel("settings", true),
+  shortcuts: () => getUi().togglePanel("shortcuts"),
 };
 
 export function useKeyboardShortcuts() {
@@ -67,28 +113,15 @@ export function useKeyboardShortcuts() {
     const onKeyDown = (e: KeyboardEvent) => {
       if (isTyping(e.target)) return;
       const ui = getUi();
-      const mod = e.ctrlKey || e.metaKey;
-      const key = shortcutKey(e);
       const hasDoc = !!getDoc();
+      const combo = comboFromEvent(e);
+      const id = combo ? findShortcut(combo) : undefined;
+      const when = id && SHORTCUT_BY_ID[id].when;
 
       // Global (work without an image)
-      if (mod && key === "k") {
+      if (id && (when === "always" || (when === "noOverlay" && !overlayOpen()))) {
         e.preventDefault();
-        ui.togglePanel("command");
-        return;
-      }
-      if (mod && key === "o") {
-        e.preventDefault();
-        openFilePicker();
-        return;
-      }
-      if (mod && e.key === ",") {
-        e.preventDefault();
-        ui.togglePanel("settings", true);
-        return;
-      }
-      if (e.key === "?" && !overlayOpen()) {
-        ui.togglePanel("shortcuts");
+        RUN[id]();
         return;
       }
       // Right-click overlay: Esc goes back to the page once nothing else uses it.
@@ -104,206 +137,62 @@ export function useKeyboardShortcuts() {
         return;
       }
 
-      if (mod && e.altKey && key === "i") {
+      // Fixed keys (no Ctrl / ⌘ / Alt)
+      if (!e.ctrlKey && !e.metaKey && !e.altKey) {
+        // Straighten mode keys
+        if (ui.tool === "straighten") {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            void applyStraighten();
+            return;
+          }
+          if (e.key === "Escape") {
+            cancelStraighten();
+            return;
+          }
+        }
+
+        // Crop mode keys
+        if (ui.tool === "crop") {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            applyCrop();
+            return;
+          }
+          if (e.key === "Escape") {
+            cancelCrop();
+            return;
+          }
+        }
+
+        switch (e.key) {
+          case "Escape":
+            if (ui.selectedIds.length) ui.select([]);
+            else if (ui.tool !== "select") ui.setTool("select");
+            ui.set({ compareOriginal: false });
+            return;
+          case "Delete":
+          case "Backspace":
+            if (deleteSelected()) e.preventDefault();
+            return;
+          case "ArrowLeft":
+          case "ArrowRight":
+          case "ArrowUp":
+          case "ArrowDown": {
+            const step = (e.shiftKey ? 10 : 1) * ui.docUnit;
+            const dx = e.key === "ArrowLeft" ? -step : e.key === "ArrowRight" ? step : 0;
+            const dy = e.key === "ArrowUp" ? -step : e.key === "ArrowDown" ? step : 0;
+            if (nudgeSelected(dx, dy)) e.preventDefault();
+            // Nothing selected: ← / → move through the page gallery.
+            else if (dx && !e.shiftKey && stepGallery(dx > 0 ? 1 : -1)) e.preventDefault();
+            return;
+          }
+        }
+      }
+
+      if (id) {
         e.preventDefault();
-        ui.togglePanel("resize", true);
-        return;
-      }
-
-      if (mod) {
-        switch (key) {
-          case "z":
-            e.preventDefault();
-            if (e.shiftKey) redo();
-            else undo();
-            return;
-          case "y":
-            e.preventDefault();
-            redo();
-            return;
-          case "=":
-          case "+":
-            e.preventDefault();
-            zoomIn();
-            return;
-          case "-":
-          case "_":
-            e.preventDefault();
-            zoomOut();
-            return;
-          case "0":
-            e.preventDefault();
-            zoomFit();
-            return;
-          case "1":
-            e.preventDefault();
-            zoomActual();
-            return;
-          case "d":
-            e.preventDefault();
-            duplicateSelected();
-            return;
-          case "a":
-            e.preventDefault();
-            selectAll();
-            return;
-          case "s":
-            e.preventDefault();
-            exportImage();
-            return;
-          case "c":
-            if (e.shiftKey) {
-              e.preventDefault();
-              copyImageToClipboard();
-            }
-            return;
-        }
-        return;
-      }
-      if (e.altKey) return;
-
-      // Straighten mode keys
-      if (ui.tool === "straighten") {
-        if (e.key === "Enter") {
-          e.preventDefault();
-          void applyStraighten();
-          return;
-        }
-        if (e.key === "Escape") {
-          cancelStraighten();
-          return;
-        }
-      }
-
-      // Crop mode keys
-      if (ui.tool === "crop") {
-        if (e.key === "Enter") {
-          e.preventDefault();
-          applyCrop();
-          return;
-        }
-        if (e.key === "Escape") {
-          cancelCrop();
-          return;
-        }
-      }
-
-      switch (e.key) {
-        case "Escape":
-          if (ui.selectedIds.length) ui.select([]);
-          else if (ui.tool !== "select") ui.setTool("select");
-          ui.set({ compareOriginal: false });
-          return;
-        case "Delete":
-        case "Backspace":
-          if (deleteSelected()) e.preventDefault();
-          return;
-        case "ArrowLeft":
-        case "ArrowRight":
-        case "ArrowUp":
-        case "ArrowDown": {
-          const step = (e.shiftKey ? 10 : 1) * ui.docUnit;
-          const dx = e.key === "ArrowLeft" ? -step : e.key === "ArrowRight" ? step : 0;
-          const dy = e.key === "ArrowUp" ? -step : e.key === "ArrowDown" ? step : 0;
-          if (nudgeSelected(dx, dy)) e.preventDefault();
-          // Nothing selected: ← / → move through the page gallery.
-          else if (dx && !e.shiftKey && stepGallery(dx > 0 ? 1 : -1)) e.preventDefault();
-          return;
-        }
-        case "]":
-          reorderSelected(e.shiftKey ? "forward" : "front");
-          return;
-        case "[":
-          reorderSelected(e.shiftKey ? "backward" : "back");
-          return;
-        case "Tab": {
-          e.preventDefault();
-          const s = getSettings();
-          s.set("showToolbar", !s.showToolbar);
-          return;
-        }
-      }
-
-      switch (key) {
-        case "v":
-          if (e.shiftKey) flipVertical();
-          else ui.setTool("select");
-          return;
-        case "h":
-          if (e.shiftKey) flipHorizontal();
-          else ui.setTool("pan");
-          return;
-        case "p":
-          ui.setDrawMode(e.shiftKey ? "highlighter" : "pen");
-          return;
-        case "b":
-          ui.setDrawMode("pen");
-          return;
-        case "e":
-          ui.setDrawMode("eraser");
-          return;
-        case "s":
-          ui.setShapeKind("rect");
-          return;
-        case "o":
-          ui.setShapeKind("ellipse");
-          return;
-        case "l":
-          if (e.shiftKey) ui.togglePanel("layers");
-          else ui.setShapeKind("line");
-          return;
-        case "n":
-          if (e.shiftKey) toggleNavigator();
-          else ui.setShapeKind("counter");
-          return;
-        case "m":
-          ui.setTool("redact");
-          return;
-        case "g":
-          ui.setTool("spotlight");
-          return;
-        case "u":
-          if (e.shiftKey) toggleRulers();
-          else ui.setTool("measure");
-          return;
-        case "a":
-          ui.setShapeKind("arrow");
-          return;
-        case "t":
-          ui.setTool("text");
-          return;
-        case "i":
-          openColorPicker();
-          return;
-        case "c":
-          if (e.shiftKey) ui.togglePanel("curves");
-          else startCrop();
-          return;
-        case "f":
-          ui.togglePanel("adjust");
-          return;
-        case "q":
-          scanCurrentImage({ reveal: true });
-          return;
-        case "r":
-          rotate(e.shiftKey ? -1 : 1);
-          return;
-        case "0":
-          zoomFit();
-          return;
-        case "1":
-          zoomActual();
-          return;
-        case "2":
-          zoomToSelection();
-          return;
-        case "+":
-        case "=":
-          zoomIn();
-          return;
-        case "-":
-          zoomOut();
-          return;
+        RUN[id]();
       }
     };
 

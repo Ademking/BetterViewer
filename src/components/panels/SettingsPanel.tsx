@@ -1,4 +1,5 @@
 import {
+  KeyboardIcon,
   MonitorIcon,
   MoonIcon,
   MousePointerClickIcon,
@@ -404,6 +405,18 @@ export function SettingsPanel() {
                 title={t("Detect QR codes automatically")}
               >
                 <Toggle k="autoDetectQr" label={t("Detect QR codes automatically")} />
+              </Row>
+              <Row description={t("Change the keys for any command.")} title={t("Keyboard shortcuts")}>
+                <Button
+                  onClick={() => {
+                    togglePanel("settings", false);
+                    togglePanel("shortcuts", true);
+                  }}
+                  size="sm"
+                  variant="outline"
+                >
+                  <KeyboardIcon /> {t("Customize…")}
+                </Button>
               </Row>
             </TabsContent>
 

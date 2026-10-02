@@ -21,7 +21,7 @@ export function SpotlightToolButton() {
   const tool = useUi((s) => s.tool);
   const setTool = useUi((s) => s.setTool);
   return (
-    <ToolButton active={tool === "spotlight"} label={t("Spotlight")} onClick={() => setTool("spotlight")} shortcut="G">
+    <ToolButton active={tool === "spotlight"} label={t("Spotlight")} onClick={() => setTool("spotlight")} command="spotlight">
       <SpotlightIcon />
     </ToolButton>
   );

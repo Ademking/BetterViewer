@@ -156,6 +156,11 @@ Letter shortcuts work with any keyboard layout. On a layout that types other
 letters (Russian, Greek, Arabic…), press the key where the letter sits on an
 English keyboard: the R key rotates whether it types R or К.
 
+Every shortcut above (except Space, Esc, Del, the arrows and Ctrl V) can be
+changed: open the shortcuts list (**?**, or Settings → Viewer → Keyboard
+shortcuts), click a shortcut and press the new keys. Esc cancels, Backspace
+removes it.
+
 ### Privacy
 
 Images are processed on your device: adjustments, OCR, background removal,
@@ -230,6 +235,17 @@ none). For local development you can also set `VITE_IMGBB_API_KEY` in
 bundle, so don't ship a build with a private key.
 
 # Changelog
+
+## [Unreleased]
+
+- **Customizable keyboard shortcuts**: click any shortcut in the shortcuts
+  list (?) or in Settings → Viewer → Keyboard shortcuts and press new keys.
+  Keys already used elsewhere move to the new command, each shortcut can be
+  reset or removed, and tooltips, menus and Quick launch show your keys.
+- Ctrl+Shift combinations BetterViewer doesn't use (Ctrl+Shift+A, Firefox's
+  Ctrl+Shift+K console…) now reach the browser instead of running the Ctrl
+  shortcut.
+- New shortcuts: Bring forward (}) and Send backward ({).
 
 ## [3.0.4] - 2026-10-01
 

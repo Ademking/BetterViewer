@@ -228,10 +228,10 @@ function NavigatorBox({ width, height, k, max, renderSide, view, zoom }: BoxProp
       </div>
       <div className="mt-1 flex items-center gap-0.5 ps-1">
         <span className="me-auto font-medium text-muted-foreground text-xs tabular-nums">{Math.round(zoom * 100)}%</span>
-        <ToolButton className="size-6" label={t("Fit to screen")} onClick={zoomFit} shortcut="0">
+        <ToolButton className="size-6" label={t("Fit to screen")} onClick={zoomFit} command="zoomFit">
           <MaximizeIcon className="size-3.5" />
         </ToolButton>
-        <ToolButton className="size-6" label={t("Hide navigator")} onClick={toggleNavigator} shortcut="Shift N">
+        <ToolButton className="size-6" label={t("Hide navigator")} onClick={toggleNavigator} command="navigator">
           <XIcon className="size-3.5" />
         </ToolButton>
       </div>

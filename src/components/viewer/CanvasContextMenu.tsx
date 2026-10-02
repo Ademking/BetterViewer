@@ -52,6 +52,7 @@ import { SEARCH_ENGINES, searchImage } from "@/lib/external";
 import { openOcr } from "@/components/tools/OcrPanel";
 import { scanCurrentImage } from "@/state/qr";
 import { useUi } from "@/state/ui";
+import { useShortcutText } from "@/lib/shortcuts";
 import { useT } from "@/lib/i18n";
 
 /** Submenu placement; it flips automatically when there is no room. */
@@ -59,6 +60,7 @@ const SUB = { placement: "right-start", gutter: 4 } as const;
 
 export function CanvasContextMenu({ children }: { children: React.ReactNode }) {
   const t = useT();
+  const keys = useShortcutText();
   const hasSelection = useUi((s) => s.selectedIds.length > 0);
 
   return (
@@ -71,15 +73,15 @@ export function CanvasContextMenu({ children }: { children: React.ReactNode }) {
           <>
             <ContextMenuItem onSelect={duplicateSelected} value="dup">
               <CopyPlusIcon /> {t("Duplicate")}
-              <ContextMenuShortcut>{MOD} D</ContextMenuShortcut>
+              <ContextMenuShortcut>{keys("duplicate")}</ContextMenuShortcut>
             </ContextMenuItem>
             <ContextMenuItem onSelect={() => reorderSelected("front")} value="front">
               <ArrowUpToLineIcon /> {t("Bring to front")}
-              <ContextMenuShortcut>]</ContextMenuShortcut>
+              <ContextMenuShortcut>{keys("bringToFront")}</ContextMenuShortcut>
             </ContextMenuItem>
             <ContextMenuItem onSelect={() => reorderSelected("back")} value="back">
               <ArrowDownToLineIcon /> {t("Send to back")}
-              <ContextMenuShortcut>[</ContextMenuShortcut>
+              <ContextMenuShortcut>{keys("sendToBack")}</ContextMenuShortcut>
             </ContextMenuItem>
             <ContextMenuSeparator />
             <ContextMenuItem onSelect={deleteSelected} value="delete" variant="destructive">
@@ -91,11 +93,11 @@ export function CanvasContextMenu({ children }: { children: React.ReactNode }) {
           <>
             <ContextMenuItem onSelect={zoomFit} value="fit">
               <MaximizeIcon /> {t("Fit to screen")}
-              <ContextMenuShortcut>0</ContextMenuShortcut>
+              <ContextMenuShortcut>{keys("zoomFit")}</ContextMenuShortcut>
             </ContextMenuItem>
             <ContextMenuItem onSelect={zoomActual} value="actual">
               <span className="w-3.5 text-center font-semibold text-[9px]">1:1</span> {t("Actual size")}
-              <ContextMenuShortcut>1</ContextMenuShortcut>
+              <ContextMenuShortcut>{keys("zoomActual")}</ContextMenuShortcut>
             </ContextMenuItem>
             <ContextMenuSub positioning={SUB}>
               <ContextMenuSubTrigger>
@@ -104,19 +106,19 @@ export function CanvasContextMenu({ children }: { children: React.ReactNode }) {
               <ContextMenuSubContent className="w-max min-w-52">
                 <ContextMenuItem closeOnSelect={false} onSelect={() => rotate(1)} value="rotate-r">
                   <RotateCwIcon /> {t("Rotate right")}
-                  <ContextMenuShortcut>R</ContextMenuShortcut>
+                  <ContextMenuShortcut>{keys("rotateRight")}</ContextMenuShortcut>
                 </ContextMenuItem>
                 <ContextMenuItem closeOnSelect={false} onSelect={() => rotate(-1)} value="rotate-l">
                   <RotateCcwIcon /> {t("Rotate left")}
-                  <ContextMenuShortcut>Shift R</ContextMenuShortcut>
+                  <ContextMenuShortcut>{keys("rotateLeft")}</ContextMenuShortcut>
                 </ContextMenuItem>
                 <ContextMenuItem closeOnSelect={false} onSelect={flipHorizontal} value="flip-h">
                   <FlipHorizontal2Icon /> {t("Flip horizontal")}
-                  <ContextMenuShortcut>Shift H</ContextMenuShortcut>
+                  <ContextMenuShortcut>{keys("flipHorizontal")}</ContextMenuShortcut>
                 </ContextMenuItem>
                 <ContextMenuItem closeOnSelect={false} onSelect={flipVertical} value="flip-v">
                   <FlipVertical2Icon /> {t("Flip vertical")}
-                  <ContextMenuShortcut>Shift V</ContextMenuShortcut>
+                  <ContextMenuShortcut>{keys("flipVertical")}</ContextMenuShortcut>
                 </ContextMenuItem>
               </ContextMenuSubContent>
             </ContextMenuSub>
@@ -130,7 +132,7 @@ export function CanvasContextMenu({ children }: { children: React.ReactNode }) {
               <ContextMenuSubContent className="w-max min-w-52">
                 <ContextMenuItem onSelect={copyImageToClipboard} value="copy">
                   <ImageIcon /> {t("Modified image")}
-                  <ContextMenuShortcut>{MOD} Shift C</ContextMenuShortcut>
+                  <ContextMenuShortcut>{keys("copyImage")}</ContextMenuShortcut>
                 </ContextMenuItem>
                 <ContextMenuItem onSelect={copyOriginalImage} value="copy-original">
                   <FileImageIcon /> {t("Original image")}
@@ -144,7 +146,7 @@ export function CanvasContextMenu({ children }: { children: React.ReactNode }) {
               <ContextMenuSubContent className="w-max min-w-52">
                 <ContextMenuItem onSelect={() => void exportImage()} value="save">
                   <ImageIcon /> {t("Modified image")}
-                  <ContextMenuShortcut>{MOD} S</ContextMenuShortcut>
+                  <ContextMenuShortcut>{keys("save")}</ContextMenuShortcut>
                 </ContextMenuItem>
                 <ContextMenuItem onSelect={saveOriginalImage} value="save-original">
                   <FileImageIcon /> {t("Original image")}
@@ -164,14 +166,14 @@ export function CanvasContextMenu({ children }: { children: React.ReactNode }) {
               <ContextMenuSubContent className="w-max min-w-52">
                 <ContextMenuItem onSelect={openColorPicker} value="pick">
                   <PipetteIcon /> {t("Pick color")}
-                  <ContextMenuShortcut>I</ContextMenuShortcut>
+                  <ContextMenuShortcut>{keys("colorPicker")}</ContextMenuShortcut>
                 </ContextMenuItem>
                 <ContextMenuItem onSelect={openOcr} value="ocr">
                   <ScanTextIcon /> {t("Extract text")}
                 </ContextMenuItem>
                 <ContextMenuItem onSelect={() => scanCurrentImage({ reveal: true })} value="qr">
                   <QrCodeIcon /> {t("Scan QR codes")}
-                  <ContextMenuShortcut>Q</ContextMenuShortcut>
+                  <ContextMenuShortcut>{keys("scanQr")}</ContextMenuShortcut>
                 </ContextMenuItem>
               </ContextMenuSubContent>
             </ContextMenuSub>
