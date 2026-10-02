@@ -87,6 +87,8 @@ runs in your browser, including OCR, background removal and QR scanning.
   line or everything
 - **Measure** distances and angles, **rulers** and draggable **guides**
 - Dark / light / system theme, floating panels, quick launch (**Ctrl/⌘ K**)
+- **Customizable toolbar**: pick the buttons it shows in **Settings →
+  Appearance → Toolbar buttons**, or right-click the toolbar
 - **16 languages**: English, 简体中文, 繁體中文, हिन्दी, Español, Français,
   العربية (right to left), Português, Русский, Bahasa Indonesia, Deutsch,
   日本語, Türkçe, 한국어, Tiếng Việt and Italiano. It follows your browser's
@@ -255,6 +257,9 @@ bundle, so don't ship a build with a private key.
   follows your fingers.
 - **Faster zoom**: hold Alt, or Ctrl Shift, while scrolling to zoom 3× faster
   (also over the navigator).
+- **Customizable toolbar**: choose which buttons the toolbar shows in Settings
+  → Appearance → Toolbar buttons, or right-click the toolbar. Hidden buttons
+  keep their keyboard shortcuts, and the More button always stays.
 
 ## [3.0.4] - 2026-10-01
 

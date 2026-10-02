@@ -44,8 +44,12 @@ import {
   Undo2Icon,
   XIcon,
 } from "lucide-react";
+import { Fragment } from "react";
+import type React from "react";
+import { ContextMenu, ContextMenuContent, ContextMenuTrigger } from "@/components/ui/context-menu";
 import {
   Menu,
+  MenuCheckboxItem,
   MenuContent,
   MenuGroup,
   MenuItem,
@@ -73,6 +77,13 @@ import { TextToolButton } from "@/components/tools/TextTool";
 import { EmojiToolButton } from "@/components/tools/EmojiTool";
 import { MOD, ToolbarDivider, ToolButton } from "@/components/tools/ToolButton";
 import { TransformTools } from "@/components/tools/TransformTools";
+import {
+  setToolbarItemShown,
+  showAllToolbarItems,
+  TOOLBAR_GROUPS,
+  TOOLBAR_ITEMS,
+  type ToolbarItemId,
+} from "@/components/viewer/toolbarItems";
 import { ZoomControls } from "@/components/tools/ZoomControls";
 import {
   closeImage,
@@ -96,6 +107,7 @@ import { hasEdits, useDoc } from "@/state/document";
 import { scanCurrentImage } from "@/state/qr";
 import { useUi } from "@/state/ui";
 import { useShortcutText } from "@/lib/shortcuts";
+import { cn } from "@/lib/utils";
 import { useT } from "@/lib/i18n";
 
 export function ViewerToolbar() {
@@ -109,35 +121,33 @@ export function ViewerToolbar() {
   const canRedo = useDoc((s) => s.future.length > 0);
   const filtersActive = useDoc((s) => (s.doc ? !isDefaultFilters(s.doc.filters) || !!s.doc.curves || !!s.doc.levels : false));
 
-  return (
-    <div
-      className="glass flex max-w-[calc(100vw-1.5rem)] items-center gap-0.5 overflow-x-auto rounded-2xl border p-1 shadow-[0_10px_40px_-10px_rgba(0,0,0,0.6)] [scrollbar-width:none]"
-      role="toolbar"
-      aria-label={t("Tools")}
-    >
+  const hidden = useSettings((s) => s.hiddenToolbarItems);
+
+  const items: Record<ToolbarItemId, React.ReactNode> = {
+    select: (
       <ToolButton active={tool === "select"} label={t("Select")} onClick={() => setTool("select")} command="select">
         <MousePointer2Icon />
       </ToolButton>
+    ),
+    pan: (
       <div className="flex max-sm:hidden">
         <ToolButton active={tool === "pan"} label={t("Pan")} onClick={() => setTool("pan")} command="pan">
           <HandIcon />
         </ToolButton>
       </div>
-
-      <ToolbarDivider />
-
-      <DrawToolButton />
-      <ShapeToolButton />
-      <TextToolButton />
-      <EmojiToolButton />
-      <RedactToolButton />
-      <SpotlightToolButton />
-
-      <ToolbarDivider />
-
+    ),
+    draw: <DrawToolButton />,
+    shapes: <ShapeToolButton />,
+    text: <TextToolButton />,
+    emoji: <EmojiToolButton />,
+    redact: <RedactToolButton />,
+    spotlight: <SpotlightToolButton />,
+    crop: (
       <ToolButton active={tool === "crop"} label={t("Crop")} command="crop" onClick={startCrop}>
         <CropIcon />
       </ToolButton>
+    ),
+    adjust: (
       <ToolButton
         active={adjustOpen}
         label={t("Adjustments")}
@@ -149,8 +159,10 @@ export function ViewerToolbar() {
           <span className="absolute top-1 right-1 size-1.5 rounded-full bg-brand" />
         )}
       </ToolButton>
-      <ColorPickerTool />
-      <MeasureToolButton />
+    ),
+    colorPicker: <ColorPickerTool />,
+    measure: <MeasureToolButton />,
+    layers: (
       <div className="flex max-md:hidden">
         <ToolButton
           active={layersOpen}
@@ -161,33 +173,86 @@ export function ViewerToolbar() {
           <LayersIcon />
         </ToolButton>
       </div>
-
-      <ToolbarDivider className="max-md:hidden" />
-      <div className="flex items-center gap-0.5 max-md:hidden">
-        <TransformTools />
-      </div>
-
-      <ToolbarDivider />
-      <div className="max-sm:hidden">
-        <ZoomControls />
-      </div>
-      <div className="sm:hidden">
-        <ZoomControls compact />
-      </div>
-
-      <ToolbarDivider className="max-md:hidden" />
-      <div className="flex items-center gap-0.5 max-md:hidden">
+    ),
+    transform: <TransformTools />,
+    zoom: (
+      <>
+        <div className="max-sm:hidden">
+          <ZoomControls />
+        </div>
+        <div className="sm:hidden">
+          <ZoomControls compact />
+        </div>
+      </>
+    ),
+    history: (
+      <>
         <ToolButton disabled={!canUndo} label={t("Undo")} onClick={undo} command="undo">
           <Undo2Icon />
         </ToolButton>
         <ToolButton disabled={!canRedo} label={t("Redo")} onClick={redo} command="redo">
           <Redo2Icon />
         </ToolButton>
-      </div>
+      </>
+    ),
+  };
+  // Groups with something left to show; a divider goes before each but the first.
+  const groups = TOOLBAR_GROUPS.map((g) => ({ ...g, items: g.items.filter((id) => !hidden.includes(id)) })).filter(
+    (g) => g.items.length > 0
+  );
 
-      <ToolbarDivider />
-      <MoreMenu canRedo={canRedo} canUndo={canUndo} />
-    </div>
+  return (
+    <ContextMenu>
+      <ContextMenuTrigger asChild>
+        <div
+          className="glass flex max-w-[calc(100vw-1.5rem)] items-center gap-0.5 overflow-x-auto rounded-2xl border p-1 shadow-[0_10px_40px_-10px_rgba(0,0,0,0.6)] [scrollbar-width:none]"
+          role="toolbar"
+          aria-label={t("Tools")}
+        >
+          {groups.map((g, i) => (
+            <Fragment key={g.items[0]}>
+              {i > 0 && <ToolbarDivider className={g.className} />}
+              <div className={cn("flex items-center gap-0.5", g.className)}>
+                {g.items.map((id) => (
+                  <Fragment key={id}>{items[id]}</Fragment>
+                ))}
+              </div>
+            </Fragment>
+          ))}
+
+          <ToolbarDivider />
+          <MoreMenu canRedo={canRedo} canUndo={canUndo} />
+        </div>
+      </ContextMenuTrigger>
+      <ToolbarMenu />
+    </ContextMenu>
+  );
+}
+
+/** Right-click the toolbar: pick the buttons it shows. */
+function ToolbarMenu() {
+  const t = useT();
+  const hidden = useSettings((s) => s.hiddenToolbarItems);
+  return (
+    <ContextMenuContent className="w-max min-w-56">
+      <MenuGroup heading={t("Toolbar buttons")}>
+        {TOOLBAR_ITEMS.map((item) => (
+          <MenuCheckboxItem
+            checked={!hidden.includes(item.id)}
+            closeOnSelect={false}
+            key={item.id}
+            onCheckedChange={(checked) => setToolbarItemShown(item.id, checked)}
+            value={item.id}
+          >
+            {t(item.label)}
+          </MenuCheckboxItem>
+        ))}
+      </MenuGroup>
+      <MenuSeparator />
+      <MenuItem disabled={hidden.length === 0} onSelect={showAllToolbarItems} value="show-all">
+        <EyeIcon /> {t("Show all buttons")}
+      </MenuItem>
+    </ContextMenuContent>
   );
 }
 

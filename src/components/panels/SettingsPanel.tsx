@@ -1,4 +1,5 @@
 import {
+  EyeIcon,
   KeyboardIcon,
   MonitorIcon,
   MoonIcon,
@@ -32,6 +33,7 @@ import { FAST_ZOOM } from "@/lib/viewport";
 import { cn } from "@/lib/utils";
 import { LANGUAGES, resolveLanguage, tk, useT } from "@/lib/i18n";
 import { LanguagePicker } from "@/components/tools/LanguagePicker";
+import { setToolbarItemShown, showAllToolbarItems, TOOLBAR_ITEMS } from "@/components/viewer/toolbarItems";
 import { type BoardBackground, type Settings, useSettings } from "@/state/settings";
 import { useDoc } from "@/state/document";
 import { useUi } from "@/state/ui";
@@ -150,6 +152,43 @@ export function BoardSwatch({ mode, className }: { mode: BoardBackground; classN
           <span className="absolute inset-0 bg-[radial-gradient(circle_at_35%_30%,#6b7280,transparent_65%),#27272a] blur-[4px]" />
         ))}
     </span>
+  );
+}
+
+function ToolbarButtonsPicker() {
+  const t = useT();
+  const hidden = useSettings((s) => s.hiddenToolbarItems);
+  return (
+    <div className="flex flex-col gap-2">
+      <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-3">
+        {TOOLBAR_ITEMS.map((item) => {
+          const shown = !hidden.includes(item.id);
+          return (
+            <button
+              aria-pressed={shown}
+              className={cn(
+                "flex min-w-0 items-center gap-2 rounded-lg border px-2 py-1.5 text-start text-xs transition-colors [&_svg]:size-4 [&_svg]:shrink-0",
+                shown
+                  ? "border-brand/60 bg-brand/10 text-foreground"
+                  : "border-border text-muted-foreground hover:border-white/25 hover:text-foreground"
+              )}
+              key={item.id}
+              onClick={() => setToolbarItemShown(item.id, !shown)}
+              title={t(item.label)}
+              type="button"
+            >
+              {item.icon}
+              <span className="truncate">{t(item.label)}</span>
+            </button>
+          );
+        })}
+      </div>
+      {hidden.length > 0 && (
+        <Button className="self-start" onClick={showAllToolbarItems} size="xs" variant="ghost">
+          <EyeIcon /> {t("Show all buttons")}
+        </Button>
+      )}
+    </div>
   );
 }
 
@@ -338,6 +377,13 @@ export function SettingsPanel() {
               </Row>
               <Row description={t("The floating tool bar at the bottom.")} title={t("Show toolbar")}>
                 <Toggle k="showToolbar" label={t("Show toolbar")} />
+              </Row>
+              <Row
+                description={t("Pick the buttons shown in the toolbar. You can also right-click the toolbar.")}
+                stacked
+                title={t("Toolbar buttons")}
+              >
+                <ToolbarButtonsPicker />
               </Row>
               <Row description={t("Tooltips with names and shortcuts.")} title={t("Show hints")}>
                 <Toggle k="showHints" label={t("Show hints")} />
