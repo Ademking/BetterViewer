@@ -242,7 +242,7 @@ bundle, so don't ship a build with a private key.
 
 # Changelog
 
-## [Unreleased]
+## [3.1.0] - 2026-10-02
 
 - **Customizable keyboard shortcuts**: click any shortcut in the shortcuts
   list (?) or in Settings → Viewer → Keyboard shortcuts and press new keys.
