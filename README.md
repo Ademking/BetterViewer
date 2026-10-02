@@ -242,7 +242,7 @@ bundle, so don't ship a build with a private key.
 
 # Changelog
 
-## [Unreleased]
+## [3.1.1] - 2026-10-02
 
 - **Chrome incognito**: images opened in incognito windows now open in
   BetterViewer instead of Chrome's "This page has been blocked"
