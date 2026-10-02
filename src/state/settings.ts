@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import type { ShortcutOverrides } from "@/lib/shortcuts";
+import type { ToolbarItemId } from "@/components/viewer/toolbarItems";
 
 export type BoardBackground = "blur" | "black" | "white" | "grid";
 export type ThemeMode = "dark" | "light" | "system";
@@ -19,6 +20,8 @@ export interface Settings {
   boardBackground: BoardBackground;
   theme: ThemeMode;
   showToolbar: boolean;
+  /** Toolbar buttons turned off (src/components/viewer/toolbarItems.tsx). */
+  hiddenToolbarItems: ToolbarItemId[];
   /** Rulers along the board edges (and the guides dragged from them). */
   showRulers: boolean;
   showHints: boolean;
@@ -60,6 +63,7 @@ export const DEFAULT_SETTINGS: Settings = {
   boardBackground: "blur",
   theme: "dark",
   showToolbar: true,
+  hiddenToolbarItems: [],
   showRulers: false,
   showHints: true,
   autoHideUi: false,
