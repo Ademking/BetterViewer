@@ -22,27 +22,52 @@ const msg = (key, fallback) => api.i18n?.getMessage(key) || fallback;
 
 const viewerUrl = (query = "") => `${api.runtime.getURL("index.html")}${query}`;
 
+const menuItems = () => [
+  {
+    id: MENU_ID,
+    title: msg("menuOpenImage", "Open this image in BetterViewer"),
+    contexts: ["image"],
+    documentUrlPatterns: PAGES,
+  },
+  {
+    id: GALLERY_ID,
+    title: msg("menuGallery", "Browse all page images as a gallery"),
+    contexts: ["page", "frame", "selection", "link"],
+    documentUrlPatterns: PAGES,
+  },
+  // Right-click on the toolbar button.
+  { id: ACTION_SCREENSHOT_ID, title: msg("menuScreenshot", "Screenshot this page"), contexts: ["action"] },
+  { id: ACTION_GALLERY_ID, title: msg("menuGallery", "Browse all page images as a gallery"), contexts: ["action"] },
+];
+
+// Firefox reports menu errors through promises, Chrome through callbacks.
+const isFirefox = typeof api.runtime.getBrowserInfo === "function";
+const removeMenu = (id) =>
+  isFirefox
+    ? api.contextMenus.remove(id).catch(() => {})
+    : new Promise((resolve) => api.contextMenus.remove(id, () => resolve(void api.runtime.lastError)));
+const addMenu = (item) =>
+  isFirefox ? api.contextMenus.create(item) : api.contextMenus.create(item, () => void api.runtime.lastError);
+
 // Menus survive restarts in Chromium; Firefox event pages may need them again.
+// Each item is replaced on its own: in Chrome, contextMenus.removeAll() would
+// also remove the incognito copy's menus (and the other way round). Calls are
+// queued so two of them never interleave.
+let menus = Promise.resolve();
 const createMenu = () =>
-  Promise.resolve(api.contextMenus.removeAll()).then(() => {
-    api.contextMenus.create({
-      id: MENU_ID,
-      title: msg("menuOpenImage", "Open this image in BetterViewer"),
-      contexts: ["image"],
-      documentUrlPatterns: PAGES,
-    });
-    api.contextMenus.create({
-      id: GALLERY_ID,
-      title: msg("menuGallery", "Browse all page images as a gallery"),
-      contexts: ["page", "frame", "selection", "link"],
-      documentUrlPatterns: PAGES,
-    });
-    // Right-click on the toolbar button.
-    api.contextMenus.create({ id: ACTION_SCREENSHOT_ID, title: msg("menuScreenshot", "Screenshot this page"), contexts: ["action"] });
-    api.contextMenus.create({ id: ACTION_GALLERY_ID, title: msg("menuGallery", "Browse all page images as a gallery"), contexts: ["action"] });
-  });
+  (menus = menus
+    .then(async () => {
+      for (const item of menuItems()) {
+        await removeMenu(item.id);
+        addMenu(item);
+      }
+    })
+    .catch(() => {}));
 api.runtime.onInstalled.addListener(createMenu);
 api.runtime.onStartup.addListener(createMenu);
+// Chrome runs a separate copy for incognito windows (manifest "incognito":
+// "split") that gets neither event, so it makes its own menus when it starts.
+if (api.extension?.inIncognitoContext) createMenu();
 
 /* ------------------------------------------------------------------ gallery */
 

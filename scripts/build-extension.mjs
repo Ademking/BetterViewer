@@ -69,6 +69,11 @@ const targets = {
     ...base,
     background: { service_worker: "background.js" },
     minimum_chrome_version: "116",
+    // Chrome won't load extension pages in incognito tabs in the default
+    // "spanning" mode (ERR_BLOCKED_BY_CLIENT), so images opened there could
+    // never reach the viewer. "split" runs a separate copy for incognito.
+    // Firefox has no split mode and shows extension pages in private windows.
+    incognito: "split",
   },
   firefox: {
     ...base,
