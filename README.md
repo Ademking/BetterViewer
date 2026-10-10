@@ -20,10 +20,13 @@
 
 <p align="center">With BetterViewer you can use various keyboard shortcuts to quickly pan, zoom, annotate, edit images and a lot more!</p>
 
+<p align="center">It is also a <b>desktop image viewer</b> for Windows, Linux and macOS: open the pictures on your computer with it and browse their folder.</p>
+
 <p align="center">
    <a href="https://chrome.google.com/webstore/detail/betterviewer/llcpfkbjgkpmapiidpnohffjmmnhpmpb"><img alt="Chrome Web Store" src="https://img.shields.io/chrome-web-store/users/llcpfkbjgkpmapiidpnohffjmmnhpmpb?style=for-the-badge&logo=googlechrome&logoColor=white&label=Chrome%20Web%20Store&color=3182ed"></a>
    <a href="https://microsoftedge.microsoft.com/addons/detail/betterviewer/jfladbainajdjpmdjpgndbgmkgibeddg"><img alt="Microsoft Edge Add-ons" src="https://img.shields.io/badge/Microsoft%20Edge-Add--ons-3182ed?style=for-the-badge&logo=microsoftedge&logoColor=white"></a>
    <a href="https://addons.mozilla.org/en-US/firefox/addon/betterviewer"><img alt="Firefox Add-ons" src="https://img.shields.io/amo/users/betterviewer?style=for-the-badge&logo=firefoxbrowser&logoColor=white&label=Firefox%20Add-ons&color=3182ed"></a>
+   <a href="https://github.com/Ademking/BetterViewer/releases/latest"><img alt="Desktop app for Windows, Linux and macOS" src="https://img.shields.io/badge/Desktop-Windows%20%7C%20Linux%20%7C%20macOS-3182ed?style=for-the-badge&logo=tauri&logoColor=white"></a>
 </p>
 
 <p align="center">
@@ -133,6 +136,34 @@ runs in your browser, including OCR, background removal and QR scanning.
   annotate it in BetterViewer
 - **Gallery**: browse all images on a page (Alt+Shift+G) and **download them
   all as a ZIP**
+
+**Desktop app**
+
+The same viewer as a desktop app for Windows, Linux and macOS. Download it
+from the [latest release](https://github.com/Ademking/BetterViewer/releases/latest):
+
+| System | File |
+| --- | --- |
+| Windows | `BetterViewer_<version>_x64-setup.exe` (or the `.msi`) |
+| Linux | `.deb` (Debian, Ubuntu), `.rpm` (Fedora, openSUSE) or `.AppImage` (any distribution) |
+| macOS | `BetterViewer_<version>_aarch64.dmg` (Apple Silicon) or `_x64.dmg` (Intel) |
+
+- **Open images from your computer**: right-click an image → **Open with →
+  BetterViewer** (or make it the default app for PNG, JPEG, WebP, GIF, AVIF,
+  BMP and ICO), drag and drop, or **Open** (Ctrl+O). Opening another image
+  while it runs uses the same window.
+- **Browse the folder**: **← / →** move to the previous / next image of the
+  folder, in File Explorer's order. The image list (button at the top right)
+  shows them all as thumbnails.
+- **Save** with your system's Save dialog, which starts in the image's folder
+- **F11** for full screen; the window remembers its size and position
+- Transparency grid behind the image by default (Settings → Appearance)
+- Everything else works as in the browser: editing, annotations, OCR,
+  background removal, QR codes, animations
+
+The installers aren't code-signed yet. On Windows, if SmartScreen warns,
+click **More info → Run anyway**. On macOS, open the app once from
+**System Settings → Privacy & Security → Open Anyway**.
 
 ### Keyboard shortcuts
 
@@ -276,6 +307,13 @@ bundle, so don't ship a build with a private key.
 
 ## [3.2.0] - 2026-10-10
 
+- **Desktop app** for Windows, Linux and macOS (Tauri). Opens images from
+  your computer (Open with, drag and drop, Open dialog), browses the other
+  images of their folder with ← / → and an image list, saves with the
+  system's Save dialog and has its own title bar and full screen (F11).
+  Installers are attached to the release.
+- The Layers panel reorders layers with the pointer (no more browser drag
+  and drop), so it works the same everywhere.
 - **Animated GIF, WebP and APNG** now play instead of showing their first
   frame, including GIFs with thousands of frames (frames are decoded as they
   are needed). The navigator follows the animation.
