@@ -246,7 +246,7 @@ bundle, so don't ship a build with a private key.
 
 # Changelog
 
-## [Unreleased]
+## [3.2.0] - 2026-10-10
 
 - **Animated GIF, WebP and APNG** now play instead of showing their first
   frame, including GIFs with thousands of frames (frames are decoded as they
