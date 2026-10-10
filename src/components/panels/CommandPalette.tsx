@@ -112,6 +112,7 @@ import { SHAPE_GROUPS, SHAPE_LABELS } from "@/lib/annotations";
 import { DEFAULT_FILTERS, FILTER_PRESETS } from "@/lib/filters";
 import { openInPhotopea, SEARCH_ENGINES, searchImage } from "@/lib/external";
 import { removeBackground } from "@/lib/bgRemoval";
+import { usePlayer } from "@/lib/animation";
 import { openOcr } from "@/components/tools/OcrPanel";
 import { updateDoc, useDoc } from "@/state/document";
 import { getSettings, type BoardBackground, type ThemeMode } from "@/state/settings";
@@ -155,12 +156,13 @@ function buildCommands(): PaletteCommand[] {
   add(tk("File"), { value: "insert-image", label: t("Insert image on top…"), icon: <ImagePlusIcon />, keywords: "add picture layer overlay logo watermark sticker", run: insertImagePicker }, !!useDoc.getState().doc);
   add(tk("File"), { value: "paste", label: t("Paste image from clipboard"), icon: <ClipboardPasteIcon />, shortcut: `${MOD} V`, run: () => void pasteFromClipboard() });
   add(tk("File"), { value: "sample", label: t("Open sample image"), icon: <SparklesIcon />, keywords: "demo example", run: () => void openSample() });
-  // Save follows the Save format setting, like {MOD} S.
+  // Save follows the Save format setting, like {MOD} S (animations: an animated GIF).
   const SAVE_LABEL = { png: "PNG", jpeg: "JPEG", webp: "WebP" } as const;
-  add(tk("File"), { value: "save", label: t("Save as {format}", { format: SAVE_LABEL[settings.saveFormat] }), icon: <DownloadIcon />, shortcut: keys("save"), keywords: "export download", run: () => void exportImage() }, hasDoc);
+  const animated = !!usePlayer.getState().animation;
+  add(tk("File"), { value: "save", label: animated ? t("Save as animated GIF") : t("Save as {format}", { format: SAVE_LABEL[settings.saveFormat] }), icon: <DownloadIcon />, shortcut: keys("save"), keywords: "export download gif animation", run: () => void exportImage() }, hasDoc);
   for (const f of ["png", "jpeg", "webp"] as const) {
-    if (f === settings.saveFormat) continue;
-    add(tk("File"), { value: `save-${f}`, label: t("Save as {format}", { format: SAVE_LABEL[f] }), icon: <DownloadIcon />, keywords: `export download${f === "jpeg" ? " jpg" : ""}`, run: () => void exportImage(f) }, hasDoc);
+    if (f === settings.saveFormat && !animated) continue;
+    add(tk("File"), { value: `save-${f}`, label: t("Save as {format}", { format: SAVE_LABEL[f] }), icon: <DownloadIcon />, keywords: `export download${f === "jpeg" ? " jpg" : ""}${animated ? " frame still" : ""}`, run: () => void exportImage(f) }, hasDoc);
   }
   add(tk("File"), { value: "save-original", label: t("Save original image"), icon: <DownloadIcon />, keywords: "download unedited source file export", run: () => void saveOriginalImage() }, hasDoc);
   add(tk("File"), { value: "upload-imgbb", label: t("Upload & get link…"), icon: <CloudUploadIcon />, keywords: "share link publish host imgbb kappa", run: () => ui.togglePanel("upload", true) }, hasDoc);
@@ -286,7 +288,8 @@ function buildCommands(): PaletteCommand[] {
     add(tk("Panels"), { value: "panel-adjust", label: t("Adjustments"), icon: <SlidersHorizontalIcon />, shortcut: keys("adjust"), keywords: "filters brightness contrast saturation", run: () => ui.togglePanel("adjust", true) });
     add(tk("Panels"), { value: "panel-color", label: t("Color panel"), icon: <PaletteIcon />, keywords: "color picker hex rgb", run: () => ui.togglePanel("color", true) });
     add(tk("Panels"), { value: "ocr", label: t("Extract text (OCR)"), icon: <ScanTextIcon />, keywords: "ocr read text copy recognize scan words", run: openOcr });
-    add(tk("Edit"), { value: "remove-bg", label: t("Remove background"), icon: <EraserIcon />, keywords: "cutout transparent subject isolate erase background ai", run: () => void removeBackground() });
+    // Still images only.
+    add(tk("Edit"), { value: "remove-bg", label: t("Remove background"), icon: <EraserIcon />, keywords: "cutout transparent subject isolate erase background ai", run: () => void removeBackground() }, !usePlayer.getState().animation);
     add(tk("Panels"), { value: "panel-qr", label: t("Scan for QR codes"), icon: <QrCodeIcon />, shortcut: keys("scanQr"), keywords: "qrcode barcode scan read decode link", run: () => void scanCurrentImage({ reveal: true }) });
     add(tk("Panels"), { value: "auto-enhance", label: t("Auto enhance"), icon: <WandSparklesIcon />, keywords: "auto fix improve levels white balance magic", run: () => void autoEnhance() });
     add(tk("Panels"), { value: "panel-curves", label: t("Histogram"), icon: <ChartSplineIcon />, shortcut: keys("curves"), keywords: "curves tone levels contrast exposure histogram rgb channels", run: () => ui.togglePanel("curves", true) });

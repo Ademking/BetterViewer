@@ -1,3 +1,4 @@
+import { deriveAnimation } from "@/lib/animation";
 import type { ImageInfo } from "@/state/document";
 import { currentLanguage, t } from "@/lib/i18n";
 
@@ -95,6 +96,8 @@ export async function cropImage(
   );
   const src = URL.createObjectURL(blob);
   await loadHtmlImage(src);
+  // Animations: crop every frame the same way (straight from bitmap to bitmap).
+  await deriveAnimation(info.src, src, (frame) => createImageBitmap(frame, x, y, w, h));
   return { ...info, src, width: w, height: h, size: blob.size, type };
 }
 

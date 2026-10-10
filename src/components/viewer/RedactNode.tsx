@@ -2,8 +2,15 @@ import type Konva from "konva";
 import { memo, useCallback, useMemo } from "react";
 import { Shape } from "react-konva";
 import { useImage } from "@/hooks/useImage";
+import { currentFrame, useCurrentFrame } from "@/lib/animation";
 import type { RedactAnnotation } from "@/lib/annotations";
-import { developedFullSync, sourceScale, useDevelopedSource, useDevelopParams } from "@/lib/develop";
+import {
+  developedFrame,
+  developedFullSync,
+  sourceScale,
+  useDevelopedSource,
+  useDevelopParams,
+} from "@/lib/develop";
 import { combineFilters, type Filters, toCssFilter } from "@/lib/filters";
 import { stageRegistry } from "@/lib/stageRegistry";
 import { useDoc } from "@/state/document";
@@ -116,6 +123,8 @@ export const RedactNode = memo(function RedactNode({
   const activeFilters = compare ? null : filters;
   const develop = useDevelopParams();
   const source = useDevelopedSource(image, develop);
+  // Animations: hide whatever the current frame shows there.
+  const frame = useCurrentFrame();
 
   // The canvas depends on where the zone is; Konva moves the node itself while
   // dragging, so read the live position from the shape rather than `a`.
@@ -129,7 +138,13 @@ export const RedactNode = memo(function RedactNode({
         width: a.width * shape.scaleX(),
         height: a.height * shape.scaleY(),
       };
-      const zoneSource = stageRegistry.exporting ? developedFullSync(image, develop) : (source ?? image);
+      // Read at draw time: exports and the navigator step through frames themselves.
+      const now = frame ? currentFrame() : null;
+      const zoneSource = now
+        ? developedFrame(now, develop, stageRegistry.exporting ? Number.POSITIVE_INFINITY : undefined)
+        : stageRegistry.exporting
+          ? developedFullSync(image, develop)
+          : (source ?? image);
       const canvas = renderZone(zone, image, activeFilters, zoneSource);
       if (!canvas) return;
       const native = (ctx as unknown as { _context: CanvasRenderingContext2D })._context;
@@ -144,7 +159,7 @@ export const RedactNode = memo(function RedactNode({
       native.drawImage(canvas, x0, y0, w, h);
       native.restore();
     },
-    [a, image, source, activeFilters, develop]
+    [a, image, source, frame, activeFilters, develop]
   );
 
   const hitFunc = useCallback(

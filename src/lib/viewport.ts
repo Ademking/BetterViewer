@@ -118,8 +118,10 @@ class ViewportController {
     if (changed && refit) this.refit(this.smooth);
   }
 
-  setInsets(insets: Partial<typeof this.insets>) {
+  /** `refit`: while in fit mode, fit again into the new space. */
+  setInsets(insets: Partial<typeof this.insets>, refit = false) {
     this.insets = { ...this.insets, ...insets };
+    if (refit && this.fitted) this.refit(this.smooth);
   }
 
   screenToWorld(p: { x: number; y: number }, s = this.cur) {

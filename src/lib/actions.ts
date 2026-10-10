@@ -20,6 +20,8 @@ import {
   supportedFormatsText,
 } from "@/lib/image";
 import { closeOverlay, isOverlay } from "@/lib/overlay";
+import { drawWithFrame, loadAnimation, pause, usePlayer } from "@/lib/animation";
+import { createGifWriter } from "@/lib/gif";
 import { writeClipboardImage, writeClipboardText } from "@/lib/clipboard";
 import { stageRegistry } from "@/lib/stageRegistry";
 import { viewport, zoomStep } from "@/lib/viewport";
@@ -36,6 +38,8 @@ export async function openBlob(blob: Blob, name = t("Pasted image"), extra?: Par
   try {
     const info = await imageInfoFromBlob(blob, name);
     openInfo({ ...info, ...extra });
+    // Animated files: the frames follow in the background.
+    loadAnimation(blob, info.src);
   } catch (err) {
     toast.error({
       title: t("Couldn't open image"),
@@ -220,6 +224,8 @@ export function renderDocumentCanvas(
   options: {
     /** Annotation types to leave out (e.g. OCR only wants the picture). */
     exclude?: Annotation["type"][];
+    /** The pixels will be read back (getImageData): keep the canvas in memory, not on the GPU. */
+    readPixels?: boolean;
   } = {}
 ): HTMLCanvasElement {
   const doc = getDoc();
@@ -227,7 +233,7 @@ export function renderDocumentCanvas(
   const { width, height } = displaySize(doc);
   stageRegistry.exporting = true;
   try {
-    return renderDocumentAt(width, height, options.exclude);
+    return renderDocumentAt(width, height, options.exclude, options.readPixels);
   } finally {
     stageRegistry.exporting = false;
     stageRegistry.stage?.batchDraw();
@@ -256,7 +262,12 @@ export function renderDocumentThumbnail(maxSide: number): HTMLCanvasElement {
 }
 
 /** Render the document (as displayed: rotated, flipped) to a `width` × `height` canvas. */
-function renderDocumentAt(width: number, height: number, exclude?: Annotation["type"][]): HTMLCanvasElement {
+function renderDocumentAt(
+  width: number,
+  height: number,
+  exclude?: Annotation["type"][],
+  readPixels = false
+): HTMLCanvasElement {
   const { stage, imageGroup, annotationLayer } = stageRegistry;
   const doc = getDoc();
   if (!stage || !imageGroup || !doc) throw new Error("Nothing to export");
@@ -305,7 +316,7 @@ function renderDocumentAt(width: number, height: number, exclude?: Annotation["t
     const out = document.createElement("canvas");
     out.width = width;
     out.height = height;
-    out.getContext("2d")!.drawImage(canvas, 0, 0, width, height);
+    out.getContext("2d", { willReadFrequently: readPixels })!.drawImage(canvas, 0, 0, width, height);
     return out;
   } finally {
     hidden.forEach((n, i) => n.visible(prevVisible[i]));
@@ -347,17 +358,144 @@ export async function renderDocument(format: ExportFormat = "png", quality = 0.9
   return encodeCanvas(renderDocumentCanvas(), format, quality);
 }
 
-/** Download the edited image; without a format, uses the Save format setting. */
-export async function exportImage(format: ExportFormat = getSettings().saveFormat) {
+/**
+ * Render every frame of the open animation (edits and annotations included)
+ * into an animated GIF.
+ */
+export async function renderAnimatedGif(onProgress?: (done: number, total: number) => void): Promise<Blob> {
+  const doc = getDoc();
+  const start = usePlayer.getState();
+  const anim = start.animation;
+  if (!doc || !anim) throw new Error("Nothing to export");
+  const { width, height } = displaySize(doc);
+  const gif = createGifWriter(width, height, anim.loops);
+  usePlayer.setState({ playing: false });
+  const changed = () => usePlayer.getState().animation !== anim || getDoc() !== doc;
+  let breathed = performance.now();
+  try {
+    for (let i = 0; i < anim.count; i++) {
+      // The image and its zones draw this frame (decoded first; the next
+      // ones are decoded meanwhile).
+      const frame = await anim.load(i);
+      anim.prefetch(i + 1);
+      if (changed()) throw new Error(t("The image changed while saving."));
+      const canvas = drawWithFrame(frame, () => renderDocumentCanvas({ readPixels: true }));
+      gif.add(canvas.getContext("2d")!.getImageData(0, 0, width, height).data, anim.delays[i]);
+      onProgress?.(i + 1, anim.count);
+      // Let the page breathe now and then.
+      if (performance.now() - breathed > 30) {
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        breathed = performance.now();
+        if (changed()) throw new Error(t("The image changed while saving."));
+      }
+    }
+    return gif.finish();
+  } finally {
+    if (usePlayer.getState().animation === anim && start.playing) usePlayer.setState({ playing: true });
+  }
+}
+
+/** Save the open animation as an animated GIF, with progress. */
+async function exportAnimatedGif() {
   const doc = getDoc();
   if (!doc) return;
+  const id = toast.create({
+    type: "loading",
+    title: t("Saving animated GIF…"),
+    duration: Number.POSITIVE_INFINITY,
+    closable: false,
+  });
   try {
-    const blob = await renderDocument(format);
-    const ext = format === "jpeg" ? "jpg" : format;
+    let shown = 0;
+    const blob = await renderAnimatedGif((done, total) => {
+      // A few updates a second are enough.
+      const now = performance.now();
+      if (now - shown < 100 && done < total) return;
+      shown = now;
+      toast.update(id, { description: t("Frame {current} of {total}…", { current: done, total }) });
+    });
+    downloadBlob(blob, `${baseName(doc.image.name)}-edited.gif`);
+    toast.update(id, {
+      type: "success",
+      title: t("Image exported"),
+      description: t("Saved as {format}", { format: "GIF" }),
+      duration: 4000,
+      closable: true,
+    });
+  } catch (err) {
+    toast.update(id, {
+      type: "error",
+      title: t("Export failed"),
+      description: (err as Error).message,
+      duration: 8000,
+      closable: true,
+    });
+  }
+}
+
+/**
+ * Download the edited image. Without a format: an animated GIF for
+ * animations, otherwise the Save format setting. A still format saves the
+ * frame on screen.
+ */
+export async function exportImage(format?: ExportFormat | "gif") {
+  const doc = getDoc();
+  if (!doc) return;
+  const chosen = format ?? (usePlayer.getState().animation ? "gif" : getSettings().saveFormat);
+  if (chosen === "gif") return exportAnimatedGif();
+  try {
+    const blob = await renderDocument(chosen);
+    const ext = chosen === "jpeg" ? "jpg" : chosen;
     downloadBlob(blob, `${baseName(doc.image.name)}-edited.${ext}`);
     toast.success({ title: t("Image exported"), description: t("Saved as {format}", { format: ext.toUpperCase() }) });
   } catch (err) {
     toast.error({ title: t("Export failed"), description: (err as Error).message });
+  }
+}
+
+/* ------------------------------------------------------------------ Animation frames */
+
+/** Copy the frame on screen (edits and annotations included); stops playback there. */
+export function copyFrame() {
+  pause();
+  return copyImageToClipboard();
+}
+
+/** Save the frame on screen as a PNG (edits and annotations included); stops playback there. */
+export function saveFrame() {
+  pause();
+  return exportImage("png");
+}
+
+/**
+ * Turn the animation into a still image of the frame on screen (undoable).
+ * Edits and annotations stay editable; still-only tools (background removal)
+ * then work on it.
+ */
+export async function keepOnlyFrame() {
+  const doc = getDoc();
+  const { animation, index } = usePlayer.getState();
+  if (!doc || !animation) return;
+  pause();
+  try {
+    const frame = await animation.load(index);
+    const canvas = document.createElement("canvas");
+    canvas.width = frame.width;
+    canvas.height = frame.height;
+    canvas.getContext("2d")!.drawImage(frame, 0, 0);
+    const blob = await new Promise<Blob>((resolve, reject) =>
+      canvas.toBlob((b) => (b ? resolve(b) : reject(new Error(t("Encoding failed")))), "image/png")
+    );
+    // The user may have moved on meanwhile.
+    if (getDoc()?.image.src !== doc.image.src) return;
+    const still = await imageInfoFromBlob(blob, doc.image.name);
+    updateDoc((d) => ({ ...d, image: { ...d.image, src: still.src, size: still.size, type: still.type } }));
+    toast.success({
+      title: t("Kept frame {number}", { number: index + 1 }),
+      description: t("Undo with {keys} if you want it back.", { keys: `${MOD} Z` }),
+    });
+  } catch (err) {
+    toast.error({ title: t("Something went wrong"), description: (err as Error).message });
   }
 }
 

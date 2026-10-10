@@ -1,5 +1,6 @@
 import {
   CropIcon,
+  DownloadIcon,
   HandIcon,
   LayersIcon,
   MousePointer2Icon,
@@ -41,7 +42,8 @@ export type ToolbarItemId =
   | "layers"
   | "transform"
   | "zoom"
-  | "history";
+  | "history"
+  | "saveOriginal";
 
 /** Labels are English (marked with tk); translated where shown. */
 export const TOOLBAR_ITEMS: { id: ToolbarItemId; label: string; icon: React.ReactNode }[] = [
@@ -61,6 +63,7 @@ export const TOOLBAR_ITEMS: { id: ToolbarItemId; label: string; icon: React.Reac
   { id: "transform", label: tk("Rotate, flip & resize"), icon: <RotateCwSquareIcon /> },
   { id: "zoom", label: tk("Zoom"), icon: <ZoomInIcon /> },
   { id: "history", label: tk("Undo / redo"), icon: <Undo2Icon /> },
+  { id: "saveOriginal", label: tk("Save original image"), icon: <DownloadIcon /> },
 ];
 
 /**
@@ -74,6 +77,7 @@ export const TOOLBAR_GROUPS: { items: ToolbarItemId[]; className?: string }[] = 
   { items: ["transform"], className: "max-md:hidden" },
   { items: ["zoom"] },
   { items: ["history"], className: "max-md:hidden" },
+  { items: ["saveOriginal"], className: "max-sm:hidden" },
 ];
 
 /** Show or hide one toolbar button. */

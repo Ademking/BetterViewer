@@ -14,6 +14,7 @@ import {
   redo,
   reorderSelected,
   rotate,
+  saveOriginalImage,
   selectAll,
   undo,
   zoomActual,
@@ -23,8 +24,10 @@ import {
   zoomToSelection,
 } from "@/lib/actions";
 import { isSupportedImageType } from "@/lib/image";
+import { viewOriginalImage } from "@/lib/openUrl";
 import { closeOverlay, isOverlay } from "@/lib/overlay";
 import { stepGallery } from "@/lib/gallery";
+import { stepFrame, togglePlay } from "@/lib/animation";
 import { applyStraighten, cancelStraighten } from "@/lib/straighten";
 import { toggleRulers } from "@/components/tools/MeasureTool";
 import { toggleNavigator } from "@/components/viewer/Navigator";
@@ -90,6 +93,9 @@ const RUN: Record<ShortcutId, () => void> = {
     const s = getSettings();
     s.set("showToolbar", !s.showToolbar);
   },
+  playPause: togglePlay,
+  previousFrame: () => stepFrame(-1),
+  nextFrame: () => stepFrame(1),
 
   undo,
   redo,
@@ -103,7 +109,9 @@ const RUN: Record<ShortcutId, () => void> = {
   commandPalette: () => getUi().togglePanel("command"),
   openImage: openFilePicker,
   save: () => void exportImage(),
+  saveOriginal: () => void saveOriginalImage(),
   copyImage: () => void copyImageToClipboard(),
+  viewOriginal: viewOriginalImage,
   settings: () => getUi().togglePanel("settings", true),
   shortcuts: () => getUi().togglePanel("shortcuts"),
 };

@@ -3,6 +3,7 @@ import { openBlob } from "@/lib/actions";
 import { loadHtmlImage } from "@/lib/image";
 import { isOverlay } from "@/lib/overlay";
 import { extensionApi, isExtension, originalUrl } from "@/lib/platform";
+import { useDoc } from "@/state/document";
 import { getUi } from "@/state/ui";
 import { t } from "@/lib/i18n";
 
@@ -125,4 +126,10 @@ export function viewOriginal(src: string) {
   if (isOverlay) window.open(originalUrl(src), "_blank", "noopener");
   else if (isExtension) location.assign(originalUrl(src));
   else window.open(src, "_blank", "noopener");
+}
+
+/** `viewOriginal` for the open image, when it came from a web address. */
+export function viewOriginalImage() {
+  const src = useDoc.getState().original?.sourceUrl;
+  if (src) viewOriginal(src);
 }

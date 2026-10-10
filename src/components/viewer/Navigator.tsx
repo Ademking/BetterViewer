@@ -2,6 +2,7 @@ import { MaximizeIcon, XIcon } from "lucide-react";
 import { memo, useEffect, useRef } from "react";
 import { ToolButton } from "@/components/tools/ToolButton";
 import { renderDocumentThumbnail, zoomFit } from "@/lib/actions";
+import { useIsAnimated, usePlayer } from "@/lib/animation";
 import { stageRegistry } from "@/lib/stageRegistry";
 import { isFastZoom, useView, viewport, wheelZoom } from "@/lib/viewport";
 import { cn } from "@/lib/utils";
@@ -91,6 +92,7 @@ function NavigatorBox({ width, height, k, max, renderSide, view, zoom }: BoxProp
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const areaRef = useRef<HTMLDivElement>(null);
   const toolbar = useSettings((s) => s.showToolbar);
+  const framesBar = useIsAnimated();
 
   // The part of the picture on show: all of it, or for a long image the part
   // around the view.
@@ -127,10 +129,21 @@ function NavigatorBox({ width, height, k, max, renderSide, view, zoom }: BoxProp
       window.clearTimeout(timer);
       timer = window.setTimeout(refresh, REFRESH_DELAY);
     };
+    // Animations: show each new frame as it comes (the board redraws all the
+    // time while playing, so waiting for it to settle would never refresh).
+    let frame = 0;
+    const unsubscribe = usePlayer.subscribe((s, prev) => {
+      if (s.index === prev.index && s.animation === prev.animation) return;
+      window.clearTimeout(timer);
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(refresh);
+    });
     refresh();
     for (const l of layers) l?.on("draw.navigator", schedule);
     return () => {
       window.clearTimeout(timer);
+      cancelAnimationFrame(frame);
+      unsubscribe();
       for (const l of layers) l?.off("draw.navigator");
     };
   }, [renderSide]);
@@ -199,8 +212,10 @@ function NavigatorBox({ width, height, k, max, renderSide, view, zoom }: BoxProp
     <div
       className={cn(
         "glass absolute right-3 bottom-3 z-20 hidden animate-in rounded-xl border p-1.5 shadow-lg/10 fade-in-0 zoom-in-95 duration-200 md:block",
-        // Above the toolbar until there's room beside it.
-        toolbar && "bottom-16 xl:bottom-3"
+        // Above the toolbar (and an animation's frames bar) until there's room beside them.
+        toolbar && !framesBar && "bottom-16 xl:bottom-3",
+        toolbar && framesBar && "bottom-28 xl:bottom-3",
+        !toolbar && framesBar && "bottom-16 xl:bottom-3"
       )}
       data-chrome
     >

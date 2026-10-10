@@ -6,6 +6,7 @@ import {
   CopyPlusIcon,
   MaximizeIcon,
   DownloadIcon,
+  ExternalLinkIcon,
   FileImageIcon,
   ImageIcon,
   WandSparklesIcon,
@@ -49,7 +50,9 @@ import {
   zoomFit,
 } from "@/lib/actions";
 import { SEARCH_ENGINES, searchImage } from "@/lib/external";
+import { viewOriginalImage } from "@/lib/openUrl";
 import { openOcr } from "@/components/tools/OcrPanel";
+import { useDoc } from "@/state/document";
 import { scanCurrentImage } from "@/state/qr";
 import { useUi } from "@/state/ui";
 import { useShortcutText } from "@/lib/shortcuts";
@@ -62,6 +65,7 @@ export function CanvasContextMenu({ children }: { children: React.ReactNode }) {
   const t = useT();
   const keys = useShortcutText();
   const hasSelection = useUi((s) => s.selectedIds.length > 0);
+  const webImage = useDoc((s) => !!s.original?.sourceUrl);
 
   return (
     <ContextMenu>
@@ -150,6 +154,7 @@ export function CanvasContextMenu({ children }: { children: React.ReactNode }) {
                 </ContextMenuItem>
                 <ContextMenuItem onSelect={saveOriginalImage} value="save-original">
                   <FileImageIcon /> {t("Original image")}
+                  <ContextMenuShortcut>{keys("saveOriginal")}</ContextMenuShortcut>
                 </ContextMenuItem>
               </ContextMenuSubContent>
             </ContextMenuSub>
@@ -157,6 +162,12 @@ export function CanvasContextMenu({ children }: { children: React.ReactNode }) {
               <ClipboardPasteIcon /> {t("Paste image")}
               <ContextMenuShortcut>{MOD} V</ContextMenuShortcut>
             </ContextMenuItem>
+            {webImage && (
+              <ContextMenuItem onSelect={viewOriginalImage} value="view-original">
+                <ExternalLinkIcon /> {t("View original")}
+                <ContextMenuShortcut>{keys("viewOriginal")}</ContextMenuShortcut>
+              </ContextMenuItem>
+            )}
             <ContextMenuSeparator />
 
             <ContextMenuSub positioning={SUB}>
