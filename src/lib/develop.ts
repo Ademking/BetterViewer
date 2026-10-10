@@ -67,10 +67,12 @@ const fulls = new WeakMap<HTMLImageElement, Slot>();
 /** Source pixels at preview sizes (the full size isn't kept: too big). */
 const previewPixels = new WeakMap<HTMLImageElement, Map<number, ImageData>>();
 
-function readPixels(image: HTMLImageElement, maxSide: number) {
-  const scale = Math.min(1, maxSide / Math.max(image.naturalWidth, image.naturalHeight));
-  const w = Math.max(1, Math.round(image.naturalWidth * scale));
-  const h = Math.max(1, Math.round(image.naturalHeight * scale));
+function readPixels(image: HTMLImageElement | ImageBitmap, maxSide: number) {
+  const iw = image instanceof HTMLImageElement ? image.naturalWidth : image.width;
+  const ih = image instanceof HTMLImageElement ? image.naturalHeight : image.height;
+  const scale = Math.min(1, maxSide / Math.max(iw, ih));
+  const w = Math.max(1, Math.round(iw * scale));
+  const h = Math.max(1, Math.round(ih * scale));
   const c = document.createElement("canvas");
   c.width = w;
   c.height = h;
@@ -124,6 +126,33 @@ export function developedFullSync(image: HTMLImageElement, p: DevelopParams | nu
   canvas.height = img.height;
   canvas.getContext("2d")!.putImageData(img, 0, 0);
   fulls.set(image, { key, source: canvas });
+  return canvas;
+}
+
+/** Last result per animation frame. */
+const frameSlots = new WeakMap<ImageBitmap, { key: string; canvas: HTMLCanvasElement }>();
+
+/**
+ * One frame of an animation, developed: at most the live preview size on
+ * screen, full size for exports (maxSide Infinity). The frame itself when
+ * there's nothing to do.
+ */
+export function developedFrame(frame: ImageBitmap, p: DevelopParams | null, maxSide = previewSide(p)): CanvasImageSource {
+  const key = developKey(p);
+  if (!key) return frame;
+  const side = Math.min(maxSide, Math.max(frame.width, frame.height));
+  const slotKey = `${key}|${side}`;
+  const slot = frameSlots.get(frame);
+  if (slot?.key === slotKey) return slot.canvas;
+  const px = readPixels(frame, side);
+  developPixels(px, p!, px.width / frame.width);
+  // Reuse the canvas; its version tells caches keyed on it that it changed.
+  const canvas = slot?.canvas ?? document.createElement("canvas");
+  canvas.width = px.width;
+  canvas.height = px.height;
+  canvas.getContext("2d")!.putImageData(px, 0, 0);
+  canvas.dataset.version = slotKey;
+  frameSlots.set(frame, { key: slotKey, canvas });
   return canvas;
 }
 

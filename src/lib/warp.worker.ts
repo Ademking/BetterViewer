@@ -5,10 +5,11 @@ interface Job {
   id: number;
   bitmap: ImageBitmap;
   quad: Quad;
+  /** Image type to encode to, or "bitmap" for the pixels themselves (animation frames). */
   type: string;
 }
 
-/** Full-resolution straighten / perspective off the main thread: bitmap in, encoded blob out. */
+/** Full-resolution straighten / perspective off the main thread: bitmap in, encoded blob (or bitmap) out. */
 self.onmessage = async (e: MessageEvent<Job>) => {
   const { id, bitmap, quad, type } = e.data;
   try {
@@ -20,6 +21,11 @@ self.onmessage = async (e: MessageEvent<Job>) => {
     const src = ctx.getImageData(0, 0, width, height);
     const out = new ImageData(warp(src, quad, width, height), width, height);
     ctx.putImageData(out, 0, 0);
+    if (type === "bitmap") {
+      const result = canvas.transferToImageBitmap();
+      (self as unknown as Worker).postMessage({ id, bitmap: result }, [result]);
+      return;
+    }
     const blob = await canvas.convertToBlob({ type, quality: 0.95 });
     (self as unknown as Worker).postMessage({ id, blob });
   } catch (err) {

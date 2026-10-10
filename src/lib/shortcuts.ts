@@ -51,6 +51,9 @@ export type ShortcutId =
   | "resize"
   | "navigator"
   | "toggleInterface"
+  | "playPause"
+  | "previousFrame"
+  | "nextFrame"
   // Edit
   | "undo"
   | "redo"
@@ -64,7 +67,9 @@ export type ShortcutId =
   | "commandPalette"
   | "openImage"
   | "save"
+  | "saveOriginal"
   | "copyImage"
+  | "viewOriginal"
   | "settings"
   | "shortcuts";
 
@@ -122,6 +127,9 @@ export const SHORTCUTS: ShortcutDef[] = [
   { id: "resize", label: tk("Resize image"), group: "View", keys: ["Mod+Alt+I"] },
   { id: "navigator", label: tk("Navigator"), group: "View", keys: ["Shift+N"] },
   { id: "toggleInterface", label: tk("Toggle interface"), group: "View", keys: ["Tab"] },
+  { id: "playPause", label: tk("Play / pause animation"), group: "View", keys: ["K"] },
+  { id: "previousFrame", label: tk("Previous frame"), group: "View", keys: [","] },
+  { id: "nextFrame", label: tk("Next frame"), group: "View", keys: ["."] },
 
   { id: "undo", label: tk("Undo"), group: "Edit", keys: ["Mod+Z"] },
   { id: "redo", label: tk("Redo"), group: "Edit", keys: ["Mod+Shift+Z", "Mod+Y"] },
@@ -135,7 +143,9 @@ export const SHORTCUTS: ShortcutDef[] = [
   { id: "commandPalette", label: tk("Quick launch"), group: "File", keys: ["Mod+K"], when: "always" },
   { id: "openImage", label: tk("Open image"), group: "File", keys: ["Mod+O"], when: "always" },
   { id: "save", label: tk("Save (format set in Settings)"), group: "File", keys: ["Mod+S"] },
+  { id: "saveOriginal", label: tk("Save original image"), group: "File", keys: ["Mod+Shift+S"] },
   { id: "copyImage", label: tk("Copy image"), group: "File", keys: ["Mod+Shift+C"] },
+  { id: "viewOriginal", label: tk("View original"), group: "File", keys: ["Shift+O"] },
   { id: "settings", label: tk("Settings"), group: "File", keys: ["Mod+,"], when: "always" },
   { id: "shortcuts", label: tk("This list"), group: "File", keys: ["?"], when: "noOverlay" },
 ];

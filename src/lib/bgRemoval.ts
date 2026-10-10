@@ -1,5 +1,6 @@
 import { toast } from "@/components/ui/toast";
 import { MOD } from "@/components/tools/ToolButton";
+import { animationFor } from "@/lib/animation";
 import { baseName, imageInfoFromBlob } from "@/lib/image";
 import { getDoc, updateDoc } from "@/state/document";
 import { isExtension, vendorUrl } from "@/lib/platform";
@@ -133,6 +134,15 @@ async function segment(image: Blob, backend: Backend, onProgress: (e: ProgressEv
 export async function removeBackground() {
   const doc = getDoc();
   if (!doc || busy) return;
+  // Still images only: running the model on every frame of an animation would take ages.
+  if (await animationFor(doc.image.src)) {
+    toast.info({
+      title: t("Background removal works on still images only"),
+      description: t("Pick a frame and choose Keep only this frame to remove its background."),
+    });
+    return;
+  }
+  if (busy) return;
   busy = true;
   const src = doc.image.src;
   const loaded = modelLoaded;

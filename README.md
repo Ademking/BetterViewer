@@ -104,6 +104,10 @@ runs in your browser, including OCR, background removal and QR scanning.
 - **Levels**, **curves** (RGB / R / G / B) and a live **histogram**
 - **Remove background** (AI, on your device)
 - Hold **Compare** to see the original; full **undo / redo**
+- **Animated GIF, WebP and APNG** play (even with thousands of frames), with
+  a frames bar and scrubber to pause on any frame; crops, resizes,
+  adjustments and annotations apply to every frame, and the result saves as
+  an animated GIF
 
 **Annotating**
 
@@ -121,7 +125,7 @@ runs in your browser, including OCR, background removal and QR scanning.
 - **Extract text (OCR)** in 13 languages
 - **QR code scanner** (links, Wi-Fi, contacts, events…)
 - **Compress** with a quality slider and before / after size
-- **Export** PNG / JPEG / WebP, copy to clipboard
+- **Export** PNG / JPEG / WebP (animations: animated GIF), copy to clipboard
 - **Upload** to kappa.lol or ImgBB, **Open in Photopea**
 - **Reverse image search** on Google Lens, Bing, Yandex and TinEye
 - **History** panel: every edit in a list, click one to go back to it
@@ -144,10 +148,10 @@ runs in your browser, including OCR, background removal and QR scanning.
 | Blur / pixelate     | M             | Rulers & guides     | Shift U           | Open / paste      | Ctrl O / Ctrl V       |
 | Text                | T             | Navigator           | Shift N           | Save / copy       | Ctrl S / Ctrl Shift C |
 | Color picker        | I             | Zoom faster         | Alt + wheel       | Settings          | Ctrl ,                |
-| Crop                | C             |                     |                   | Shortcuts list    | ?                     |
-| Adjustments         | F             |                     |                   | Cancel / deselect | Esc                   |
-| Levels & curves     | Shift C       |                     |                   |                   |                       |
-| Layers              | Shift L       |                     |                   |                   |                       |
+| Crop                | C             | Play / pause (GIF)  | K                 | Shortcuts list    | ?                     |
+| Adjustments         | F             | Prev / next frame   | , / .             | Cancel / deselect | Esc                   |
+| Levels & curves     | Shift C       |                     |                   | Save original     | Ctrl Shift S          |
+| Layers              | Shift L       |                     |                   | View original     | Shift O               |
 | Scan QR codes       | Q             |                     |                   |                   |                       |
 | Spotlight           | G             |                     |                   |                   |                       |
 | Measure             | U             |                     |                   |                   |                       |
@@ -241,6 +245,32 @@ none). For local development you can also set `VITE_IMGBB_API_KEY` in
 bundle, so don't ship a build with a private key.
 
 # Changelog
+
+## [Unreleased]
+
+- **Animated GIF, WebP and APNG** now play instead of showing their first
+  frame, including GIFs with thousands of frames (frames are decoded as they
+  are needed). The navigator follows the animation.
+- **Frames bar** under an animation: play / pause (K), previous / next frame
+  (, and .), and a timeline to click or drag to any frame, with a preview of
+  the frame under the pointer. **Playback speed** from 0.25× to 4×.
+- **Editing animations**: crop, resize, straighten, rotate, flip,
+  adjustments, curves and levels apply to every frame, and blur / pixelate
+  zones hide whatever each frame shows there. Undo brings the frames back.
+- **Save as animated GIF**: Ctrl+S (and Save) on an animation saves an
+  animated GIF with your edits and annotations, keeping its timing and
+  looping. PNG, JPEG and WebP save the frame on screen.
+- **Frame menu** in the frames bar: copy this frame, save it as PNG, or keep
+  only this frame (a still image you can keep editing; undo brings the
+  animation back).
+- **Image info** shows an animation's frames, duration, frame rate and
+  looping.
+- Background removal is for still images; on an animation, keep one frame
+  first.
+- **Save original** is easier to reach: Ctrl+Shift+S, a new toolbar button
+  (it can be hidden like the others) and the top of More → Save.
+- **View original** is in the right-click menu too, with a shortcut
+  (Shift+O).
 
 ## [3.1.1] - 2026-10-02
 

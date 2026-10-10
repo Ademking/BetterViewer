@@ -8,13 +8,14 @@ import { Hint, HintContent, HintTrigger } from "@/components/ui/hint";
 import { ScreenFloatingPanel } from "@/components/panels/FloatingPanel";
 import { toast } from "@/components/ui/toast";
 import { writeClipboardText } from "@/lib/clipboard";
+import { type Animation, usePlayer } from "@/lib/animation";
 import { type ExifData, readExif } from "@/lib/exif";
 import { formatBytes } from "@/lib/image";
 import { isDefaultFilters } from "@/lib/filters";
 import { cn } from "@/lib/utils";
 import { normRotation, useDoc } from "@/state/document";
 import { useUi } from "@/state/ui";
-import { dims, midSentence, t, useT } from "@/lib/i18n";
+import { currentLanguage, dims, midSentence, t, useT } from "@/lib/i18n";
 
 /** Top-left file chip; toggles the floating image info panel. */
 export function InfoBar() {
@@ -279,6 +280,43 @@ function CopyAllButton({ text }: { text: string }) {
   );
 }
 
+/** Total length of an animation (ms), once every frame's delay is known. */
+function useAnimationLength(animation: Animation | null) {
+  const [length, setLength] = useState<{ animation: Animation; ms: number } | null>(null);
+  useEffect(() => {
+    if (!animation) return;
+    let cancelled = false;
+    animation.allDelays().then(
+      (delays) => !cancelled && setLength({ animation, ms: delays.reduce((sum, d) => sum + d, 0) }),
+      () => {}
+    );
+    return () => {
+      cancelled = true;
+    };
+  }, [animation]);
+  return length?.animation === animation ? length.ms : null;
+}
+
+/** Rows about an animation: frames, length, frame rate, looping. */
+function animationRows(animation: Animation, lengthMs: number | null): Row[] {
+  const lang = currentLanguage();
+  const seconds = (ms: number) =>
+    new Intl.NumberFormat(lang, { style: "unit", unit: "second", maximumFractionDigits: 2 }).format(ms / 1000);
+  const loops = animation.loops;
+  return [
+    [t("Frames"), new Intl.NumberFormat(lang).format(animation.count)],
+    [t("Duration"), lengthMs === null ? "…" : seconds(lengthMs)],
+    [
+      t("Frame rate"),
+      lengthMs === null || !lengthMs
+        ? "…"
+        : `${new Intl.NumberFormat(lang, { maximumFractionDigits: 1 }).format(animation.count / (lengthMs / 1000))} fps`,
+    ],
+    // repetitionCount: repeats after the first play.
+    [t("Loop"), loops === Number.POSITIVE_INFINITY ? t("Forever") : loops <= 0 ? t("Plays once") : `${loops + 1}×`],
+  ];
+}
+
 /** Floating, draggable panel with details about the current image. */
 export function ImageInfoPanel() {
   const t = useT();
@@ -287,6 +325,9 @@ export function ImageInfoPanel() {
   const edits = useDoc((s) => s.past.length);
   const open = useUi((s) => s.panels.info);
   const togglePanel = useUi((s) => s.togglePanel);
+  const animation = usePlayer((s) => s.animation);
+  // Reading every frame's delay costs a pass over the file: only while the panel is open.
+  const lengthMs = useAnimationLength(open ? animation : null);
   // EXIF lives in the original file (crops re-encode without it).
   const exif = useExif(open ? original?.src : undefined);
   if (!doc || !original) return null;
@@ -312,6 +353,7 @@ export function ImageInfoPanel() {
         [t("Aspect ratio"), aspectLabel(image.width, image.height)],
       ],
     },
+    ...(animation ? [{ title: t("Animation"), rows: animationRows(animation, lengthMs) }] : []),
     {
       title: t("Edits"),
       rows: [

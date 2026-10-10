@@ -1,3 +1,4 @@
+import { deriveAnimation } from "@/lib/animation";
 import type { Annotation } from "@/lib/annotations";
 import { loadHtmlImage } from "@/lib/image";
 import { getDoc, type ImageInfo, normRotation, updateDoc } from "@/state/document";
@@ -11,9 +12,22 @@ import { t } from "@/lib/i18n";
  */
 export async function resampleImage(info: ImageInfo, width: number, height: number): Promise<ImageInfo> {
   const img = await loadHtmlImage(info.src);
-  let source: CanvasImageSource = img;
-  let sw = img.naturalWidth;
-  let sh = img.naturalHeight;
+  const out = resample(img, img.naturalWidth, img.naturalHeight, width, height);
+  const type = info.type === "image/jpeg" ? "image/jpeg" : "image/png";
+  const blob = await new Promise<Blob>((resolve, reject) =>
+    out.toBlob((b) => (b ? resolve(b) : reject(new Error(t("Resize failed")))), type, 0.95)
+  );
+  const src = URL.createObjectURL(blob);
+  await loadHtmlImage(src);
+  // Animations: resize every frame (the browser's own high-quality resampling, bitmap to bitmap).
+  await deriveAnimation(info.src, src, (frame) =>
+    createImageBitmap(frame, { resizeWidth: width, resizeHeight: height, resizeQuality: "high" })
+  );
+  return { ...info, src, width, height, size: blob.size, type };
+}
+
+function resample(image: CanvasImageSource, sw: number, sh: number, width: number, height: number) {
+  let source = image;
 
   while (sw / 2 >= width && sh / 2 >= height) {
     const step = document.createElement("canvas");
@@ -33,14 +47,7 @@ export async function resampleImage(info: ImageInfo, width: number, height: numb
   const ctx = out.getContext("2d")!;
   ctx.imageSmoothingQuality = "high";
   ctx.drawImage(source, 0, 0, width, height);
-
-  const type = info.type === "image/jpeg" ? "image/jpeg" : "image/png";
-  const blob = await new Promise<Blob>((resolve, reject) =>
-    out.toBlob((b) => (b ? resolve(b) : reject(new Error(t("Resize failed")))), type, 0.95)
-  );
-  const src = URL.createObjectURL(blob);
-  await loadHtmlImage(src);
-  return { ...info, src, width, height, size: blob.size, type };
+  return out;
 }
 
 /** Scale an annotation from image space into the resized image's space. */

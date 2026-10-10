@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { toast } from "@/components/ui/toast";
+import { deriveAnimation, pause, play, usePlayer } from "@/lib/animation";
 import type { Annotation } from "@/lib/annotations";
 import { loadHtmlImage } from "@/lib/image";
 import { scaleAnnotation } from "@/lib/resize";
@@ -14,19 +15,32 @@ import {
   warp,
 } from "@/lib/warp-core";
 import { getDoc, type ImageInfo, updateDoc } from "@/state/document";
-import { getUi } from "@/state/ui";
+import { getUi, useUi } from "@/state/ui";
 import { t } from "@/lib/i18n";
 
 export type { StraightenParams };
 
 /* ------------------------------------------------------------------ mode */
 
+/** An animation was playing when straightening started: it plays again afterwards. */
+let resumePlaying = false;
+
 export const startStraighten = () => {
   if (!getDoc()) return;
+  // Animations: the preview shows the frame on screen.
+  resumePlaying = usePlayer.getState().playing;
+  pause();
   getUi().set({ tool: "straighten", selectedIds: [], editingTextId: null, straighten: { ...DEFAULT_STRAIGHTEN } });
 };
 
 export const cancelStraighten = () => getUi().set({ tool: "select", straighten: null, levelLine: null });
+
+// Done straightening (applied or not): play again.
+useUi.subscribe((s, prev) => {
+  if (!prev.straighten || s.straighten) return;
+  if (resumePlaying) play();
+  resumePlaying = false;
+});
 
 export const setStraighten = (patch: Partial<StraightenParams>) => {
   const s = getUi().straighten;
@@ -104,32 +118,55 @@ export function useStraightenPreview(
 let worker: Worker | null = null;
 let nextJob = 1;
 
-async function warpFull(info: ImageInfo, quad: Quad, type: string): Promise<Blob> {
-  const img = await loadHtmlImage(info.src);
-  if (typeof OffscreenCanvas !== "undefined" && typeof createImageBitmap === "function") {
-    worker ??= new Worker(new URL("./warp.worker.ts", import.meta.url), { type: "module" });
-    const bitmap = await createImageBitmap(img);
-    const id = nextJob++;
-    const w = worker;
-    return new Promise((resolve, reject) => {
-      const onMessage = (e: MessageEvent<{ id: number; blob?: Blob; error?: string }>) => {
-        if (e.data.id !== id) return;
-        w.removeEventListener("message", onMessage);
-        if (e.data.blob) resolve(e.data.blob);
-        else reject(new Error(e.data.error ?? t("Straighten failed")));
-      };
-      w.addEventListener("message", onMessage);
-      w.postMessage({ id, bitmap, quad, type }, [bitmap]);
-    });
-  }
-  // Main-thread fallback.
+const workerSupported = () => typeof OffscreenCanvas !== "undefined" && typeof createImageBitmap === "function";
+
+/** Warp in the worker: an encoded file of `type`, or the pixels for "bitmap". */
+async function warpInWorker<T extends Blob | ImageBitmap>(img: HTMLImageElement | ImageBitmap, quad: Quad, type: string): Promise<T> {
+  worker ??= new Worker(new URL("./warp.worker.ts", import.meta.url), { type: "module" });
+  const bitmap = await createImageBitmap(img);
+  const id = nextJob++;
+  const w = worker;
+  return new Promise((resolve, reject) => {
+    const onMessage = (e: MessageEvent<{ id: number; blob?: Blob; bitmap?: ImageBitmap; error?: string }>) => {
+      if (e.data.id !== id) return;
+      w.removeEventListener("message", onMessage);
+      const result = e.data.blob ?? e.data.bitmap;
+      if (result) resolve(result as T);
+      else reject(new Error(e.data.error ?? t("Straighten failed")));
+    };
+    w.addEventListener("message", onMessage);
+    w.postMessage({ id, bitmap, quad, type }, [bitmap]);
+  });
+}
+
+/** Warp on this thread (no worker canvas): the result on a canvas. */
+function warpHere(img: HTMLImageElement | ImageBitmap, quad: Quad) {
   const c = document.createElement("canvas");
-  c.width = img.naturalWidth;
-  c.height = img.naturalHeight;
+  c.width = img instanceof HTMLImageElement ? img.naturalWidth : img.width;
+  c.height = img instanceof HTMLImageElement ? img.naturalHeight : img.height;
   const ctx = c.getContext("2d", { willReadFrequently: true })!;
   ctx.drawImage(img, 0, 0);
   const src = ctx.getImageData(0, 0, c.width, c.height);
   ctx.putImageData(new ImageData(warp(src, quad, c.width, c.height), c.width, c.height), 0, 0);
+  return c;
+}
+
+/**
+ * Frames up to this many pixels are warped on this thread: a trip to the
+ * worker costs ≈16 ms, far more than warping a small frame (≈1 ms for 200 × 160).
+ */
+const SMALL_FRAME = 500_000;
+
+/** One animation frame, warped. */
+const warpFrame = (frame: ImageBitmap, quad: Quad): Promise<CanvasImageSource> | CanvasImageSource =>
+  workerSupported() && frame.width * frame.height > SMALL_FRAME
+    ? warpInWorker<ImageBitmap>(frame, quad, "bitmap")
+    : warpHere(frame, quad);
+
+async function warpFull(img: HTMLImageElement | ImageBitmap, quad: Quad, type: string): Promise<Blob> {
+  if (workerSupported()) return warpInWorker<Blob>(img, quad, type);
+  // Main-thread fallback.
+  const c = warpHere(img, quad);
   return new Promise((resolve, reject) =>
     c.toBlob((b) => (b ? resolve(b) : reject(new Error(t("Straighten failed")))), type, 0.95)
   );
@@ -154,9 +191,11 @@ export async function applyStraighten() {
   const quad = sourceQuad(W, H, params);
   try {
     const type = doc.image.type === "image/jpeg" ? "image/jpeg" : "image/png";
-    const blob = await warpFull(doc.image, quad, type);
+    const blob = await warpFull(await loadHtmlImage(doc.image.src), quad, type);
     const src = URL.createObjectURL(blob);
     await loadHtmlImage(src);
+    // Animations: straighten every frame the same way.
+    await deriveAnimation(doc.image.src, src, (frame) => warpFrame(frame, quad));
     const image: ImageInfo = { ...doc.image, src, size: blob.size, type };
     // How much the content was magnified (to fill the frame).
     const zoom = W / Math.hypot(quad[1].x - quad[0].x, quad[1].y - quad[0].y);

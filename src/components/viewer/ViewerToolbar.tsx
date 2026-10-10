@@ -107,6 +107,7 @@ import { hasEdits, useDoc } from "@/state/document";
 import { scanCurrentImage } from "@/state/qr";
 import { useUi } from "@/state/ui";
 import { useShortcutText } from "@/lib/shortcuts";
+import { useIsAnimated } from "@/lib/animation";
 import { cn } from "@/lib/utils";
 import { useT } from "@/lib/i18n";
 
@@ -195,6 +196,11 @@ export function ViewerToolbar() {
         </ToolButton>
       </>
     ),
+    saveOriginal: (
+      <ToolButton label={t("Save original image")} onClick={() => void saveOriginalImage()} command="saveOriginal">
+        <DownloadIcon />
+      </ToolButton>
+    ),
   };
   // Groups with something left to show; a divider goes before each but the first.
   const groups = TOOLBAR_GROUPS.map((g) => ({ ...g, items: g.items.filter((id) => !hidden.includes(id)) })).filter(
@@ -273,6 +279,7 @@ function MoreMenu({ canUndo, canRedo }: { canUndo: boolean; canRedo: boolean }) 
   const togglePanel = useUi((s) => s.togglePanel);
   const dirty = useDoc((s) => s.past.length > 0);
   const edited = useDoc(hasEdits);
+  const animated = useIsAnimated();
 
   return (
     <Menu positioning={{ placement: "top-end", gutter: 14 }}>
@@ -309,6 +316,7 @@ function MoreMenu({ canUndo, canRedo }: { canUndo: boolean; canRedo: boolean }) 
                 <MenuSeparator />
                 <MenuItem onSelect={() => viewOriginal(sourceUrl)} value="view-original">
                   <ExternalLinkIcon /> {t("View original")}
+                  <MenuShortcut>{keys("viewOriginal")}</MenuShortcut>
                 </MenuItem>
               </>
             )}
@@ -319,23 +327,26 @@ function MoreMenu({ canUndo, canRedo }: { canUndo: boolean; canRedo: boolean }) 
             <DownloadIcon /> {t("Save")}
           </MenuSubTrigger>
           <MenuSubContent className="w-max min-w-56">
-            {/* The Save format setting, like {MOD} S. */}
+            {/* Like {MOD} S: an animated GIF for animations, otherwise the Save format setting. */}
             <MenuItem onSelect={() => exportImage()} value="save">
-              <DownloadIcon /> {t("Save as {format}", { format: SAVE_LABEL[saveFormat] })}
+              <DownloadIcon />{" "}
+              {animated ? t("Save as animated GIF") : t("Save as {format}", { format: SAVE_LABEL[saveFormat] })}
               <MenuShortcut>{keys("save")}</MenuShortcut>
             </MenuItem>
+            <MenuItem onSelect={saveOriginalImage} value="save-original">
+              <FileImageIcon /> {t("Original file")}
+              <MenuShortcut>{keys("saveOriginal")}</MenuShortcut>
+            </MenuItem>
             <MenuSeparator />
-            <MenuGroup heading={t("Other formats")}>
+            {/* Animations: still formats save the frame on screen. */}
+            <MenuGroup heading={animated ? t("Current frame") : t("Other formats")}>
               {(Object.keys(SAVE_LABEL) as (keyof typeof SAVE_LABEL)[])
-                .filter((f) => f !== saveFormat)
+                .filter((f) => animated || f !== saveFormat)
                 .map((f) => (
                   <MenuItem key={f} onSelect={() => exportImage(f)} value={`save-${f}`}>
                     <SaveAllIcon /> {t("Save as {format}", { format: SAVE_LABEL[f] })}
                   </MenuItem>
                 ))}
-              <MenuItem onSelect={saveOriginalImage} value="save-original">
-                <FileImageIcon /> {t("Original file")}
-              </MenuItem>
             </MenuGroup>
             <MenuSeparator />
             <MenuItem onSelect={() => togglePanel("compress", true)} value="compress">
@@ -354,7 +365,8 @@ function MoreMenu({ canUndo, canRedo }: { canUndo: boolean; canRedo: boolean }) 
             <WandSparklesIcon /> {t("Image tools")}
           </MenuSubTrigger>
           <MenuSubContent className="w-max min-w-56">
-            <MenuItem onSelect={() => void removeBackground()} value="remove-bg">
+            {/* Still images only (Keep only this frame makes one from an animation). */}
+            <MenuItem disabled={animated} onSelect={() => void removeBackground()} value="remove-bg">
               <EraserIcon /> {t("Remove background")}
             </MenuItem>
             <MenuItem onSelect={openOcr} value="ocr">

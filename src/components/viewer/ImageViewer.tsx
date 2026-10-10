@@ -7,6 +7,7 @@ import { ShortcutsDialog } from "@/components/panels/ShortcutsDialog";
 import { AboutDialog } from "@/components/panels/AboutDialog";
 import { IncomingImageDialog } from "@/components/panels/IncomingImageDialog";
 import { openFromLocation, openPendingScreenshot } from "@/lib/openUrl";
+import { useIsAnimated } from "@/lib/animation";
 import { isOverlay, receiveOverlayImage } from "@/lib/overlay";
 import { isGallery, startGallery, useGallery } from "@/lib/gallery";
 import { GALLERY_RAIL_SPACE, GalleryRail } from "@/components/viewer/GalleryRail";
@@ -21,6 +22,7 @@ import { OcrPanel } from "@/components/tools/OcrPanel";
 import { LayersPanel } from "@/components/panels/LayersPanel";
 import { HistoryPanel } from "@/components/panels/HistoryPanel";
 import { CurvesPanel } from "@/components/panels/CurvesPanel";
+import { AnimationBar } from "@/components/viewer/AnimationBar";
 import { BoardBackground } from "@/components/viewer/BoardBackground";
 import { CanvasContextMenu } from "@/components/viewer/CanvasContextMenu";
 import { DropOverlay, EmptyState } from "@/components/viewer/EmptyState";
@@ -131,9 +133,17 @@ export function ImageViewer() {
 
   // Reserve room for the toolbar (and the gallery rail) when fitting the image.
   const galleryRail = useGallery((s) => isGallery && s.railOpen && s.items.length > 0);
+  // …and the frames bar of an animation.
+  const animated = useIsAnimated();
+  const wasAnimated = useRef(animated);
   useEffect(() => {
-    viewport.setInsets({ top: 64, bottom: showToolbar ? 88 : 24, left: galleryRail ? GALLERY_RAIL_SPACE : 24 });
-  }, [showToolbar, galleryRail]);
+    const bottom = (showToolbar ? 88 : 24) + (animated ? 52 : 0);
+    // The frames bar shows up once an animation is decoded: make room for it
+    // unless the view was moved meanwhile.
+    const barChanged = wasAnimated.current !== animated;
+    wasAnimated.current = animated;
+    viewport.setInsets({ top: 64, bottom, left: galleryRail ? GALLERY_RAIL_SPACE : 24 }, barChanged);
+  }, [showToolbar, galleryRail, animated]);
 
   const chrome = cn(
     "transition-[opacity,translate] duration-300",
@@ -170,6 +180,11 @@ export function ImageViewer() {
               !chromeVisible && "translate-y-3"
             )}
           >
+            {animated && (
+              <div className="pointer-events-auto max-w-full" data-chrome>
+                <AnimationBar />
+              </div>
+            )}
             <div className="pointer-events-auto" data-chrome>
               <ViewerControls />
             </div>

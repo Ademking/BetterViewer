@@ -1,8 +1,9 @@
 import type Konva from "konva";
-import { memo, useCallback, useEffect, useRef } from "react";
+import { memo, useCallback, useEffect, useMemo, useRef } from "react";
 import { Rect, Shape } from "react-konva";
 import { useImage } from "@/hooks/useImage";
-import { developedFullSync, useDevelopedSource, useDevelopParams } from "@/lib/develop";
+import { currentFrame, useCurrentFrame } from "@/lib/animation";
+import { developedFrame, developedFullSync, useDevelopedSource, useDevelopParams } from "@/lib/develop";
 import { pickLevel, useMipmaps } from "@/lib/mipmap";
 import { useStraightenPreview } from "@/lib/straighten";
 import { toCssFilter } from "@/lib/filters";
@@ -26,10 +27,15 @@ export const ImageNode = memo(function ImageNode() {
   const { image } = useImage(info?.src);
   const develop = useDevelopParams();
   const source = useDevelopedSource(image, develop);
+  // Animations: the frame on screen, developed the same way.
+  const frame = useCurrentFrame();
+  const frameSource = useMemo(() => (frame ? developedFrame(frame, develop) : null), [frame, develop]);
+  const base = frameSource ?? source ?? image;
   const straighten = useUi((s) => s.straighten);
-  const preview = useStraightenPreview(straighten ? (source ?? image) : null, straighten, info?.width ?? 0, info?.height ?? 0);
-  const shown = preview ?? source ?? image;
-  const mipmaps = useMipmaps(shown);
+  const preview = useStraightenPreview(straighten ? base : null, straighten, info?.width ?? 0, info?.height ?? 0);
+  const shown = preview ?? base;
+  // Frames are small enough to draw as they are.
+  const mipmaps = useMipmaps(frame ? null : shown);
 
   const sceneFunc = useCallback(
     (ctx: Konva.Context) => {
@@ -48,16 +54,22 @@ export const ImageNode = memo(function ImageNode() {
       );
       native.imageSmoothingQuality = "high";
       // Exports always get the full-resolution result; on screen, the smallest
-      // copy that still covers the pixels shown.
+      // copy that still covers the pixels shown. Exports and the navigator
+      // render whichever animation frame is current right now.
+      const now = currentFrame();
       const src = stageRegistry.exporting
-        ? developedFullSync(image, develop)
-        : shown
-          ? pickLevel(shown, mipmaps, info.width * deviceScale)
-          : image;
+        ? now
+          ? developedFrame(now, develop, Number.POSITIVE_INFINITY)
+          : developedFullSync(image, develop)
+        : stageRegistry.thumbnail && now && !preview
+          ? developedFrame(now, develop)
+          : shown
+            ? pickLevel(shown, mipmaps, info.width * deviceScale)
+            : image;
       native.drawImage(src, 0, 0, info.width, info.height);
       native.filter = "none";
     },
-    [image, shown, mipmaps, info, filters, develop, compare, pixelated]
+    [image, shown, preview, mipmaps, info, filters, develop, compare, pixelated]
   );
 
   const opaque = !!info && /jpe?g/i.test(info.type);
