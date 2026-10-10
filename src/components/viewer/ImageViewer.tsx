@@ -10,6 +10,8 @@ import { openFromLocation, openPendingScreenshot } from "@/lib/openUrl";
 import { useIsAnimated } from "@/lib/animation";
 import { isOverlay, receiveOverlayImage } from "@/lib/overlay";
 import { isGallery, startGallery, useGallery } from "@/lib/gallery";
+import { onFileDrop, setWindowTitle, startDesktop } from "@/lib/desktop";
+import { isDesktop } from "@/lib/platform";
 import { GALLERY_RAIL_SPACE, GalleryRail } from "@/components/viewer/GalleryRail";
 import { OverlayControls } from "@/components/viewer/OverlayControls";
 import { UploadDialog } from "@/components/panels/UploadDialog";
@@ -46,6 +48,8 @@ function useFileDrop() {
   const [dragging, setDragging] = useState(false);
   const depth = useRef(0);
   useEffect(() => {
+    // Desktop: the app hands over dropped files with their paths.
+    if (isDesktop) return onFileDrop(setDragging);
     const hasFiles = (e: DragEvent) => !!e.dataTransfer?.types.includes("Files");
     const enter = (e: DragEvent) => {
       if (!hasFiles(e)) return;
@@ -112,12 +116,14 @@ export function ImageViewer() {
     if (panel === "settings" || panel === "about" || panel === "shortcuts") useUi.getState().togglePanel(panel, true);
     receiveOverlayImage();
     startGallery();
+    startDesktop();
   }, []);
 
   // Tab title: the image's name.
   const imageName = useDoc((s) => s.doc?.image.name);
   useEffect(() => {
     document.title = imageName ? `${imageName} · BetterViewer` : "BetterViewer";
+    setWindowTitle(document.title);
   }, [imageName]);
 
   const hasDoc = useDoc((s) => !!s.doc);
@@ -151,7 +157,7 @@ export function ImageViewer() {
   );
 
   return (
-    <main className="relative h-svh w-full overflow-hidden bg-background text-foreground">
+    <main className="relative h-full w-full overflow-hidden bg-background text-foreground">
       {hasDoc ? (
         <div className="absolute inset-0 animate-in fade-in-0 duration-500">
           <BoardBackground />
@@ -221,7 +227,7 @@ export function ImageViewer() {
           <GalleryRail />
         </div>
       )}
-      {isOverlay && <OverlayControls />}
+      {(isOverlay || isDesktop) && <OverlayControls />}
       <Toaster />
       <DropOverlay active={dragging} />
     </main>

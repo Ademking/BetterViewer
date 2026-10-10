@@ -2,6 +2,7 @@ import { toast } from "@/components/ui/toast";
 import { renderDocument } from "@/lib/actions";
 import { baseName } from "@/lib/image";
 import { getUsableProvider } from "@/lib/upload";
+import { isDesktop } from "@/lib/platform";
 import { getDoc, hasEdits, useDoc } from "@/state/document";
 import { getUi } from "@/state/ui";
 import { t } from "@/lib/i18n";
@@ -89,7 +90,8 @@ export async function openExternally(id: ExternalTargetId) {
     return;
   }
 
-  const tab = window.open("", "_blank");
+  // Desktop: the site opens in the default browser once the upload is done.
+  const tab = isDesktop ? null : window.open("", "_blank");
   if (tab) {
     tab.opener = null;
     tab.document.write(pendingHtml(target.name));
@@ -119,8 +121,9 @@ export async function openExternally(id: ExternalTargetId) {
     }
     const url = target.buildUrl(upload.directUrl);
 
-    if (tab && !tab.closed) {
-      tab.location.replace(url);
+    if (isDesktop || (tab && !tab.closed)) {
+      if (tab) tab.location.replace(url);
+      else window.open(url, "_blank", "noopener,noreferrer");
       toast.update(toastId, {
         type: "success",
         title: t("Opened in {app}", { app: target.name }),

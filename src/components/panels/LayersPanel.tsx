@@ -143,25 +143,25 @@ interface RowProps {
   index: number;
   count: number;
   selected: boolean;
+  /** This row is being dragged. */
+  dragging: boolean;
   dropHint: "above" | "below" | null;
-  onDragStart: () => void;
-  onDragOverRow: (e: React.DragEvent, above: boolean) => void;
-  onDrop: () => void;
-  onDragEnd: () => void;
+  onPointerDown: (e: React.PointerEvent) => void;
 }
 
-function LayerRow({ a, index, count, selected, dropHint, onDragStart, onDragOverRow, onDrop, onDragEnd }: RowProps) {
+function LayerRow({ a, index, count, selected, dragging, dropHint, onPointerDown }: RowProps) {
   const t = useT();
   const color = layerColor(a);
   return (
     <div
       aria-selected={selected}
       className={cn(
-        "group/layer relative flex h-9 cursor-default items-center gap-2 rounded-lg px-1.5 text-sm transition-colors",
+        "group/layer relative flex h-9 cursor-default select-none items-center gap-2 rounded-lg px-1.5 text-sm transition-colors",
         selected ? "bg-brand/15 text-foreground" : "hover:bg-accent/70",
-        a.hidden && "text-muted-foreground"
+        a.hidden && "text-muted-foreground",
+        dragging && "opacity-50"
       )}
-      draggable
+      data-layer-id={a.id}
       onClick={(e) => {
         const ui = getUi();
         if (a.hidden) return;
@@ -172,21 +172,7 @@ function LayerRow({ a, index, count, selected, dropHint, onDragStart, onDragOver
           ui.select([a.id]);
         }
       }}
-      onDragEnd={onDragEnd}
-      onDragOver={(e) => {
-        e.preventDefault();
-        const r = e.currentTarget.getBoundingClientRect();
-        onDragOverRow(e, e.clientY < r.top + r.height / 2);
-      }}
-      onDragStart={(e) => {
-        e.dataTransfer.effectAllowed = "move";
-        e.dataTransfer.setData("text/plain", a.id);
-        onDragStart();
-      }}
-      onDrop={(e) => {
-        e.preventDefault();
-        onDrop();
-      }}
+      onPointerDown={onPointerDown}
       role="option"
     >
       {dropHint && (
@@ -247,17 +233,52 @@ export function LayersPanel() {
   // Top of the stack first, like design tools.
   const rows = annotations.map((a, index) => ({ a, index })).reverse();
 
-  const finishDrop = () => {
-    if (dragId && drop && dragId !== drop.id) {
-      const from = annotations.findIndex((a) => a.id === dragId);
-      const target = annotations.findIndex((a) => a.id === drop.id);
+  /**
+   * Drag a row to reorder. Pointer events rather than HTML drag and drop,
+   * which the desktop app turns off to receive dropped files.
+   */
+  const startDrag = (e: React.PointerEvent, id: string) => {
+    if (e.button !== 0 || (e.target as Element).closest("button")) return;
+    const x0 = e.clientX;
+    const y0 = e.clientY;
+    let dragging = false;
+    let target: { id: string; above: boolean } | null = null;
+    const move = (ev: PointerEvent) => {
+      if (!dragging) {
+        if (Math.hypot(ev.clientX - x0, ev.clientY - y0) < 4) return;
+        dragging = true;
+        setDragId(id);
+      }
+      const row = document.elementFromPoint(ev.clientX, ev.clientY)?.closest<HTMLElement>("[data-layer-id]");
+      if (!row?.dataset.layerId) return;
+      const r = row.getBoundingClientRect();
+      target = { id: row.dataset.layerId, above: ev.clientY < r.top + r.height / 2 };
+      setDrop(target);
+    };
+    const end = (ev: PointerEvent) => {
+      window.removeEventListener("pointermove", move);
+      window.removeEventListener("pointerup", end);
+      window.removeEventListener("pointercancel", end);
+      setDragId(null);
+      setDrop(null);
+      if (!dragging) return;
+      // The click that ends a drag doesn't select.
+      const swallow = (c: MouseEvent) => c.stopPropagation();
+      window.addEventListener("click", swallow, { capture: true, once: true });
+      setTimeout(() => window.removeEventListener("click", swallow, { capture: true }));
+      if (ev.type !== "pointerup" || !target || target.id === id) return;
+      const layers = useDoc.getState().doc?.annotations ?? [];
+      const from = layers.findIndex((a) => a.id === id);
+      const over = layers.findIndex((a) => a.id === target!.id);
+      if (from < 0 || over < 0) return;
       // "Above" in the list means higher in the stack (larger index).
-      let to = drop.above ? target + 1 : target;
+      let to = target.above ? over + 1 : over;
       if (from < to) to -= 1;
-      moveLayer(dragId, to);
-    }
-    setDragId(null);
-    setDrop(null);
+      moveLayer(id, to);
+    };
+    window.addEventListener("pointermove", move);
+    window.addEventListener("pointerup", end);
+    window.addEventListener("pointercancel", end);
   };
 
   return (
@@ -276,16 +297,11 @@ export function LayersPanel() {
           <LayerRow
             a={a}
             count={count}
+            dragging={dragId === a.id}
             dropHint={drop?.id === a.id && dragId !== a.id ? (drop.above ? "above" : "below") : null}
             index={index}
             key={a.id}
-            onDragEnd={() => {
-              setDragId(null);
-              setDrop(null);
-            }}
-            onDragOverRow={(_, above) => setDrop({ id: a.id, above })}
-            onDragStart={() => setDragId(a.id)}
-            onDrop={finishDrop}
+            onPointerDown={(e) => startDrag(e, a.id)}
             selected={selectedIds.includes(a.id)}
           />
         ))}

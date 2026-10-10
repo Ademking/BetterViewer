@@ -24,18 +24,23 @@ const MARGIN = 12;
 
 const viewportSize = () => ({ width: window.innerWidth, height: window.innerHeight });
 
+/** Height of the desktop app's title bar (0 on the web), which panels stay below. */
+const titleBarHeight = () =>
+  parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--titlebar-h")) || 0;
+
 /** Keep a panel rect fully inside the window. */
 const clampRect = (pos: Point, size: Size, minIn: Size, staged = false) => {
   const vp = viewportSize();
+  const top = MARGIN + titleBarHeight();
   // Minimized panels collapse to their header; don't force the min size.
   const min = staged ? { width: minIn.width, height: 0 } : minIn;
   const width = Math.max(Math.min(min.width, vp.width - MARGIN * 2), Math.min(size.width, vp.width - MARGIN * 2));
-  const height = Math.max(Math.min(min.height, vp.height - MARGIN * 2), Math.min(size.height, vp.height - MARGIN * 2));
+  const height = Math.max(Math.min(min.height, vp.height - top - MARGIN), Math.min(size.height, vp.height - top - MARGIN));
   return {
     size: { width, height },
     position: {
       x: Math.min(Math.max(MARGIN, pos.x), vp.width - width - MARGIN),
-      y: Math.min(Math.max(MARGIN, pos.y), vp.height - height - MARGIN),
+      y: Math.min(Math.max(top, pos.y), vp.height - height - MARGIN),
     },
   };
 };

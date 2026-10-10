@@ -20,6 +20,8 @@ import {
   supportedFormatsText,
 } from "@/lib/image";
 import { closeOverlay, isOverlay } from "@/lib/overlay";
+import { pickAndOpenImage } from "@/lib/desktop";
+import { isDesktop } from "@/lib/platform";
 import { drawWithFrame, loadAnimation, pause, usePlayer } from "@/lib/animation";
 import { createGifWriter } from "@/lib/gif";
 import { writeClipboardImage, writeClipboardText } from "@/lib/clipboard";
@@ -119,16 +121,16 @@ export async function insertImageLayer(blob: Blob, name = t("Image")) {
  * otherwise asks whether to add it on top or open it instead (unless the
  * user chose to remember an answer).
  */
-export async function receiveImage(blob: Blob, name: string) {
-  if (!getDoc()) return openBlob(blob, name);
+export async function receiveImage(blob: Blob, name: string, extra?: Partial<ImageInfo>) {
+  if (!getDoc()) return openBlob(blob, name, extra);
   const action = getSettings().incomingImage;
   if (action === "layer") return insertImageLayer(blob, name);
-  if (action === "open") return openBlob(blob, name);
+  if (action === "open") return openBlob(blob, name, extra);
   askIncomingImage({
     blob,
     name,
     onLayer: () => void insertImageLayer(blob, name),
-    onOpen: () => void openBlob(blob, name),
+    onOpen: () => void openBlob(blob, name, extra),
   });
 }
 
@@ -165,6 +167,8 @@ export async function openFiles(files: FileList | File[] | null | undefined) {
 }
 
 export function openFilePicker() {
+  // Desktop: the system's dialog, which gives the file's path (and folder).
+  if (isDesktop) return void pickAndOpenImage();
   const input = document.createElement("input");
   input.type = "file";
   input.accept = ACCEPT_ATTRIBUTE;
@@ -414,7 +418,10 @@ async function exportAnimatedGif() {
       shown = now;
       toast.update(id, { description: t("Frame {current} of {total}…", { current: done, total }) });
     });
-    downloadBlob(blob, `${baseName(doc.image.name)}-edited.gif`);
+    if (!(await downloadBlob(blob, `${baseName(doc.image.name)}-edited.gif`))) {
+      toast.dismiss(id);
+      return;
+    }
     toast.update(id, {
       type: "success",
       title: t("Image exported"),
@@ -446,7 +453,7 @@ export async function exportImage(format?: ExportFormat | "gif") {
   try {
     const blob = await renderDocument(chosen);
     const ext = chosen === "jpeg" ? "jpg" : chosen;
-    downloadBlob(blob, `${baseName(doc.image.name)}-edited.${ext}`);
+    if (!(await downloadBlob(blob, `${baseName(doc.image.name)}-edited.${ext}`))) return;
     toast.success({ title: t("Image exported"), description: t("Saved as {format}", { format: ext.toUpperCase() }) });
   } catch (err) {
     toast.error({ title: t("Export failed"), description: (err as Error).message });
@@ -512,7 +519,7 @@ export async function saveOriginalImage() {
   try {
     const file = await originalFile();
     if (!file) return;
-    downloadBlob(file.blob, file.name);
+    if (!(await downloadBlob(file.blob, file.name))) return;
     toast.success({ title: t("Original image saved") });
   } catch (err) {
     toast.error({ title: t("Couldn't save the original"), description: (err as Error).message });

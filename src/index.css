@@ -167,6 +167,8 @@
     }
   html {
     @apply antialiased;
+    /* Desktop app title bar, set by TitleBar.tsx. */
+    --titlebar-h: 0px;
     }
   body {
     @apply bg-background text-foreground flex min-h-svh flex-col font-sans;

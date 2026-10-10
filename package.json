@@ -25,7 +25,11 @@
     "postinstall": "patch-package",
     "emoji-data": "node scripts/build-emoji-data.mjs",
     "build:ext": "vite build --mode extension && node scripts/build-extension.mjs",
-    "i18n": "node scripts/i18n.mjs"
+    "i18n": "node scripts/i18n.mjs",
+    "tauri": "tauri",
+    "desktop": "tauri dev",
+    "build:desktop": "tauri build",
+    "build:desktop-web": "tsc && vite build --mode desktop"
   },
   "manifest": {
     "browser_specific_settings": {
@@ -36,6 +40,7 @@
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.3.3",
+    "@tauri-apps/cli": "^2.12.2",
     "@types/node": "^26.6.3",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
@@ -52,6 +57,8 @@
     "@base-ui/react": "^1.8.0",
     "@huggingface/transformers": "^4.3.0",
     "@nuintun/qrcode": "^5.0.3",
+    "@tauri-apps/api": "^2.12.3",
+    "@tauri-apps/plugin-opener": "^2.7.1",
     "clsx": "^2.1.1",
     "exif-js": "^2.3.0",
     "gifenc": "^1.0.3",

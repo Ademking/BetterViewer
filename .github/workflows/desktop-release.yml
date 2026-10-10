@@ -1,0 +1,84 @@
+# Builds the Tauri desktop app on native runners and uploads the installers
+# to a draft GitHub Release. Runs on version tags (v*) and by hand.
+name: Desktop release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: desktop-release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build (${{ matrix.name }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Windows
+            platform: windows-latest
+            args: ""
+          # 22.04 keeps the glibc requirement low so the .deb, .rpm and
+          # AppImage run on older distributions too.
+          - name: Linux
+            platform: ubuntu-22.04
+            args: ""
+          - name: macOS (Apple Silicon)
+            platform: macos-latest
+            args: "--target aarch64-apple-darwin"
+          - name: macOS (Intel)
+            platform: macos-latest
+            args: "--target x86_64-apple-darwin"
+    runs-on: ${{ matrix.platform }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Linux dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libwebkit2gtk-4.1-dev \
+            libxdo-dev \
+            libssl-dev \
+            libayatana-appindicator3-dev \
+            librsvg2-dev
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          # Both macOS targets, so either matrix entry can cross-build.
+          targets: ${{ runner.os == 'macOS' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+
+      - uses: swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri -> target
+          key: ${{ matrix.args }}
+
+      # Runs the postinstall (patch-package) too.
+      - name: Install npm dependencies
+        run: npm ci
+
+      # Tauri runs beforeBuildCommand (npm run build:desktop-web) itself.
+      - uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tagName: v__VERSION__
+          releaseName: BetterViewer __VERSION__
+          releaseBody: See the assets below to download and install BetterViewer for your system.
+          releaseDraft: true
+          prerelease: false
+          args: ${{ matrix.args }}

@@ -88,8 +88,9 @@ export const DialogPositioner = (
   return (
     <ArkDialog.Positioner
       className={cn(
-        "fixed inset-0 z-50",
-        "h-svh w-screen",
+        // Below the desktop app's title bar (--titlebar-h is 0 on the web).
+        "fixed inset-x-0 top-(--titlebar-h) bottom-0 z-50",
+        "h-[calc(100svh-var(--titlebar-h))] w-screen",
         "grid grid-rows-[1fr_auto_3fr] justify-items-center",
         "p-4",
         className
@@ -106,7 +107,7 @@ export const dialogContentVariants = tv({
     "z-[calc(50+var(--layer-index,0))]",
     "relative",
     "row-start-2",
-    "max-h-[calc(100svh-2rem)] min-h-0 w-full min-w-0",
+    "max-h-[calc(100svh-var(--titlebar-h)-2rem)] min-h-0 w-full min-w-0",
     "flex flex-col overflow-hidden",
     "bg-popover",
     "text-popover-foreground",
@@ -135,7 +136,7 @@ export const dialogContentVariants = tv({
     },
     bottomStickOnMobile: {
       true: [
-        "max-sm:max-h-[calc(100svh-3rem)]",
+        "max-sm:max-h-[calc(100svh-var(--titlebar-h)-3rem)]",
         "max-sm:max-w-none",
         "max-sm:rounded-none max-sm:rounded-t-2xl max-sm:border-x-0 max-sm:border-t max-sm:border-b-0",
         "max-sm:opacity-[calc(1-min(var(--nested-dialogs),1))]",

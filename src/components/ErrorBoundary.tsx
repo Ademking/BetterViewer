@@ -21,7 +21,7 @@ export class ErrorBoundary extends Component<{ children: ReactNode }, State> {
   render() {
     if (!this.state.error) return this.props.children;
     return (
-      <div className="flex h-svh flex-col items-center justify-center gap-4 p-6 text-center">
+      <div className="flex h-full flex-col items-center justify-center gap-4 p-6 text-center">
         <div className="font-semibold text-lg">{t("Something went wrong")}</div>
         <p className="max-w-md text-muted-foreground text-sm">{this.state.error.message}</p>
         <div className="flex gap-2">

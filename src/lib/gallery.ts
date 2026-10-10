@@ -1,8 +1,9 @@
 /**
- * Page gallery (extension overlay only): right-click a web page → "View all
+ * Page gallery (extension overlay): right-click a web page → "View all
  * images on this page". The content script collects the page's pictures and
  * sends the list here; the viewer shows one at a time with a thumbnail rail
- * and previous / next.
+ * and previous / next. The desktop app fills it with the images of the open
+ * file's folder instead (see desktop.ts).
  *
  * Messages with the page's content script (see extension/content.js):
  * - app → page  `betterviewer:ready`    asks for the list
@@ -19,6 +20,8 @@ import { downloadBlob } from "@/lib/image";
 import { fetchImage, nameFromUrl } from "@/lib/openUrl";
 import { createZip } from "@/lib/zip";
 import { isOverlay } from "@/lib/overlay";
+import { fileName, readImageFile } from "@/lib/desktop";
+import { isDesktop } from "@/lib/platform";
 import { useDoc } from "@/state/document";
 import { t } from "@/lib/i18n";
 
@@ -27,13 +30,18 @@ export interface GalleryItem {
   alt?: string;
   width?: number;
   height?: number;
+  /** Desktop: the file (`src` is its address for the thumbnail). */
+  path?: string;
 }
 
 interface GalleryStore {
   items: GalleryItem[];
   /** The image on screen (-1 before the first one opens). */
   index: number;
-  /** Thumbnail rail shown (on by default; the top-right button toggles it). */
+  /**
+   * Thumbnail rail shown (the top-right button toggles it). On by default for
+   * page galleries; off in the desktop app, where it lists the folder.
+   */
   railOpen: boolean;
   /** An image is being downloaded. */
   busy: boolean;
@@ -50,12 +58,12 @@ interface GalleryStore {
 }
 
 export const isGallery =
-  isOverlay && typeof location !== "undefined" && new URLSearchParams(location.search).has("gallery");
+  isDesktop || (isOverlay && typeof location !== "undefined" && new URLSearchParams(location.search).has("gallery"));
 
 export const useGallery = create<GalleryStore>()(() => ({
   items: [],
   index: -1,
-  railOpen: true,
+  railOpen: !isDesktop,
   busy: false,
   thumbs: {},
   page: null,
@@ -114,8 +122,14 @@ async function load(i: number) {
   const token = ++loadToken;
   useGallery.setState({ index: i, busy: true });
   try {
+    if (item.path) {
+      const blob = await readImageFile(item.path);
+      if (token !== loadToken) return; // the reader already moved on
+      await openBlob(blob, fileName(item.path), { filePath: item.path });
+      return;
+    }
     const blob = await loadBlob(item.src);
-    if (token !== loadToken) return; // the reader already moved on
+    if (token !== loadToken) return;
     const web = /^https?:/i.test(item.src);
     await openBlob(blob, nameFromUrl(item.src, blob.type), web ? { sourceUrl: item.src } : undefined);
   } catch (err) {
@@ -252,7 +266,7 @@ export async function downloadGalleryZip() {
     if (!files.length) throw new Error(t("None of the images could be downloaded."));
     const zip = await createZip(files);
     const site = (page?.host || "page").replace(/^www\./, "").replace(/[^a-z0-9.-]+/gi, "_");
-    downloadBlob(zip, `${site}-images.zip`);
+    await downloadBlob(zip, `${site}-images.zip`);
     const failed = items.length - files.length;
     toast.update(id, {
       type: "success",

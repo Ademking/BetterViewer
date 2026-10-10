@@ -187,6 +187,8 @@ npm install
 npm run dev        # web app at http://localhost:5173
 npm run build      # web app → dist/
 npm run build:ext  # extension → build/chrome, build/firefox (+ store .zip files)
+npm run desktop    # desktop app, with live reload
+npm run build:desktop  # desktop installers → src-tauri/target/release/bundle
 ```
 
 - **Chrome / Edge / Brave / Opera**: open `chrome://extensions`, turn on
@@ -199,6 +201,30 @@ npm run build:ext  # extension → build/chrome, build/firefox (+ store .zip fil
 Turn the automatic takeover off in **Settings → Viewer → Open images
 automatically**; **More → Open → View original** shows the browser's
 own viewer for an image.
+
+**Desktop app** ([Tauri 2](https://v2.tauri.app/)): the same viewer in its
+own window. Open images with **Open with → BetterViewer** (the installer
+registers it for PNG, JPEG, WebP, GIF, AVIF, BMP and ICO), the Open dialog or
+drag and drop; ← / → and the thumbnail rail browse the other images of the
+folder, and F11 switches to full screen. Saving shows the Save dialog, and web
+links open in your browser. It needs [Rust](https://rustup.rs/) and the
+platform's
+[prerequisites](https://v2.tauri.app/start/prerequisites/) (on Windows, the
+Microsoft C++ Build Tools and WebView2, which Windows 11 already has).
+
+**Desktop releases**: installers are built for each system on its own
+GitHub runner by the [Desktop release](.github/workflows/desktop-release.yml)
+workflow (Windows NSIS and MSI, Linux deb, rpm and AppImage, macOS dmg for
+Apple Silicon and Intel). To release:
+
+1. Bump `version` in `package.json` (the desktop app reads it from there).
+2. Commit, then tag and push: `git tag v3.2.0 && git push origin v3.2.0`.
+   The tag must match the version, since the release is named after it.
+3. When the workflow finishes, review the draft release named
+   `BetterViewer 3.2.0` on GitHub and publish it.
+
+It can also be started by hand from the **Actions** tab (**Run workflow**),
+which builds the current version into the same draft release.
 
 **Stack:** React 19 · TypeScript · Vite · Tailwind CSS v4 ·
 [Shark UI](https://shark-ui.com/docs) (Ark UI) · Konva · Zustand ·
@@ -223,8 +249,10 @@ src/
   state/       document (undoable history), ui, settings, measure, draft
   lib/         viewport, actions, develop pipeline (+ worker), straighten warp
                (+ worker), background removal (+ worker), OCR, QR (+ worker),
-               mipmaps, uploads, platform (web vs. extension), openUrl…
+               mipmaps, uploads, platform (web, extension or desktop), openUrl,
+               desktop (files, folder browsing and dialogs in the desktop app)…
 extension/     content.js, background.js, icons
+src-tauri/     desktop app: window, file associations, file commands (Rust)
 scripts/       build-extension.mjs (manifests + zips), build-emoji-data.mjs
 ```
 

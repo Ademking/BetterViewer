@@ -334,7 +334,7 @@ export function SettingsPanel() {
 
   return (
     <Dialog onOpenChange={(d) => togglePanel("settings", d.open)} open={open}>
-      <DialogContent className="glass max-h-[min(640px,calc(100svh-2rem))]" size="lg">
+      <DialogContent className="glass max-h-[min(640px,calc(100svh-var(--titlebar-h)-2rem))]" size="lg">
         <DialogHeader description={t("Preferences are saved on this device.")} title={t("Settings")} />
         <Tabs className="min-h-0 flex-1" defaultValue="appearance">
           <div className="px-6">
