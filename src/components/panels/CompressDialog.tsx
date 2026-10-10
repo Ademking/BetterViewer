@@ -178,10 +178,10 @@ export function CompressDialog() {
   const outW = image ? Math.round((base?.canvas.width ?? image.width) * scale) : 0;
   const outH = image ? Math.round((base?.canvas.height ?? image.height) * scale) : 0;
 
-  const download = () => {
+  const download = async () => {
     if (!result || !image) return;
     const ext = format === "jpeg" ? "jpg" : format;
-    downloadBlob(result.blob, `${baseName(image.name)}-compressed.${ext}`);
+    if (!(await downloadBlob(result.blob, `${baseName(image.name)}-compressed.${ext}`))) return;
     toast.success({ title: t("Compressed image saved"), description: `${formatBytes(after)} ${ext.toUpperCase()}` });
   };
 

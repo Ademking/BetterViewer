@@ -3,6 +3,7 @@ import { useEffect, useRef } from "react";
 import { Hinted } from "@/components/tools/ToolButton";
 import { Spinner } from "@/components/ui/spinner";
 import { type GalleryItem, loadThumb, showGalleryItem, stepGallery, useGallery } from "@/lib/gallery";
+import { isDesktop } from "@/lib/platform";
 import { cn } from "@/lib/utils";
 import { useSettings } from "@/state/settings";
 import { dims, useT } from "@/lib/i18n";
@@ -75,7 +76,7 @@ export function GalleryRail() {
     <>
       {railOpen && (
         <nav
-          aria-label={t("Images on this page")}
+          aria-label={isDesktop ? t("Images in this folder") : t("Images on this page")}
           className={cn(
             "glass absolute z-20 flex w-24 flex-col rounded-2xl border shadow-lg/10",
             rulers ? "top-[72px] left-8" : "top-14 left-3",

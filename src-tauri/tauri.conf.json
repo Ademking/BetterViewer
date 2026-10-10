@@ -1,0 +1,119 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "BetterViewer",
+  "version": "../package.json",
+  "identifier": "com.ademking.betterviewer",
+  "build": {
+    "beforeDevCommand": "npm run dev -- --mode desktop --port 1420 --strictPort",
+    "devUrl": "http://localhost:1420",
+    "beforeBuildCommand": "npm run build:desktop-web",
+    "frontendDist": "../build/desktop"
+  },
+  "app": {
+    "windows": [
+      {
+        "label": "main",
+        "title": "BetterViewer",
+        "width": 1280,
+        "height": 820,
+        "minWidth": 520,
+        "minHeight": 400,
+        "center": true,
+        "backgroundColor": "#0a0a0a",
+        "theme": "Dark",
+        "decorations": false
+      }
+    ],
+    "security": {
+      "csp": null,
+      "assetProtocol": {
+        "enable": true,
+        "scope": []
+      }
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "publisher": "Adem Kouki",
+    "homepage": "https://betterviewer.web.app/",
+    "copyright": "Copyright (c) Adem Kouki. MIT License.",
+    "category": "Photography",
+    "shortDescription": "Fast, simple, easy image viewer",
+    "longDescription": "View, zoom, annotate and edit images. Adjustments, crop, background removal and text extraction, all private and on your device.",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "fileAssociations": [
+      {
+        "ext": [
+          "png"
+        ],
+        "name": "PNG image",
+        "description": "PNG image",
+        "mimeType": "image/png",
+        "role": "Viewer"
+      },
+      {
+        "ext": [
+          "jpg",
+          "jpeg",
+          "jfif"
+        ],
+        "name": "JPEG image",
+        "description": "JPEG image",
+        "mimeType": "image/jpeg",
+        "role": "Viewer"
+      },
+      {
+        "ext": [
+          "webp"
+        ],
+        "name": "WebP image",
+        "description": "WebP image",
+        "mimeType": "image/webp",
+        "role": "Viewer"
+      },
+      {
+        "ext": [
+          "gif"
+        ],
+        "name": "GIF image",
+        "description": "GIF image",
+        "mimeType": "image/gif",
+        "role": "Viewer"
+      },
+      {
+        "ext": [
+          "avif"
+        ],
+        "name": "AVIF image",
+        "description": "AVIF image",
+        "mimeType": "image/avif",
+        "role": "Viewer"
+      },
+      {
+        "ext": [
+          "bmp"
+        ],
+        "name": "Bitmap image",
+        "description": "Bitmap image",
+        "mimeType": "image/bmp",
+        "role": "Viewer"
+      },
+      {
+        "ext": [
+          "ico"
+        ],
+        "name": "Icon",
+        "description": "Icon",
+        "mimeType": "image/x-icon",
+        "role": "Viewer"
+      }
+    ]
+  }
+}

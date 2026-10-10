@@ -40,10 +40,10 @@ const SITE_DESCRIPTION =
 
 /**
  * Web build: adds the search and social sharing tags (Open Graph, Twitter).
- * Extension build: leaves them out and drops the share image, which the
- * extension never needs.
+ * Extension and desktop builds: leave them out and drop the share image,
+ * which they never need.
  */
-function socialMeta(extension: boolean): Plugin {
+function socialMeta(packaged: boolean): Plugin {
   let outDir = ""
   return {
     name: "betterviewer-social-meta",
@@ -51,7 +51,7 @@ function socialMeta(extension: boolean): Plugin {
       outDir = config.build.outDir
     },
     transformIndexHtml() {
-      if (extension) return []
+      if (packaged) return []
       const image = `${SITE_URL}og.png`
       const meta = (attr: "name" | "property", key: string, content: string) => ({
         tag: "meta",
@@ -77,7 +77,7 @@ function socialMeta(extension: boolean): Plugin {
       ]
     },
     closeBundle() {
-      if (extension) rmSync(path.resolve(outDir, "og.png"), { force: true })
+      if (packaged) rmSync(path.resolve(outDir, "og.png"), { force: true })
     },
   }
 }
@@ -107,11 +107,13 @@ function dropUnusedWasm(): Plugin {
 
 export default defineConfig(({ mode }) => {
   const extension = mode === "extension"
+  // The Tauri app (src-tauri/), built by `npm run build:desktop`.
+  const desktop = mode === "desktop"
   return {
     plugins: [
       react(),
       tailwindcss(),
-      socialMeta(extension),
+      socialMeta(extension || desktop),
       dropUnusedWasm(),
       ...(extension ? [vendorAssets()] : []),
     ],
@@ -123,6 +125,14 @@ export default defineConfig(({ mode }) => {
         "@": path.resolve(__dirname, "./src"),
       },
     },
-    build: extension ? { outDir: "build/app", emptyOutDir: true } : undefined,
+    build: extension
+      ? { outDir: "build/app", emptyOutDir: true }
+      : desktop
+        ? { outDir: "build/desktop", emptyOutDir: true }
+        : undefined,
+    // `tauri dev` prints its own output below Vite's.
+    clearScreen: !desktop,
+    // Rust build output: thousands of files that never affect the page.
+    server: { watch: { ignored: ["**/src-tauri/**"] } },
   }
 })

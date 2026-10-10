@@ -1,0 +1,31 @@
+[package]
+name = "betterviewer"
+version = "3.2.0"
+description = "BetterViewer desktop image viewer"
+authors = ["Adem Kouki <ademkouki.tn@gmail.com>"]
+license = "MIT"
+repository = "https://github.com/Ademking/BetterViewer"
+edition = "2021"
+
+[lib]
+# Distinct from the binary name, so `cargo` doesn't mix the two up on Windows.
+name = "betterviewer_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = ["protocol-asset"] }
+tauri-plugin-dialog = "2"
+tauri-plugin-opener = "2"
+tauri-plugin-single-instance = "2"
+tauri-plugin-window-state = "2"
+serde = { version = "1", features = ["derive"] }
+
+[profile.release]
+codegen-units = 1
+lto = true
+opt-level = "s"
+panic = "abort"
+strip = true

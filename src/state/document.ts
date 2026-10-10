@@ -15,6 +15,8 @@ export interface ImageInfo {
   backgroundRemoved?: boolean;
   /** Web address the image was opened from (extension / `?src=`). */
   sourceUrl?: string;
+  /** File the image was opened from (desktop app). */
+  filePath?: string;
 }
 
 /** Everything that participates in undo / redo. */

@@ -1,6 +1,8 @@
 import { deriveAnimation } from "@/lib/animation";
 import type { ImageInfo } from "@/state/document";
+import { saveFile } from "@/lib/desktop";
 import { currentLanguage, t } from "@/lib/i18n";
+import { isDesktop } from "@/lib/platform";
 
 const cache = new Map<string, Promise<HTMLImageElement>>();
 
@@ -32,6 +34,19 @@ export const ACCEPTED_TYPES = [
   "image/x-icon",
   "image/vnd.microsoft.icon",
 ];
+
+/** MIME type by file extension, for files and servers that don't say. */
+export const TYPE_BY_EXT: Record<string, string> = {
+  png: "image/png",
+  jpg: "image/jpeg",
+  jpeg: "image/jpeg",
+  jfif: "image/jpeg",
+  webp: "image/webp",
+  gif: "image/gif",
+  avif: "image/avif",
+  bmp: "image/bmp",
+  ico: "image/x-icon",
+};
 
 /** File-picker filter: the formats above (SVG is not supported). */
 export const ACCEPT_ATTRIBUTE = [...ACCEPTED_TYPES, ".png", ".jpg", ".jpeg", ".webp", ".gif", ".avif", ".bmp", ".ico"].join(",");
@@ -114,10 +129,15 @@ const inPageOverlay = () =>
   /^(chrome|moz|safari-web)-extension:$/.test(location.protocol) &&
   new URLSearchParams(location.search).has("overlay");
 
-export const downloadBlob = (blob: Blob, filename: string) => {
+/**
+ * Save a file: a download in the browser, the Save dialog in the desktop app.
+ * Resolves to false when the user cancelled.
+ */
+export const downloadBlob = async (blob: Blob, filename: string): Promise<boolean> => {
+  if (isDesktop) return saveFile(blob, filename);
   if (inPageOverlay()) {
     window.parent.postMessage({ type: "betterviewer:download", blob, name: filename }, "*");
-    return;
+    return true;
   }
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
@@ -127,6 +147,7 @@ export const downloadBlob = (blob: Blob, filename: string) => {
   a.click();
   a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 2000);
+  return true;
 };
 
 export const baseName = (name: string) => name.replace(/\.[^.]+$/, "");

@@ -21,6 +21,9 @@ interface ExtensionApi {
   };
 }
 
+/** Running in the desktop app (Tauri, see src-tauri/ and src/lib/desktop.ts). */
+export const isDesktop = typeof window !== "undefined" && "__TAURI_INTERNALS__" in window;
+
 export const extensionApi: ExtensionApi | null = isExtension
   ? ((globalThis as unknown as { browser?: ExtensionApi; chrome?: ExtensionApi }).browser ??
     (globalThis as unknown as { chrome?: ExtensionApi }).chrome ??

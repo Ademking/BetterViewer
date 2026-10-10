@@ -1,6 +1,6 @@
 import { toast } from "@/components/ui/toast";
 import { openBlob } from "@/lib/actions";
-import { loadHtmlImage } from "@/lib/image";
+import { loadHtmlImage, TYPE_BY_EXT } from "@/lib/image";
 import { isOverlay } from "@/lib/overlay";
 import { extensionApi, isExtension, originalUrl } from "@/lib/platform";
 import { useDoc } from "@/state/document";
@@ -16,18 +16,6 @@ const EXT_BY_TYPE: Record<string, string> = {
   "image/bmp": ".bmp",
   "image/x-icon": ".ico",
   "image/vnd.microsoft.icon": ".ico",
-};
-
-const TYPE_BY_EXT: Record<string, string> = {
-  png: "image/png",
-  jpg: "image/jpeg",
-  jpeg: "image/jpeg",
-  jfif: "image/jpeg",
-  webp: "image/webp",
-  gif: "image/gif",
-  avif: "image/avif",
-  bmp: "image/bmp",
-  ico: "image/x-icon",
 };
 
 /** A readable file name for an image URL. */

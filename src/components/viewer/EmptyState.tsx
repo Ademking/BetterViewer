@@ -1,7 +1,7 @@
 import { ClipboardPasteIcon, ImageUpIcon, SparklesIcon } from "lucide-react";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { GitHubMark, REPO_URL } from "@/components/panels/AboutDialog";
-import { isExtension } from "@/lib/platform";
+import { isDesktop, isExtension } from "@/lib/platform";
 import { Kbd, KbdGroup } from "@/components/ui/kbd";
 import { Spinner } from "@/components/ui/spinner";
 import { MOD } from "@/components/tools/ToolButton";
@@ -191,7 +191,7 @@ export function EmptyState() {
             </div>
           )}
 
-          {!isExtension && <GetTheExtension />}
+          {!isExtension && !isDesktop && <GetTheExtension />}
         </div>
 
         <button

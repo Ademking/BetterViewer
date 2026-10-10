@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { isDesktop } from "@/lib/platform";
 import type { ShortcutOverrides } from "@/lib/shortcuts";
 import type { ToolbarItemId } from "@/components/viewer/toolbarItems";
 
@@ -60,7 +61,8 @@ export interface Settings {
 
 export const DEFAULT_SETTINGS: Settings = {
   language: "auto",
-  boardBackground: "blur",
+  // The desktop app shows transparency by default, like other image viewers.
+  boardBackground: isDesktop ? "grid" : "blur",
   theme: "dark",
   showToolbar: true,
   hiddenToolbarItems: [],
