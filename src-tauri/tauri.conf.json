@@ -19,6 +19,7 @@
         "minWidth": 520,
         "minHeight": 400,
         "center": true,
+        "visible": false,
         "backgroundColor": "#0a0a0a",
         "theme": "Dark",
         "decorations": false
