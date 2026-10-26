@@ -3,7 +3,8 @@
   "identifier": "default",
   "description": "What the viewer window may do",
   "windows": [
-    "main"
+    "main",
+    "window-*"
   ],
   "permissions": [
     "core:default",

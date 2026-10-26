@@ -16,6 +16,7 @@ const EXT_BY_TYPE: Record<string, string> = {
   "image/bmp": ".bmp",
   "image/x-icon": ".ico",
   "image/vnd.microsoft.icon": ".ico",
+  "image/jxl": ".jxl",
 };
 
 /** A readable file name for an image URL. */

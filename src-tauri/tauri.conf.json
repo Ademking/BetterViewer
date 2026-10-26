@@ -114,6 +114,15 @@
         "description": "Icon",
         "mimeType": "image/x-icon",
         "role": "Viewer"
+      },
+      {
+        "ext": [
+          "jxl"
+        ],
+        "name": "JPEG XL image",
+        "description": "JPEG XL image",
+        "mimeType": "image/jxl",
+        "role": "Viewer"
       }
     ]
   }

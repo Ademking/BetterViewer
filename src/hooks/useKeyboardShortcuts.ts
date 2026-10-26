@@ -209,6 +209,17 @@ export function useKeyboardShortcuts() {
     };
     const onBlur = () => getUi().set({ spaceHeld: false, compareOriginal: false });
 
+    // Mouse side buttons (Back = 3, Forward = 4): previous / next image. Both
+    // events are cancelled so the browser doesn't also go back a page.
+    const sideButton = (e: MouseEvent) => (e.button === 3 ? -1 : e.button === 4 ? 1 : 0);
+    const onMouseDown = (e: MouseEvent) => {
+      if (sideButton(e) && getDoc() && !overlayOpen()) e.preventDefault();
+    };
+    const onMouseUp = (e: MouseEvent) => {
+      const delta = sideButton(e);
+      if (delta && getDoc() && !overlayOpen() && stepGallery(delta)) e.preventDefault();
+    };
+
     const onPaste = (e: ClipboardEvent) => {
       if (isTyping(e.target)) return;
       const items = Array.from(e.clipboardData?.items ?? []);
@@ -224,7 +235,11 @@ export function useKeyboardShortcuts() {
     window.addEventListener("keyup", onKeyUp);
     window.addEventListener("blur", onBlur);
     window.addEventListener("paste", onPaste);
+    window.addEventListener("mousedown", onMouseDown);
+    window.addEventListener("mouseup", onMouseUp);
     return () => {
+      window.removeEventListener("mousedown", onMouseDown);
+      window.removeEventListener("mouseup", onMouseUp);
       window.removeEventListener("keydown", onKeyDown);
       window.removeEventListener("keyup", onKeyUp);
       window.removeEventListener("blur", onBlur);

@@ -33,6 +33,7 @@ export const ACCEPTED_TYPES = [
   "image/bmp",
   "image/x-icon",
   "image/vnd.microsoft.icon",
+  "image/jxl",
 ];
 
 /** MIME type by file extension, for files and servers that don't say. */
@@ -46,27 +47,54 @@ export const TYPE_BY_EXT: Record<string, string> = {
   avif: "image/avif",
   bmp: "image/bmp",
   ico: "image/x-icon",
+  jxl: "image/jxl",
 };
 
 /** File-picker filter: the formats above (SVG is not supported). */
-export const ACCEPT_ATTRIBUTE = [...ACCEPTED_TYPES, ".png", ".jpg", ".jpeg", ".webp", ".gif", ".avif", ".bmp", ".ico"].join(",");
+export const ACCEPT_ATTRIBUTE = [...ACCEPTED_TYPES, ".png", ".jpg", ".jpeg", ".webp", ".gif", ".avif", ".bmp", ".ico", ".jxl"].join(",");
 
 /** "PNG, JPEG, … or ICO" in the interface language. */
 export const supportedFormatsText = () =>
-  new Intl.ListFormat(currentLanguage(), { type: "disjunction" }).format(["PNG", "JPEG", "WebP", "GIF", "AVIF", "BMP", "ICO"]);
+  new Intl.ListFormat(currentLanguage(), { type: "disjunction" }).format(["PNG", "JPEG", "WebP", "GIF", "AVIF", "BMP", "ICO", "JPEG XL"]);
 
 /** Raster images only: SVG is not supported. */
 export const isSupportedImageType = (type: string) => type.startsWith("image/") && !type.includes("svg");
 
 export const isImageFile = (f: File) =>
   !/\.svgz?$/i.test(f.name) &&
-  (isSupportedImageType(f.type) || (!f.type && /\.(png|jpe?g|webp|gif|avif|bmp|ico)$/i.test(f.name)));
+  (isSupportedImageType(f.type) || (!f.type && /\.(png|jpe?g|webp|gif|avif|bmp|ico|jxl)$/i.test(f.name)));
+
+/** JPEG XL signature: a bare codestream, or the ISO box container. */
+async function isJxl(blob: Blob) {
+  const b = new Uint8Array(await blob.slice(0, 8).arrayBuffer());
+  return (b[0] === 0xff && b[1] === 0x0a) || [0, 0, 0, 0x0c, 0x4a, 0x58, 0x4c, 0x20].every((v, i) => b[i] === v);
+}
+
+/**
+ * Most browsers can't show JPEG XL, so it is decoded here (WebAssembly,
+ * loaded on first use) into a PNG the rest of the app works with.
+ */
+async function jxlToPng(blob: Blob): Promise<Blob> {
+  const { default: decode } = await import("@jsquash/jxl/decode");
+  const data = await decode(await blob.arrayBuffer());
+  const canvas = document.createElement("canvas");
+  canvas.width = data.width;
+  canvas.height = data.height;
+  canvas.getContext("2d")!.putImageData(data, 0, 0);
+  return new Promise((resolve, reject) =>
+    canvas.toBlob((b) => (b ? resolve(b) : reject(new Error(t("The file could not be decoded as an image.")))), "image/png")
+  );
+}
+
+/** The blob, or a PNG of it when it's JPEG XL (see jxlToPng). */
+export const displayableBlob = async (blob: Blob) => ((await isJxl(blob)) ? jxlToPng(blob) : blob);
 
 export async function imageInfoFromBlob(
   blob: Blob,
   name: string
 ): Promise<ImageInfo> {
-  const src = URL.createObjectURL(blob);
+  const shown = await displayableBlob(blob);
+  const src = URL.createObjectURL(shown);
   try {
     const img = await loadHtmlImage(src);
     await img.decode().catch(() => undefined);

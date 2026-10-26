@@ -16,7 +16,7 @@ import { create } from "zustand";
 import { toast } from "@/components/ui/toast";
 import { confirmAction } from "@/components/panels/ConfirmDialog";
 import { openBlob } from "@/lib/actions";
-import { downloadBlob } from "@/lib/image";
+import { displayableBlob, downloadBlob } from "@/lib/image";
 import { fetchImage, nameFromUrl } from "@/lib/openUrl";
 import { createZip } from "@/lib/zip";
 import { isOverlay } from "@/lib/overlay";
@@ -105,7 +105,7 @@ export async function loadThumb(src: string) {
   thumbRequests.add(src);
   let url = "failed";
   try {
-    url = URL.createObjectURL(await loadBlob(src));
+    url = URL.createObjectURL(await displayableBlob(await loadBlob(src)));
   } catch {
     // keep the placeholder
   }
@@ -210,6 +210,7 @@ const EXT_BY_TYPE: Record<string, string> = {
   "image/gif": "gif",
   "image/avif": "avif",
   "image/bmp": "bmp",
+  "image/jxl": "jxl",
 };
 
 /** "photo.jpg" twice becomes "photo.jpg" and "photo (2).jpg". */

@@ -1,4 +1,4 @@
-import { StarIcon } from "lucide-react";
+import { CookieIcon, HeartIcon, StarIcon } from "lucide-react";
 import { Dialog, DialogBody, DialogContent } from "@/components/ui/dialog";
 import { useUi } from "@/state/ui";
 import { useT } from "@/lib/i18n";
@@ -63,7 +63,19 @@ export function AboutDialog() {
             </div>
 
             <p className="mt-6 text-muted-foreground text-sm">
-              {t("Created with ❤️🍪 by")}{" "}
+              {/* The emoji are drawn as icons: WebKitGTK crashes drawing some color
+                  emoji fonts (COLRv1, Fedora's default), see issue #104. */}
+              {t("Created with ❤️🍪 by")
+                .split("❤️🍪")
+                .flatMap((part, i) => [
+                  i > 0 && (
+                    <span className="inline-flex translate-y-0.5 gap-0.5" key={i}>
+                      <HeartIcon aria-label="love" className="size-3.5 fill-red-500 text-red-500" />
+                      <CookieIcon aria-label="cookies" className="size-3.5 text-amber-500" />
+                    </span>
+                  ),
+                  part,
+                ])}{" "}
               <a
                 className="font-medium text-foreground underline-offset-4 hover:underline"
                 href={AUTHOR_URL}

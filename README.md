@@ -75,7 +75,8 @@ Open any image in a new tab and BetterViewer takes over, or right-click an
 image on any page and choose **Open this image in BetterViewer** to zoom, drag and
 edit it in an overlay without leaving the page (**Esc** goes back). Right-click
 the page itself and choose **Browse all page images as a gallery** to flip
-through every picture on it (**← / →** to move between them). Everything
+through every picture on it (**← / →**, or the mouse's Back / Forward
+buttons, to move between them). Everything
 runs in your browser, including OCR, background removal and QR scanning.
 
 **Viewing**
@@ -107,6 +108,7 @@ runs in your browser, including OCR, background removal and QR scanning.
 - **Levels**, **curves** (RGB / R / G / B) and a live **histogram**
 - **Remove background** (AI, on your device)
 - Hold **Compare** to see the original; full **undo / redo**
+- **JPEG XL** opens too, even in browsers that can't show it themselves
 - **Animated GIF, WebP and APNG** play (even with thousands of frames), with
   a frames bar and scrubber to pause on any frame; crops, resizes,
   adjustments and annotations apply to every frame, and the result saves as
@@ -150,10 +152,12 @@ from the [latest release](https://github.com/Ademking/BetterViewer/releases/late
 
 - **Open images from your computer**: right-click an image → **Open with →
   BetterViewer** (or make it the default app for PNG, JPEG, WebP, GIF, AVIF,
-  BMP and ICO), drag and drop, or **Open** (Ctrl+O). Opening another image
-  while it runs uses the same window.
-- **Browse the folder**: **← / →** move to the previous / next image of the
-  folder, in File Explorer's order. The image list (button at the top right)
+  BMP, ICO and JPEG XL), drag and drop, or **Open** (Ctrl+O). Opening another
+  image while it runs uses the last window you used.
+- **Several windows**: **New window** in the taskbar menu (or starting
+  BetterViewer again) opens another window, to compare images side by side.
+- **Browse the folder**: **← / →** (or the mouse's Back / Forward buttons)
+  move to the previous / next image of the folder, in File Explorer's order. The image list (button at the top right)
   shows them all as thumbnails.
 - **Save** with your system's Save dialog, which starts in the image's folder
 - **F11** for full screen; the window remembers its size and position
@@ -235,7 +239,7 @@ own viewer for an image.
 
 **Desktop app** ([Tauri 2](https://v2.tauri.app/)): the same viewer in its
 own window. Open images with **Open with → BetterViewer** (the installer
-registers it for PNG, JPEG, WebP, GIF, AVIF, BMP and ICO), the Open dialog or
+registers it for PNG, JPEG, WebP, GIF, AVIF, BMP, ICO and JPEG XL), the Open dialog or
 drag and drop; ← / → and the thumbnail rail browse the other images of the
 folder, and F11 switches to full screen. Saving shows the Save dialog, and web
 links open in your browser. It needs [Rust](https://rustup.rs/) and the
@@ -249,10 +253,10 @@ workflow (Windows NSIS and MSI, Linux deb, rpm and AppImage, macOS dmg for
 Apple Silicon and Intel). To release:
 
 1. Bump `version` in `package.json` (the desktop app reads it from there).
-2. Commit, then tag and push: `git tag v3.2.0 && git push origin v3.2.0`.
+2. Commit, then tag and push: `git tag v3.3.0 && git push origin v3.3.0`.
    The tag must match the version, since the release is named after it.
 3. When the workflow finishes, review the draft release named
-   `BetterViewer 3.2.0` on GitHub and publish it.
+   `BetterViewer 3.3.0` on GitHub and publish it.
 
 It can also be started by hand from the **Actions** tab (**Run workflow**),
 which builds the current version into the same draft release.
@@ -304,6 +308,22 @@ none). For local development you can also set `VITE_IMGBB_API_KEY` in
 bundle, so don't ship a build with a private key.
 
 # Changelog
+
+## [3.3.0] - 2026-10-26
+
+- **JPEG XL** (.jxl) support: opens in every browser and in the desktop app,
+  which registers itself for .jxl files (#101).
+- **Mouse Back / Forward buttons** move to the previous / next image of the
+  folder (desktop app) or page gallery (#105).
+- **Desktop: several windows**. New window in the taskbar menu, or
+  starting the app again, opens another window to compare images side by
+  side. Files opened with Open with go to the last window used (#103).
+- **Desktop (Linux)**: the About dialog no longer crashes the app on systems
+  whose emoji font WebKitGTK can't draw (Fedora) (#104).
+- **Desktop**: no more flicker at startup while the window moves to its saved
+  position (#106).
+- **Fit to screen** fills the whole window; the toolbar and other controls
+  float over the image instead of leaving a margin (#100).
 
 ## [3.2.0] - 2026-10-10
 

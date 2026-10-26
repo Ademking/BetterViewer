@@ -7,16 +7,17 @@ use std::cmp::Ordering;
 use std::iter::Peekable;
 use std::path::{Path, PathBuf};
 use std::str::Chars;
+use std::sync::atomic::AtomicUsize;
 use std::sync::Mutex;
 
 use serde::Serialize;
 use tauri::ipc::{InvokeBody, Request, Response};
-use tauri::{AppHandle, Emitter, Manager, State};
+use tauri::{AppHandle, Emitter, Manager, State, WebviewWindowBuilder, WindowEvent};
 use tauri_plugin_dialog::DialogExt;
 use tauri_plugin_window_state::StateFlags;
 
 /// Formats the viewer opens (see ACCEPTED_TYPES in src/lib/image.ts).
-const IMAGE_EXTENSIONS: &[&str] = &["png", "jpg", "jpeg", "jfif", "webp", "gif", "avif", "bmp", "ico"];
+const IMAGE_EXTENSIONS: &[&str] = &["png", "jpg", "jpeg", "jfif", "webp", "gif", "avif", "bmp", "ico", "jxl"];
 
 fn is_image(path: &Path) -> bool {
     path.extension()
@@ -91,6 +92,23 @@ fn image_args(args: impl IntoIterator<Item = String>, cwd: &Path) -> Vec<String>
 
 /// Files the app was started with, until the page asks for them.
 struct LaunchPaths(Mutex<Vec<String>>);
+
+/// Label of the window used last: files opened while the app runs go there.
+struct LastWindow(Mutex<String>);
+
+/// Another viewer window ("New window" in the taskbar menu, or starting the
+/// app again without files), to compare images side by side.
+fn new_window(app: &AppHandle) -> tauri::Result<()> {
+    static COUNT: AtomicUsize = AtomicUsize::new(1);
+    let mut config = app.config().app.windows[0].clone();
+    config.label = format!("window-{}", COUNT.fetch_add(1, std::sync::atomic::Ordering::Relaxed));
+    // Only "main" waits hidden for its saved position (window-state plugin);
+    // the others show at once, placed by the OS instead of on top of it.
+    config.visible = true;
+    config.center = false;
+    WebviewWindowBuilder::from_config(app, &config)?.build()?;
+    Ok(())
+}
 
 #[derive(Default)]
 struct SaveState {
@@ -197,15 +215,21 @@ pub fn run() {
 
     tauri::Builder::default()
         // First: a second launch ("Open with" while the app is running) hands
-        // its files to this window instead of opening another one.
+        // its files to the last used window; without files it opens a new one.
         .plugin(tauri_plugin_single_instance::init(|app, args, cwd| {
-            if let Some(window) = app.get_webview_window("main") {
+            let paths = image_args(args, Path::new(&cwd));
+            if paths.is_empty() {
+                let _ = new_window(app);
+                return;
+            }
+            let last = app.state::<LastWindow>().0.lock().unwrap().clone();
+            let window = app
+                .get_webview_window(&last)
+                .or_else(|| app.webview_windows().into_values().next());
+            if let Some(window) = window {
                 let _ = window.unminimize();
                 let _ = window.set_focus();
-            }
-            let paths = image_args(args, Path::new(&cwd));
-            if !paths.is_empty() {
-                let _ = app.emit("open-paths", paths);
+                let _ = app.emit_to(window.label(), "open-paths", paths);
             }
         }))
         // Size, position and maximized state; not the decorations, which would
@@ -213,11 +237,18 @@ pub fn run() {
         .plugin(
             tauri_plugin_window_state::Builder::new()
                 .with_state_flags(StateFlags::all() & !StateFlags::DECORATIONS)
+                .with_filter(|label| label == "main")
                 .build(),
         )
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_opener::init())
         .manage(LaunchPaths(Mutex::new(launch)))
+        .manage(LastWindow(Mutex::new("main".into())))
+        .on_window_event(|window, event| {
+            if let WindowEvent::Focused(true) = event {
+                *window.state::<LastWindow>().0.lock().unwrap() = window.label().to_string();
+            }
+        })
         .manage(Mutex::new(SaveState::default()))
         .invoke_handler(tauri::generate_handler![
             launch_paths,

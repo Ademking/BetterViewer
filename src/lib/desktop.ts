@@ -13,8 +13,8 @@
  * Event: `open-paths` files opened while the app is already running.
  */
 import { convertFileSrc, invoke } from "@tauri-apps/api/core";
-import { listen } from "@tauri-apps/api/event";
 import { getCurrentWebview } from "@tauri-apps/api/webview";
+import { getCurrentWebviewWindow } from "@tauri-apps/api/webviewWindow";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { openUrl } from "@tauri-apps/plugin-opener";
 import { toast } from "@/components/ui/toast";
@@ -198,6 +198,7 @@ export function startDesktop() {
   useDoc.subscribe((s, prev) => {
     if (s.original !== prev.original) void syncFolder(s.original?.filePath);
   });
-  void listen<string[]>("open-paths", (e) => openPaths(e.payload, true));
+  // Sent to one window (the last used), so only this window's own events.
+  void getCurrentWebviewWindow().listen<string[]>("open-paths", (e) => openPaths(e.payload, true));
   void invoke<string[]>("launch_paths").then((paths) => openPaths(paths, true));
 }
