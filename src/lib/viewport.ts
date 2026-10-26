@@ -78,6 +78,7 @@ class ViewportController {
   cur: ViewState = { x: 0, y: 0, scale: 1 };
   size = { width: 0, height: 0 };
   content = { width: 0, height: 0 };
+  /** Padding for zoom-to-rect, so a zoomed selection stays clear of the chrome. */
   insets = { top: 24, right: 24, bottom: 96, left: 24 };
   /** True while the view is in "fit" mode; content changes re-fit. */
   fitted = true;
@@ -118,7 +119,7 @@ class ViewportController {
     if (changed && refit) this.refit(this.smooth);
   }
 
-  /** `refit`: while in fit mode, fit again into the new space. */
+  /** Update the zoom-to-rect padding; `refit` re-fits while in fit mode. */
   setInsets(insets: Partial<typeof this.insets>, refit = false) {
     this.insets = { ...this.insets, ...insets };
     if (refit && this.fitted) this.refit(this.smooth);
@@ -141,10 +142,13 @@ class ViewportController {
 
   fitState(mode: "fit" | "shrink" | "actual"): ViewState {
     const { width, height } = this.content;
-    const { top, right, bottom, left } = this.insets;
-    const availW = Math.max(40, this.size.width - left - right);
-    const availH = Math.max(40, this.size.height - top - bottom);
     if (!width || !height) return this.cur;
+    // Fit the whole window, edge to edge: the floating chrome (toolbar, info
+    // bar, navigator…) sits on top of the image instead of shrinking it and
+    // leaving a margin. Only a zoom-to-rect is padded with `insets`, so a
+    // zoomed selection stays clear of the chrome.
+    const availW = Math.max(40, this.size.width);
+    const availH = Math.max(40, this.size.height);
     let scale = Math.min(availW / width, availH / height);
     if (mode === "shrink") scale = Math.min(1, scale);
     if (mode === "actual") scale = 1;
@@ -152,15 +156,15 @@ class ViewportController {
     // Content is centred on the world origin.
     return {
       scale,
-      x: left + availW / 2,
-      y: top + availH / 2,
+      x: availW / 2,
+      y: availH / 2,
     };
   }
 
   /** Mode used to re-fit when the content or window changes while fitted. */
   private fitMode: "fit" | "shrink" | "actual" = "shrink";
 
-  /** Explicit "fit to screen": fills the available area. */
+  /** Explicit "fit to screen": fills the window, edge to edge. */
   fit(animate = this.smooth) {
     this.fitted = true;
     this.fitMode = "fit";

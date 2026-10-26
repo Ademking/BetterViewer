@@ -137,18 +137,12 @@ export function ImageViewer() {
   useAutoHideChrome();
   useAutoQrScan();
 
-  // Reserve room for the toolbar (and the gallery rail) when fitting the image.
+  // Padding used by zoom-to-rect, so a zoomed selection stays clear of the chrome.
   const galleryRail = useGallery((s) => isGallery && s.railOpen && s.items.length > 0);
-  // …and the frames bar of an animation.
   const animated = useIsAnimated();
-  const wasAnimated = useRef(animated);
   useEffect(() => {
     const bottom = (showToolbar ? 88 : 24) + (animated ? 52 : 0);
-    // The frames bar shows up once an animation is decoded: make room for it
-    // unless the view was moved meanwhile.
-    const barChanged = wasAnimated.current !== animated;
-    wasAnimated.current = animated;
-    viewport.setInsets({ top: 64, bottom, left: galleryRail ? GALLERY_RAIL_SPACE : 24 }, barChanged);
+    viewport.setInsets({ top: 64, bottom, left: galleryRail ? GALLERY_RAIL_SPACE : 24 });
   }, [showToolbar, galleryRail, animated]);
 
   const chrome = cn(
