@@ -97,18 +97,17 @@ function AutoOpenToggle() {
   );
 }
 
-
 /** Extension only: read by the content script's click handler. */
 function OpenOnClickToggle() {
   const t = useT();
   const [value, setValue] = useState<boolean | null>(null);
   useEffect(() => {
-    getOpenOnClick().then(setValue, () => setValue(true));
+    getOpenOnClick().then(setValue, () => setValue(false));
   }, []);
   return (
     <Switch
       aria-label={t("Open images on click")}
-      checked={value ?? true}
+      checked={value ?? false}
       disabled={value === null}
       onCheckedChange={(d) => {
         setValue(d.checked);
@@ -117,9 +116,6 @@ function OpenOnClickToggle() {
     />
   );
 }
-
-
-
 
 function Segments<K extends keyof Settings>({
   k,
@@ -438,7 +434,6 @@ export function SettingsPanel() {
                   <AutoOpenToggle />
                 </Row>
               )}
-
               {isExtension && (
                 <Row
                   description={t("Click a picture on any page to view it here. Pictures that are links still open the link; Alt+click views them here.")}
@@ -447,7 +442,6 @@ export function SettingsPanel() {
                   <OpenOnClickToggle />
                 </Row>
               )}
-
               <Row description={t("Zoom used when an image is opened.")} title={t("Default zoom")}>
                 <Segments
                   k="defaultZoom"

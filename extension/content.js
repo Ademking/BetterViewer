@@ -264,15 +264,15 @@
 
   // Clicking a picture opens it in the overlay. Pictures that are links (or
   // inside buttons) keep working normally; Alt+click opens those too.
-  // On by default; the "openOnClick" setting switches it off.
-  let openOnClick = true;
+  // Off by default; switched on in Settings → Viewer.
+  let openOnClick = false;
   Promise.resolve(api.storage.local.get("openOnClick"))
     .then((items) => {
-      openOnClick = items?.openOnClick !== false;
+      openOnClick = items?.openOnClick === true;
     })
     .catch(() => {});
   api.storage.onChanged?.addListener((changes, area) => {
-    if (area === "local" && "openOnClick" in changes) openOnClick = changes.openOnClick.newValue !== false;
+    if (area === "local" && "openOnClick" in changes) openOnClick = changes.openOnClick.newValue === true;
   });
 
   document.addEventListener(
@@ -284,7 +284,8 @@
       if (e.button !== 0 || e.ctrlKey || e.metaKey || e.shiftKey) return;
       const img = e.target instanceof Element ? e.target.closest("img") : null;
       if (!img) return;
-      if (img.closest("a[href], button") && !e.altKey) return;
+      if (img.isContentEditable) return;
+      if (img.closest('a[href], button, label, [role="button"], [role="link"]') && !e.altKey) return;
       // Skip icons, spacers and tracking pixels (same rule as the gallery).
       const w = img.naturalWidth;
       const h = img.naturalHeight;
@@ -299,7 +300,6 @@
     },
     true
   );
-
 
   /* ---------------------------------------------------------------- image tabs */
 
