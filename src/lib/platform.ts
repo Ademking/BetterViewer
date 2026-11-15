@@ -60,6 +60,17 @@ export async function setAutoOpen(value: boolean) {
   await extensionApi?.storage.local.set({ autoOpen: value });
 }
 
+/** Clicking a picture on a page opens it in the overlay (default off). */
+export async function getOpenOnClick(): Promise<boolean> {
+  if (!extensionApi) return false;
+  const { openOnClick } = await extensionApi.storage.local.get("openOnClick");
+  return openOnClick === true;
+}
+
+export async function setOpenOnClick(value: boolean) {
+  await extensionApi?.storage.local.set({ openOnClick: value });
+}
+
 /** URL that shows the original image without being redirected back here. */
 export const originalUrl = (src: string) => {
   const u = new URL(src, location.href);
