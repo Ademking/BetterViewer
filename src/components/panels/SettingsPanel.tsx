@@ -10,7 +10,7 @@ import {
   Share2Icon,
   SunIcon,
 } from "lucide-react";
-import { getAutoOpen, isExtension, setAutoOpen } from "@/lib/platform";
+import { getAutoOpen, getOpenOnClick, isExtension, setAutoOpen, setOpenOnClick } from "@/lib/platform";
 import type React from "react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -96,6 +96,30 @@ function AutoOpenToggle() {
     />
   );
 }
+
+
+/** Extension only: read by the content script's click handler. */
+function OpenOnClickToggle() {
+  const t = useT();
+  const [value, setValue] = useState<boolean | null>(null);
+  useEffect(() => {
+    getOpenOnClick().then(setValue, () => setValue(true));
+  }, []);
+  return (
+    <Switch
+      aria-label={t("Open images on click")}
+      checked={value ?? true}
+      disabled={value === null}
+      onCheckedChange={(d) => {
+        setValue(d.checked);
+        void setOpenOnClick(d.checked);
+      }}
+    />
+  );
+}
+
+
+
 
 function Segments<K extends keyof Settings>({
   k,
@@ -414,6 +438,16 @@ export function SettingsPanel() {
                   <AutoOpenToggle />
                 </Row>
               )}
+
+              {isExtension && (
+                <Row
+                  description={t("Click a picture on any page to view it here. Pictures that are links still open the link; Alt+click views them here.")}
+                  title={t("Open images on click")}
+                >
+                  <OpenOnClickToggle />
+                </Row>
+              )}
+
               <Row description={t("Zoom used when an image is opened.")} title={t("Default zoom")}>
                 <Segments
                   k="defaultZoom"
