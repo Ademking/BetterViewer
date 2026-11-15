@@ -260,6 +260,47 @@
     sendResponse(true);
   });
 
+  /* ---------------------------------------------------------------- click to open */
+
+  // Clicking a picture opens it in the overlay. Pictures that are links (or
+  // inside buttons) keep working normally; Alt+click opens those too.
+  // On by default; the "openOnClick" setting switches it off.
+  let openOnClick = true;
+  Promise.resolve(api.storage.local.get("openOnClick"))
+    .then((items) => {
+      openOnClick = items?.openOnClick !== false;
+    })
+    .catch(() => {});
+  api.storage.onChanged?.addListener((changes, area) => {
+    if (area === "local" && "openOnClick" in changes) openOnClick = changes.openOnClick.newValue !== false;
+  });
+
+  document.addEventListener(
+    "click",
+    (e) => {
+      if (!openOnClick || overlay) return;
+      // Leave the browser's own image tab, and Ctrl/Shift/middle clicks, alone.
+      if ((document.contentType || "").startsWith("image/")) return;
+      if (e.button !== 0 || e.ctrlKey || e.metaKey || e.shiftKey) return;
+      const img = e.target instanceof Element ? e.target.closest("img") : null;
+      if (!img) return;
+      if (img.closest("a[href], button") && !e.altKey) return;
+      // Skip icons, spacers and tracking pixels (same rule as the gallery).
+      const w = img.naturalWidth;
+      const h = img.naturalHeight;
+      if (!w || w < 32 || h < 32 || w * h < 64 * 64) return;
+      let src = img.currentSrc || img.src;
+      if (img.srcset) src = largestInSrcset(img.srcset) ?? src;
+      src = absolute(src);
+      if (!src || isSvg(src)) return;
+      e.preventDefault();
+      e.stopPropagation();
+      openOverlay({ src });
+    },
+    true
+  );
+
+
   /* ---------------------------------------------------------------- image tabs */
 
   const type = (document.contentType || "").toLowerCase();
